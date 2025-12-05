@@ -72,18 +72,20 @@ function FaceLogs() {
     }
   }, [fetchedFaceLogsData]);
 
-  const handleTableChange = (pagination) => {
-    setPagination((prev) => ({
-      ...prev,
-      current: pagination.current,
-      pageSize: pagination.pageSize,
-    }));
+  const handleTableChange = (pagination, filters, sorter) => {
+    if (pagination) {
+      setPagination((prev) => ({
+        ...prev,
+        current: pagination.current,
+        pageSize: pagination.pageSize,
+      }));
 
-    setSearchParams({
-      page: pagination.current,
-      pageSize: pagination.pageSize,
-      search: searchValue || "",
-    });
+      setSearchParams({
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+        search: searchValue || "",
+      });
+    }
   };
 
   const onSearch = (value) => {
@@ -127,7 +129,6 @@ function FaceLogs() {
       title: "ID",
       dataIndex: "id",
       width: 80,
-      sorter: true,
       render: (_, record) => (
         <span className="table_id">
           <p>#{record?.id}</p>
@@ -138,7 +139,6 @@ function FaceLogs() {
       title: "To'liq ism",
       dataIndex: "fullname",
       minWidth: 200,
-      sorter: true,
       render: (_, record) => (
         <span className="table_name">
           <p>{record?.fullname || "Noma'lum"}</p>
@@ -149,7 +149,6 @@ function FaceLogs() {
       title: "Status",
       dataIndex: "status",
       width: 150,
-      sorter: true,
       render: (_, record) => (
         <Tag color={getStatusColor(record?.status)}>
           {getStatusText(record?.status)}
@@ -160,7 +159,6 @@ function FaceLogs() {
       title: "Qurilma IP",
       dataIndex: "deviceIp",
       width: 150,
-      sorter: true,
       render: (_, record) => (
         <span className="table_name">
           <p>{record?.deviceIp || "-"}</p>
@@ -171,7 +169,6 @@ function FaceLogs() {
       title: "Vaqt",
       dataIndex: "operatedAt",
       width: 200,
-      sorter: true,
       render: (_, record) => (
         <span className="table_name">
           <p>

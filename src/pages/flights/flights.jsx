@@ -170,7 +170,6 @@ function Flights() {
       title: "ID",
       dataIndex: "id",
       width: 80,
-      sorter: true,
       render: (_, record) => (
         <span className="table_id">
           <p>#{record?.id}</p>
@@ -181,7 +180,6 @@ function Flights() {
       title: "Poyezd raqami",
       dataIndex: "trainNumber",
       width: 150,
-      sorter: true,
       render: (_, record) => (
         <span className="table_flight_number">
           <p>{record?.trainNumber}</p>

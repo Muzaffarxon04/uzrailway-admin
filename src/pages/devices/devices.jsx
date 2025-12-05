@@ -141,7 +141,6 @@ function Devices() {
       title: "ID",
       dataIndex: "id",
       width: 80,
-      sorter: true,
       render: (_, record) => (
         <span className="table_id">
           <p>#{record?.id}</p>
@@ -152,7 +151,6 @@ function Devices() {
       title: "IP manzil",
       dataIndex: "ip",
       minWidth: 200,
-      sorter: true,
       render: (_, record) => (
         <span className="table_name">
           <p>{record?.ip}</p>
@@ -163,7 +161,6 @@ function Devices() {
       title: "Username",
       dataIndex: "username",
       minWidth: 200,
-      sorter: true,
       render: (_, record) => (
         <span className="table_name">
           <p>{record?.username}</p>
@@ -174,7 +171,6 @@ function Devices() {
       title: "Stansiya",
       dataIndex: "stationId",
       width: 150,
-      sorter: true,
       render: (_, record) => (
         <span className="table_name">
           <p>{record?.station?.name}</p>

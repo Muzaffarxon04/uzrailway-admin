@@ -141,7 +141,6 @@ function Stations() {
       title: "ID",
       dataIndex: "id",
       width: 80,
-      sorter: true,
       render: (_, record) => (
         <span className="table_id">
           <p>#{record?.id}</p>
@@ -152,7 +151,6 @@ function Stations() {
       title: "Stansiya nomi",
       dataIndex: "name",
       minWidth: 250,
-      sorter: true,
       render: (_, record) => (
         <span className="table_name">
           <p>{record?.name}</p>

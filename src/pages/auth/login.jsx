@@ -1,7 +1,7 @@
 import { Form, Button, message } from "antd";
 import { useState, useEffect } from "react";
 import PasswordInput from "../../components/inputs/passwordInput";
-import Logo from "../../assets/img/logo.png";
+import Logo from "../../assets/img/favicon.svg";
 // import { BASE_URL } from "../../consts/variables";
 import { useNavigate } from "react-router";
 import useUniversalFetch from "../../Hooks/useApi";

@@ -5,7 +5,6 @@ import {
   Table,
   Pagination,
   Breadcrumb,
-  Popover,
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -142,28 +141,29 @@ function Stations() {
       title: "ID",
       dataIndex: "id",
       width: 80,
+      sorter: true,
       render: (_, record) => (
         <span className="table_id">
-          <p>{record?.id}</p>
+          <p>#{record?.id}</p>
         </span>
       ),
     },
     {
       title: "Stansiya nomi",
       dataIndex: "name",
-      minWidth: 200,
+      minWidth: 250,
+      sorter: true,
       render: (_, record) => (
         <span className="table_name">
-          <Popover placement="bottom" content={record?.name}>
-            <p>{record?.name}</p>
-          </Popover>
+          <p>{record?.name}</p>
         </span>
       ),
     },
     {
-      title: "Amal",
+      title: "",
       dataIndex: "action",
-      width: 120,
+      width: 80,
+      align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
           <Icon

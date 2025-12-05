@@ -170,9 +170,10 @@ function Flights() {
       title: "ID",
       dataIndex: "id",
       width: 80,
+      sorter: true,
       render: (_, record) => (
         <span className="table_id">
-          <p>{record?.id}</p>
+          <p>#{record?.id}</p>
         </span>
       ),
     },
@@ -180,9 +181,10 @@ function Flights() {
       title: "Poyezd raqami",
       dataIndex: "trainNumber",
       width: 150,
+      sorter: true,
       render: (_, record) => (
         <span className="table_flight_number">
-          <p style={{ fontWeight: 600 }}>{record?.trainNumber}</p>
+          <p>{record?.trainNumber}</p>
         </span>
       ),
     },
@@ -257,9 +259,10 @@ function Flights() {
       ),
     },
     {
-      title: "Amal",
+      title: "",
       dataIndex: "action",
-      width: 120,
+      width: 80,
+      align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
           <Icon

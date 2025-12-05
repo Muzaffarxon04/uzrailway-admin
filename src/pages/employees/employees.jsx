@@ -5,7 +5,6 @@ import {
   Table,
   Pagination,
   Breadcrumb,
-  Popover,
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -142,28 +141,28 @@ function Employees() {
       title: "ID",
       dataIndex: "id",
       width: 80,
+      sorter: true,
       render: (_, record) => (
         <span className="table_id">
-          <p>{record?.id}</p>
+          <p>#{record?.id}</p>
         </span>
       ),
     },
     {
       title: "To'liq ism",
       dataIndex: "fullname",
-      minWidth: 200,
+      minWidth: 250,
+      sorter: true,
       render: (_, record) => (
         <span className="table_name">
-          <Popover placement="bottom" content={record?.fullname}>
-            <p>{record?.fullname}</p>
-          </Popover>
+          <p>{record?.fullname}</p>
         </span>
       ),
     },
     {
       title: "Telefon raqami",
       dataIndex: "phone",
-      width: 150,
+      width: 180,
       render: (_, record) => (
         <span className="table_phone_number">
           <a href={`tel:${record?.phone}`}>{record?.phone}</a>
@@ -171,9 +170,10 @@ function Employees() {
       ),
     },
     {
-      title: "Amal",
+      title: "",
       dataIndex: "action",
-      width: 120,
+      width: 80,
+      align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
           <Icon

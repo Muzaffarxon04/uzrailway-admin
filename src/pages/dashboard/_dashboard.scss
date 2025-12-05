@@ -1,0 +1,46 @@
+.dashboard-header {
+  margin-bottom: 32px;
+}
+.dashboard_content {
+  padding: 16px;
+  background-color: $white;
+}
+
+.dashboard-header h2 {
+  font-size: 28px;
+  margin-bottom: 8px;
+  color: #001529;
+}
+
+.dashboard-header p {
+  color: #6c757d;
+  font-size: 16px;
+}
+
+.stats-grid .stat-card,
+.charts-grid .chart-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease;
+  background-color: #ffffff;
+}
+
+.stat-card:hover,
+.chart-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-card .ant-statistic-title {
+  font-weight: 500;
+  color: #595959;
+}
+
+.stat-card .ant-statistic-content {
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
+}
+
+.charts-grid {
+  margin-top: 32px;
+}

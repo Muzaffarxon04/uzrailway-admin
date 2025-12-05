@@ -1,0 +1,162 @@
+// Ant input styles
+
+.single_input_item {
+  //   height: 48px;
+  position: relative;
+  height: fit-content;
+
+.single_select{
+  height: 48px !important;
+}
+
+
+  .label {
+    position: absolute;
+    z-index: 2;
+    font-size: 16px;
+    color: #7d7d83;
+    margin: 0;
+    top: 12px;
+    left: 12px;
+    transition: all 0.3s ease;
+    pointer-events: none;
+  }
+
+  .input_datepicker_label{
+
+   top: 5px;
+    font-size: 12px;
+
+}
+
+  #prefix_true {
+    left: 36px;
+  }
+  .input_icon {
+    color: $secondary_text !important;
+  }
+  .label_active {
+    top: 5px;
+    font-size: 12px;
+  }
+  .ant-input {
+    height: 48px;
+    border-radius: 16px;
+    padding-top: 22px;
+  }
+  .ant-input-disabled {
+    color: #535353;
+  }
+  .ant-picker {
+    height: 48px;
+    padding-top: 20px;
+    width: 100%;
+    .ant-picker-suffix {
+      margin-bottom: 14px !important;
+    }
+    .ant-picker-clear {
+      top: 11px;
+    }
+  }
+  .PhoneInput {
+    :disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+    }
+  }
+  .ant-input-affix-wrapper {
+    height: 48px;
+    border-radius: 16px;
+
+    .ant-input {
+      height: 38px;
+      border-radius: 8px;
+      padding-top: 14px;
+      font-size: 14px;
+    }
+  }
+
+  .PhoneInput {
+    // border: 1px solid red;
+    height: 48px;
+    border: none !important;
+    input {
+      border-radius: 16px;
+      height: 48px !important;
+      outline: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      border: 1px solid #d9d9d9;
+      padding-left: 11px;
+      padding-right: 11px;
+      box-sizing: border-box;
+      font-size: 14px;
+      font-weight: 400;
+      transition: all 0.3s ease;
+      padding-top: 16px;
+      margin: 0 !important;
+      &::placeholder {
+        color: #bfbfbf;
+      }
+      &[status="error"] {
+        border: 1px solid #ff4d4f;
+      }
+
+      &:focus {
+        border-color: $primary;
+        box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+      }
+    }
+    .PhoneInputCountry {
+      display: none;
+    }
+    .PhoneInput--focus {
+      border: 1px solid none !important;
+    }
+  }
+}
+
+.password_input {
+  .ant-input-affix-wrapper {
+    height: 48px !important;
+    // padding-top: 7px;
+    font-size: 14px;
+    font-weight: 400;
+  }
+}
+
+.otp_input {
+  .ant-form-item-control-input-content {
+    height: 48px;
+    .ant-otp {
+      width: 100%;
+      height: 100%;
+      .ant-input {
+        height: 100%;
+        border-radius: 12px;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+.ant-form-item-has-error .PhoneInput input {
+  border-color: #ff4d4f;
+}
+
+.ant-form-item-explain-error {
+  position: relative;
+  height: fit-content !important;
+}
+
+.ant-form-item {
+  margin: 0;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

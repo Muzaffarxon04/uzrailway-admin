@@ -1,0 +1,233 @@
+.partner_action {
+  height: 100%;
+  display: grid;
+  .action_wrapper {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    .action_form {
+      width: 100%;
+      height: 100% !important;
+    }
+    .action_item {
+      border-radius: 16px;
+      background-color: $white;
+      overflow: auto;
+      max-height: calc(100vh - 185px);
+      /* WebKit (Chrome, Safari, Edge) */
+      &::-webkit-scrollbar {
+        width: 3px;
+        height: 6px;
+        padding-bottom: 15px;
+        display: none;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.3);
+        border-radius: 10px;
+        transition: $smooth;
+        margin: 2px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.5);
+        transition: $smooth;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: transparent;
+        border-radius: 10px;
+      }
+
+      .item_wrapper {
+        padding: 16px;
+        .item_title {
+          font-weight: 600;
+          font-size: 20px;
+          color: $primary_black;
+          padding: 0px 0px 16px 0px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .form_items {
+          .socila_links {
+            font-size: 15px;
+            font-weight: 500;
+            padding: 16px 0px 12px 0px;
+            span {
+              font-size: 12px;
+              color: $secondary_text;
+              font-weight: 400;
+            }
+          }
+          .area_label {
+            font-size: 15px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            span {
+              font-size: 12px;
+              color: $secondary_text;
+              font-weight: 400;
+            }
+          }
+          .input_item {
+            margin-bottom: 8px;
+          }
+        }
+
+        .drag_area {
+          width: 128px;
+          height: 128px;
+          margin-top: 8px;
+          margin-right: auto;
+          margin-left: auto;
+
+          .upload_file {
+            width: 128px;
+            height: 128px;
+            .ant-upload {
+              height: 128px;
+            }
+          }
+
+          .anticon-plus {
+            width: 24px;
+            height: 24px;
+            svg {
+              height: 100%;
+              width: 100%;
+              path {
+                color: $secondary_text;
+              }
+            }
+          }
+        }
+        .area_info {
+          font-size: 12px;
+          color: $secondary_text;
+          font-weight: 400;
+          padding: 8px 0px;
+          display: flex;
+
+          span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+          }
+          .small_icon {
+            width: 16px !important;
+            height: 16px !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+.footer_wrapper {
+  padding: 16px;
+  .footer_buttons {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    gap: 24px;
+    .ant-btn {
+      height: 40px;
+      font-weight: 600;
+    }
+    .delete_btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      span {
+        font-size: 15px;
+        font-weight: 600;
+        color: $danger;
+      }
+      .icon {
+        color: $danger !important;
+      }
+    }
+  }
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  height: fit-content;
+  ol {
+    display: flex;
+    align-items: center;
+  }
+  .icon {
+    display: flex !important;
+  }
+}
+
+.partner_inner {
+  .action_wrapper {
+    grid-template-columns: 1fr 1fr;
+    .action_item {
+      max-height: calc(100vh - 113px);
+      // .item_wrapper {
+        // max-width: 340px;
+      // }
+    }
+  }
+}
+.danger {
+  display: flex;
+  color: $danger;
+}
+
+.modal_footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: 15px;
+  .ant-btn {
+    height: 40px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .custom-delete-btn {
+    background-color: $danger;
+    color: $white;
+  }
+}
+
+.change_pass_description {
+  margin-bottom: 16px;
+  font-weight: 400;
+  font-size: 14px;
+  color: $secondary_text;
+}
+.change_pass_form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.change_pass_btn {
+  margin-top: 16px;
+  height: 40px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.change_pass_btn_wrapper {
+  display: flex;
+  justify-content: end;
+  .ant-btn {
+    padding: 7px;
+    font-size: 14px;
+    font-weight: 500;
+    color: $white;
+    border-radius: 6px;
+    background-color: $danger;
+  }
+}

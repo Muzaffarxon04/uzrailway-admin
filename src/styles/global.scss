@@ -1,0 +1,110 @@
+@import "../components/layout/layout";
+@import "../pages/auth/auth";
+@import "../pages/dashboard/dashboard";
+@import "../components/inputs/inputs";
+@import "../pages/admins/admins";
+@import "../pages/admins/action/admins_action";
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+
+* {
+  font-family: "Inter", sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.container {
+  max-width: 1200px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.loader {
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  // top: 0px;
+  transition: all 0.3s ease;
+  left: 0px;
+  bottom: 0;
+  height: 100%;
+  width: 100%;
+  background-color: rgb(255, 255, 255, 0.5);
+  pointer-events: none;
+  border-radius: 16px;
+
+  .ant-spin {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    .anticon {
+      position: static;
+    }
+  }
+}
+
+.page {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  .header {
+    border-radius: 12px;
+    background-color: $white;
+    padding: 16px;
+    h2 {
+      margin: 0;
+      font-weight: 700;
+      font-size: 24px;
+      color: $primary_black;
+    }
+    p {
+      margin-top: 4px;
+      font-weight: 400;
+      font-size: 16px;
+      color: $secondary_text;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+  .main {
+    background-color: $white;
+    border-radius: 12px;
+    height: 100%;
+  }
+  .dashboard_main {
+    height: 100%;
+    border-radius: 12px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    gap: 8px;
+    .item {
+      width: 100%;
+      border-radius: 12px;
+    }
+  }
+  .footer {
+    height: 72px;
+    border-radius: 12px;
+    background-color: $white;
+  }
+}
+
+.page {
+  transition: $smooth;
+}
+
+.ant-modal {
+  overflow: hidden;
+  border-radius: 24px !important;
+}

@@ -6,6 +6,7 @@ import React, {
 import { Button, Layout, Menu, Modal, Select,
   //  Switch
    } from "antd";
+import { LaptopOutlined, BankOutlined } from "@ant-design/icons";
 import { useNavigate, Outlet, useLocation,
   //  useSearchParams 
 
@@ -67,19 +68,19 @@ const LayoutComponent = ({ children }) => {
     },
     {
       key: "/flights",
-      icon: <Icon icon="ic_reports" />,
+      icon: <Icon icon="ic_order_list" />,
       label: `${t("Pages").flights}`,
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
       key: "/stations",
-      icon: <Icon icon="ic_reports" />,
+      icon: <BankOutlined />,
       label: `${t("Pages").stations}`,
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
       key: "/devices",
-      icon: <Icon icon="ic_reports" />,
+      icon: <LaptopOutlined />,
       label: "Qurilmalar",
       accessRoles:["showroom_admin", "dispatcher"]
     },

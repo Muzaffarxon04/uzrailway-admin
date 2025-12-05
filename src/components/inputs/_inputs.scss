@@ -7,6 +7,67 @@
 
 .single_select{
   height: 48px !important;
+  
+  .ant-select-selector {
+    height: 48px !important;
+    border-radius: 12px !important;
+    border: 1.5px solid $secondary_border !important;
+    transition: all 0.3s ease !important;
+    background: $white !important;
+    padding-top: 22px !important;
+    
+    &:hover {
+      border-color: rgba(212, 175, 55, 0.5) !important;
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1) !important;
+    }
+    
+    .ant-select-selection-item {
+      line-height: 48px !important;
+      padding-top: 0 !important;
+    }
+    
+    .ant-select-selection-placeholder {
+      line-height: 48px !important;
+      padding-top: 0 !important;
+    }
+  }
+  
+  &.ant-select-focused {
+    .ant-select-selector {
+      border-color: $primary !important;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15) !important;
+    }
+  }
+  
+  &.ant-select-open {
+    .ant-select-selector {
+      border-color: $primary !important;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15) !important;
+    }
+  }
+}
+
+.ant-select-dropdown {
+  border-radius: 12px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  padding: 8px !important;
+  
+  .ant-select-item {
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+    margin-bottom: 4px !important;
+    
+    &:hover {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.05) 100%) !important;
+    }
+    
+    &.ant-select-item-option-selected {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(212, 175, 55, 0.1) 100%) !important;
+      font-weight: 600 !important;
+      color: $primary_black !important;
+    }
+  }
 }
 
 
@@ -41,8 +102,22 @@
   }
   .ant-input {
     height: 48px;
-    border-radius: 16px;
+    border-radius: 12px;
     padding-top: 22px;
+    border: 1.5px solid $secondary_border;
+    transition: all 0.3s ease;
+    background: $white;
+    
+    &:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
+    }
+    
+    &:focus {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+      background: $white;
+    }
   }
   .ant-input-disabled {
     color: #535353;
@@ -51,8 +126,24 @@
     height: 48px;
     padding-top: 20px;
     width: 100%;
+    border-radius: 12px;
+    border: 1.5px solid $secondary_border;
+    transition: all 0.3s ease;
+    background: $white;
+    
+    &:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
+    }
+    
+    &.ant-picker-focused {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
+    
     .ant-picker-suffix {
       margin-bottom: 14px !important;
+      color: $primary;
     }
     .ant-picker-clear {
       top: 11px;
@@ -66,13 +157,33 @@
   }
   .ant-input-affix-wrapper {
     height: 48px;
-    border-radius: 16px;
+    border-radius: 12px;
+    border: 1.5px solid $secondary_border;
+    transition: all 0.3s ease;
+    background: $white;
+    
+    &:hover {
+      border-color: rgba(212, 175, 55, 0.5);
+      box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
+    }
+    
+    &:focus-within {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+    }
 
     .ant-input {
       height: 38px;
       border-radius: 8px;
       padding-top: 14px;
       font-size: 14px;
+      border: none;
+      box-shadow: none;
+      
+      &:hover, &:focus {
+        border: none;
+        box-shadow: none;
+      }
     }
   }
 
@@ -88,7 +199,7 @@
       top: 0;
       left: 0;
       width: 100%;
-      border: 1px solid #d9d9d9;
+      border: 1.5px solid $secondary_border;
       padding-left: 11px;
       padding-right: 11px;
       box-sizing: border-box;
@@ -97,16 +208,26 @@
       transition: all 0.3s ease;
       padding-top: 16px;
       margin: 0 !important;
+      background: $white;
+      
       &::placeholder {
         color: #bfbfbf;
       }
+      
       &[status="error"] {
-        border: 1px solid #ff4d4f;
+        border-color: $danger;
+        box-shadow: 0 0 0 3px rgba(248, 65, 87, 0.15);
       }
 
+      &:hover {
+        border-color: rgba(212, 175, 55, 0.5);
+        box-shadow: 0 2px 8px rgba(212, 175, 55, 0.1);
+      }
+      
       &:focus {
         border-color: $primary;
-        box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.1);
+        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        background: $white;
       }
     }
     .PhoneInputCountry {

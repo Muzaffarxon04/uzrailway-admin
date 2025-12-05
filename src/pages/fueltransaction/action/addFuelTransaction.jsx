@@ -353,39 +353,37 @@ form={form}
 </div>
 
                   </div>
+                  
+                  {!isInner && (
+                    <div className="form_actions">
+                      <div className="footer_buttons">
+                        {/* {is_edit && (
+                          <div
+                            className="delete_btn"
+                            onClick={() => setModalVisible(true)}
+                          >
+                            <Icon icon="ic_trash" />
+                            <span>Delete partner</span>
+                          </div>
+                        )} */}
+                        <Button
+                          loading={isPatnerCreateLoading}
+                          onClick={() => form.submit()}
+                          type="primary"
+                        >
+                          {is_edit
+                            ? t("Partner_infos").save_partner
+                            : t("Partner_infos")?.add_fuel_transaction}
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
            
             </div>
           </Form>
         </div>
-
-        {!isInner && (
-          <div className="footer">
-            <div className="footer_wrapper">
-              <div className="footer_buttons">
-                {/* {is_edit && (
-                  <div
-                    className="delete_btn"
-                    onClick={() => setModalVisible(true)}
-                  >
-                    <Icon icon="ic_trash" />
-                    <span>Delete partner</span>
-                  </div>
-                )} */}
-                <Button
-                  loading={isPatnerCreateLoading}
-                  onClick={() => form.submit()}
-                  type="primary"
-                >
-                  {is_edit
-                    ? t("Partner_infos").save_partner
-                    : t("Partner_infos")?.add_fuel_transaction}
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </section>
     </>
   );

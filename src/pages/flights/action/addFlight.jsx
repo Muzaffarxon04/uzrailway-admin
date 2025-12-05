@@ -344,102 +344,100 @@ function AddFlight() {
                           ]}
                         />
                       </div>
-
-                      <div className="input_item" style={{ width: "100%" }}>
-                        <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>Xodimlar</h4>
-                        <Form.List name="staff">
-                          {(fields, { add, remove }) => (
-                            <>
-                              {fields.map(({ key, name, ...restField }) => (
-                                <div key={key} style={{ 
-                                  display: "flex", 
-                                  gap: 16, 
-                                  marginBottom: 16,
-                                  alignItems: "flex-start",
-                                  padding: 16,
-                                  border: "1px solid #e0e0e4",
-                                  borderRadius: 8,
-                                  backgroundColor: "#f8f8f8"
-                                }}>
-                                  <div style={{ flex: 1 }}>
-                                    <CustomSelect
-                                      label="Xodim"
-                                      name={[name, "employeeId"]}
-                                      form={form}
-                                      rules={[
-                                        {
-                                          required: true,
-                                          message: "Xodim tanlanishi shart",
-                                        },
-                                      ]}
-                                      options={Array.isArray(employees) ? employees.map((employee) => ({
-                                        label: employee.fullname,
-                                        value: employee.id,
-                                      })) : []}
-                                      loading={isEmployeesLoading}
-                                    />
-                                  </div>
-                                  <div style={{ flex: 1 }}>
-                                    <CustomSelect
-                                      label="Rol"
-                                      name={[name, "role"]}
-                                      form={form}
-                                      rules={[
-                                        {
-                                          required: true,
-                                          message: "Rol tanlanishi shart",
-                                        },
-                                      ]}
-                                      options={[
-                                        { label: "Poyezd boshlig'i", value: "train_chief" },
-                                        { label: "Vagon nazoratchisi", value: "wagon_supervisor" },
-                                      ]}
-                                    />
-                                  </div>
-                                  <Button
-                                    type="text"
-                                    danger
-                                    icon={<DeleteOutlined />}
-                                    onClick={() => remove(name)}
-                                    style={{ marginTop: 32 }}
-                                  >
-                                    O'chirish
-                                  </Button>
-                                </div>
-                              ))}
+                    </div>
+                  </div>
+                  
+                  <div className="staff_section" style={{ width: "100%", marginTop: 24 }}>
+                    <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>Xodimlar</h4>
+                    <Form.List name="staff">
+                      {(fields, { add, remove }) => (
+                        <>
+                          {fields.map(({ key, name, ...restField }) => (
+                            <div key={key} style={{ 
+                              display: "flex", 
+                              gap: 16, 
+                              marginBottom: 16,
+                              alignItems: "flex-start",
+                              padding: 16,
+                              border: "1px solid #e0e0e4",
+                              borderRadius: 8,
+                              backgroundColor: "#f8f8f8"
+                            }}>
+                              <div style={{ flex: 1 }}>
+                                <CustomSelect
+                                  label="Xodim"
+                                  name={[name, "employeeId"]}
+                                  form={form}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Xodim tanlanishi shart",
+                                    },
+                                  ]}
+                                  options={Array.isArray(employees) ? employees.map((employee) => ({
+                                    label: employee.fullname,
+                                    value: employee.id,
+                                  })) : []}
+                                  loading={isEmployeesLoading}
+                                />
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <CustomSelect
+                                  label="Rol"
+                                  name={[name, "role"]}
+                                  form={form}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Rol tanlanishi shart",
+                                    },
+                                  ]}
+                                  options={[
+                                    { label: "Poyezd boshlig'i", value: "train_chief" },
+                                    { label: "Vagon nazoratchisi", value: "wagon_supervisor" },
+                                  ]}
+                                />
+                              </div>
                               <Button
-                                type="dashed"
-                                onClick={() => add()}
-                                block
-                                icon={<PlusOutlined />}
-                                style={{ marginTop: 8 }}
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => remove(name)}
+                                style={{ marginTop: 32 }}
                               >
-                                Xodim qo'shish
+                                O'chirish
                               </Button>
-                            </>
-                          )}
-                        </Form.List>
-                      </div>
+                            </div>
+                          ))}
+                          <Button
+                            type="dashed"
+                            onClick={() => add()}
+                            block
+                            icon={<PlusOutlined />}
+                            style={{ marginTop: 8 }}
+                          >
+                            Xodim qo'shish
+                          </Button>
+                        </>
+                      )}
+                    </Form.List>
+                  </div>
+                  
+                  <div className="form_actions">
+                    <div className="footer_buttons">
+                      <Button
+                        loading={isFlightCreateLoading}
+                        onClick={() => form.submit()}
+                        type="primary"
+                      >
+                        {is_edit ? "Saqlash" : "Qo'shish"}
+                      </Button>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </Form>
-        </div>
-
-        <div className="footer">
-          <div className="footer_wrapper">
-            <div className="footer_buttons">
-              <Button
-                loading={isFlightCreateLoading}
-                onClick={() => form.submit()}
-                type="primary"
-              >
-                {is_edit ? "Saqlash" : "Qo'shish"}
-              </Button>
-            </div>
-          </div>
         </div>
       </section>
     </>

@@ -186,24 +186,22 @@ function AddStation() {
                       </div>
                     </div>
                   </div>
+                  
+                  <div className="form_actions">
+                    <div className="footer_buttons">
+                      <Button
+                        loading={isStationCreateLoading}
+                        onClick={() => form.submit()}
+                        type="primary"
+                      >
+                        {is_edit ? "Saqlash" : "Qo'shish"}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </Form>
-        </div>
-
-        <div className="footer">
-          <div className="footer_wrapper">
-            <div className="footer_buttons">
-              <Button
-                loading={isStationCreateLoading}
-                onClick={() => form.submit()}
-                type="primary"
-              >
-                {is_edit ? "Saqlash" : "Qo'shish"}
-              </Button>
-            </div>
-          </div>
         </div>
       </section>
     </>

@@ -4,22 +4,58 @@
 }
 .partners {
   .header {
+    background: linear-gradient(135deg, $white 0%, rgba(248, 248, 248, 0.6) 100%);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.1);
+    position: relative;
+    overflow: hidden;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, $primary 0%, rgba(212, 175, 55, 0.6) 100%);
+    }
+    
     .header_wrapper {
       display: flex;
       justify-content: space-between;
       .page_info {
+        position: relative;
+        z-index: 1;
+        
         h2 {
           margin: 0;
           font-weight: 700;
-          font-size: 24px;
-          color: $primary_black;
+          font-size: 28px;
+          background: linear-gradient(135deg, $primary_black 0%, rgba(19, 19, 20, 0.8) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          position: relative;
+          padding-bottom: 8px;
+          
+          &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: linear-gradient(90deg, $primary 0%, rgba(212, 175, 55, 0.3) 100%);
+            border-radius: 2px;
+          }
         }
         span {
           display: flex;
-          margin-top: 4px;
+          margin-top: 12px;
           font-weight: 400;
-          font-size: 16px;
+          font-size: 15px;
           color: $secondary_text;
+          transition: all 0.2s ease;
         }
       }
       .filter {

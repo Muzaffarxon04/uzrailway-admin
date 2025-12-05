@@ -2,6 +2,7 @@ import { Form, Button, message } from "antd";
 import { useState, useEffect } from "react";
 import PasswordInput from "../../components/inputs/passwordInput";
 import Logo from "../../assets/img/favicon.svg";
+import Illustration from "../../assets/img/ilustration.png";
 // import { BASE_URL } from "../../consts/variables";
 import { useNavigate } from "react-router";
 import useUniversalFetch from "../../Hooks/useApi";
@@ -79,57 +80,64 @@ function Login() {
     <section className="login">
       {contextHolder}
       <div className="login_wrapper">
-        <div className="login_form">
-          <div className="logo">
-            <div className="logo_wrapper">
-              <img src={Logo} alt="logo" />
-            </div>
+        <div className="login_left">
+          <div className="illustration_container">
+            <img src={Illustration} alt="illustration" className="illustration_img" />
           </div>
-          <div className="otp_login_wrapper">
-            <div className={`login_form_wrapper`}>
-              <Form
-                name="normal_login"
-                className="login-form"
-                initialValues={{ remember: true }}
-                onFinish={onFinish}
-              >
-                <div className="inputs_wrapper">
-                  <CustomInput
-                    status={status}
-                    label={t("Common").login}
-                    name="login"
-                    rules={[
-                      {
-                        required: true,
-                        message: `${t("Common").login_re}`,
-                      },
-                    ]}
-                  />
-                  <PasswordInput
-                    label={t("Common").password}
-                    name="password"
-                    type="password"
-                    status={status}
-                    rules={[
-                      {
-                        required: true,
-                        message: `${t("Common").password_re}`,
-                      },
-                    ]}
-                  />
-                </div>
+        </div>
+        <div className="login_right">
+          <div className="login_form">
+            <div className="logo">
+              <div className="logo_wrapper">
+                <img src={Logo} alt="logo" />
+              </div>
+            </div>
+            <div className="otp_login_wrapper">
+              <div className={`login_form_wrapper`}>
+                <Form
+                  name="normal_login"
+                  className="login-form"
+                  initialValues={{ remember: true }}
+                  onFinish={onFinish}
+                >
+                  <div className="inputs_wrapper">
+                    <CustomInput
+                      status={status}
+                      label={t("Common").login}
+                      name="login"
+                      rules={[
+                        {
+                          required: true,
+                          message: `${t("Common").login_re}`,
+                        },
+                      ]}
+                    />
+                    <PasswordInput
+                      label={t("Common").password}
+                      name="password"
+                      type="password"
+                      status={status}
+                      rules={[
+                        {
+                          required: true,
+                          message: `${t("Common").password_re}`,
+                        },
+                      ]}
+                    />
+                  </div>
 
-                <Form.Item>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    className="login_form_button"
-                    loading={isHandleSignInConfirmLoading}
-                  >
-                    {t("Common").continue}
-                  </Button>
-                </Form.Item>
-              </Form>
+                  <Form.Item>
+                    <Button
+                      type="primary"
+                      htmlType="submit"
+                      className="login_form_button"
+                      loading={isHandleSignInConfirmLoading}
+                    >
+                      {t("Common").continue}
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </div>
             </div>
           </div>
         </div>

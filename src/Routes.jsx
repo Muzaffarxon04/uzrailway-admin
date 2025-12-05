@@ -19,6 +19,8 @@ import AddFlight from "./pages/flights/action/addFlight";
 import Stations from "./pages/stations/stations";
 import AddStation from "./pages/stations/action/addStation";
 import FlightDetail from "./pages/flights/detail/flightDetail";
+import Devices from "./pages/devices/devices";
+import AddDevice from "./pages/devices/action/addDevice";
 
 function RoutesComponent() {
   return (
@@ -168,6 +170,22 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <AddStation />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/devices"
+        element={
+          <PrivateRoute>
+            <Devices />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/devices/:id"
+        element={
+          <PrivateRoute>
+            <AddDevice />
           </PrivateRoute>
         }
       />

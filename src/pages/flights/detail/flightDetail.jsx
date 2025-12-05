@@ -52,7 +52,7 @@ function FlightDetail() {
       width: 150,
       render: (_, record) => (
         <span>
-          {record?.employee?.phone || "-"}
+         <a href={`tel:${record?.employee?.phone}`}>{record?.employee?.phone}</a>
         </span>
       ),
     },
@@ -162,12 +162,12 @@ function FlightDetail() {
 
           <Descriptions.Item label="Ketish sanasi">
             {flight?.departureDate 
-              ? dayjs(flight.departureDate).format("DD.MM.YYYY HH:mm") 
+              ? dayjs(flight.departureDate).format("DD.MM.YYYY") 
               : "-"}
           </Descriptions.Item>
           <Descriptions.Item label="Kelish sanasi">
             {flight?.arrivalDate 
-              ? dayjs(flight.arrivalDate).format("DD.MM.YYYY HH:mm") 
+              ? dayjs(flight.arrivalDate).format("DD.MM.YYYY") 
               : "-"}
           </Descriptions.Item>
         </Descriptions>

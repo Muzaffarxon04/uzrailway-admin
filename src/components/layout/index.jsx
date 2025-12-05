@@ -84,6 +84,12 @@ const LayoutComponent = ({ children }) => {
       label: "Qurilmalar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
+    {
+      key: "/facelogs",
+      icon: <Icon icon="ic_users" />,
+      label: "Keldi-ketdilar",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
     // {
     //   key: "/fueltransaction",
     //   icon: <Icon icon="fuel_transaction" />,

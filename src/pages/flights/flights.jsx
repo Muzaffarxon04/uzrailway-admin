@@ -8,8 +8,9 @@ import {
   Popover,
   Tag,
 } from "antd";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import Icon from "../../components/Icon";
+import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 
 // Mock data for flights (trains)
 const mockFlights = [
@@ -121,6 +122,7 @@ const mockFlights = [
 
 function Flights() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 10;
@@ -132,13 +134,25 @@ function Flights() {
     total: mockFlights.length,
   });
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentFlight, setCurrentFlight] = useState(null);
+  const [flights, setFlights] = useState(mockFlights);
+
   // Filter flights based on search
-  const filteredFlights = mockFlights.filter((flight) =>
+  const filteredFlights = flights.filter((flight) =>
     flight.flight_number.toLowerCase().includes(searchValue.toLowerCase()) ||
     flight.route.toLowerCase().includes(searchValue.toLowerCase()) ||
     flight.driver.toLowerCase().includes(searchValue.toLowerCase()) ||
     flight.locomotive_number.toLowerCase().includes(searchValue.toLowerCase())
   );
+
+  const handleDelete = () => {
+    if (currentFlight) {
+      setFlights(flights.filter((flight) => flight.id !== currentFlight));
+      setModalVisible(false);
+      setCurrentFlight(null);
+    }
+  };
 
   // Paginate filtered results
   const paginatedFlights = filteredFlights.slice(
@@ -304,7 +318,7 @@ function Flights() {
             className="icon edit"
             onClick={(e) => {
               e.stopPropagation();
-              // Navigate to edit page
+              navigate(`/flights/${record.id}`);
             }}
           />
           <Icon
@@ -312,7 +326,8 @@ function Flights() {
             className="icon trash"
             onClick={(e) => {
               e.stopPropagation();
-              // Delete logic
+              setModalVisible(true);
+              setCurrentFlight(record.id);
             }}
           />
         </span>
@@ -344,7 +359,9 @@ function Flights() {
             </span>
           </div>
           <div className="filter">
-            <Button type="primary">Reys qo'shish</Button>
+            <Link to="/flights/add">
+              <Button type="primary">Reys qo'shish</Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -387,6 +404,14 @@ function Flights() {
           onChange={handlePaginationChange}
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ sahifa` }}
+        />
+        <DeleteConfirmModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onConfirm={handleDelete}
+          title="Reysni o'chirish?"
+          message="Bu reysni o'chirmoqchimisiz?"
+          dangerMessage="Barcha reys ma'lumotlari qayta tiklanmaydi."
         />
       </div>
     </section>

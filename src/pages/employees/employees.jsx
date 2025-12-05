@@ -237,7 +237,7 @@ function Employees() {
             className="icon edit"
             onClick={(e) => {
               e.stopPropagation();
-              // Navigate to edit page
+              navigate(`/employees/${record.id}`);
             }}
           />
           <Icon
@@ -245,7 +245,8 @@ function Employees() {
             className="icon trash"
             onClick={(e) => {
               e.stopPropagation();
-              // Delete logic
+              setModalVisible(true);
+              setCurrentEmployee(record.id);
             }}
           />
         </span>
@@ -277,7 +278,9 @@ function Employees() {
             </span>
           </div>
           <div className="filter">
-            <Button type="primary">Xodim qo'shish</Button>
+            <Link to="/employees/add">
+              <Button type="primary">Xodim qo'shish</Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -320,6 +323,14 @@ function Employees() {
           onChange={handlePaginationChange}
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ sahifa` }}
+        />
+        <DeleteConfirmModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          onConfirm={handleDelete}
+          title="Xodimni o'chirish?"
+          message="Bu xodimni o'chirmoqchimisiz?"
+          dangerMessage="Barcha xodim ma'lumotlari qayta tiklanmaydi."
         />
       </div>
     </section>

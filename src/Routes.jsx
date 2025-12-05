@@ -14,6 +14,8 @@ import Reports from "./pages/reports/reports";
 import ReportsInner from "./pages/reports/reportsInner";
 import Employees from "./pages/employees/employees";
 import Flights from "./pages/flights/flights";
+import AddEmployee from "./pages/employees/action/addEmployee";
+import AddFlight from "./pages/flights/action/addFlight";
 
 function RoutesComponent() {
   return (
@@ -123,6 +125,22 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <Flights />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/employees/:id"
+        element={
+          <PrivateRoute>
+            <AddEmployee />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/flights/:id"
+        element={
+          <PrivateRoute>
+            <AddFlight />
           </PrivateRoute>
         }
       />

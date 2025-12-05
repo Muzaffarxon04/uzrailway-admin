@@ -14,11 +14,27 @@ const CustomInput = ({
   const [isFilled, setIsFilled] = useState(false);
 
   useEffect(() => {
-    if (form?.getFieldValue(name) && isEdit) {
-      setIsFilled(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form?.getFieldValue(name), isEdit]);
+    // Check value after form is initialized
+    const checkValue = () => {
+      const currentValue = form?.getFieldValue(name);
+      const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== "";
+      if (hasValue || defaultValue) {
+        setIsFilled(true);
+      } else {
+        setIsFilled(false);
+      }
+    };
+    
+    checkValue();
+    
+    // Also check when form values change
+    const timer = setTimeout(() => {
+      checkValue();
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, name, defaultValue, isEdit, value]);
 
   const handleBlur = (e) => {
     const inputValue = e.target.value;

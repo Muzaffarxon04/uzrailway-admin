@@ -1,5 +1,4 @@
 import { Form, Button, Spin, Breadcrumb } from "antd";
-import PhoneNumberInput from "../../../components/inputs/phoneInput";
 import CustomInput from "../../../components/inputs/customInput";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -10,7 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../components/notification";
 import { useLocalization } from "../../../LocalizationContext";
 
-function AddEmployee() {
+function AddStation() {
   const [form] = Form.useForm();
   const { t } = useLocalization();
   const { useFetchMutation, useFetchQuery } = useUniversalFetch();
@@ -24,83 +23,77 @@ function AddEmployee() {
   const navigate = useNavigate();
 
   const {
-    data: employeeData,
-    isPending: isEmployeeLoading,
-    isSuccess: isSuccessEmployeeData,
+    data: stationData,
+    isPending: isStationLoading,
+    isSuccess: isSuccessStationData,
     refetch: refetchData,
   } = useFetchQuery({
-    url: `${BASE_URL}/employee`,
-    queryKey: [`employee`, id],
+    url: `${BASE_URL}/station`,
+    queryKey: [`station`, id],
     id: is_edit ? id : undefined,
     config: {
       queryOptions: {
         enabled: is_edit,
-        queryKey: [`employee`, id],
+        queryKey: [`station`, id],
       },
     },
     token: accessToken,
   });
 
-  const employee = employeeData?.data || employeeData || {};
+  const station = stationData?.data || stationData || {};
 
   const {
-    mutate: CreateEmployee,
-    isPending: isEmployeeCreateLoading,
-    isSuccess: isSuccessEmployeeCreated,
-    data: employeeCreateData,
-    isError: isEmployeeCreateError,
-    error: employeeCreateError,
+    mutate: CreateStation,
+    isPending: isStationCreateLoading,
+    isSuccess: isSuccessStationCreated,
+    data: stationCreateData,
+    isError: isStationCreateError,
+    error: stationCreateError,
   } = useFetchMutation({
-    url: is_edit ? `${BASE_URL}/employee/${id}` : `${BASE_URL}/employee`,
-    invalidateKey: ["employees"],
+    url: is_edit ? `${BASE_URL}/station/${id}` : `${BASE_URL}/station`,
+    invalidateKey: ["stations"],
     method: is_edit ? "PATCH" : "POST",
     token: accessToken,
   });
 
   useEffect(() => {
-    if (is_edit && employee) {
+    if (is_edit && station) {
       form.setFieldsValue({
-        fullname: employee.fullname,
-        phone: employee.phone,
+        name: station.name,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employee, is_edit]);
+  }, [station, is_edit]);
 
   const onFinish = (values) => {
     const body = {
-      fullname: values.fullname,
-      phone: values.phone,
+      name: values.name,
     };
-    CreateEmployee(body);
+    CreateStation(body);
   };
 
   useEffect(() => {
-    if (isSuccessEmployeeCreated) {
+    if (isSuccessStationCreated) {
       refetchData();
-      const notificationDuration = is_edit ? 1 : 4.5; // 1 second for update, 4.5 for create
       showNotification(
         "success",
         is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        employeeCreateData?.message || t("messages").create_success,
-        notificationDuration
+        stationCreateData?.message || t("messages").create_success
       );
-      setTimeout(() => {
-        navigate("/employees");
-      }, is_edit ? 1000 : 0); // Navigate after 1 second for update, immediately for create
-    } else if (isEmployeeCreateError) {
+      navigate("/stations");
+    } else if (isStationCreateError) {
       showNotification(
         "error",
         t("messages").error_2,
-        employeeCreateError?.message || t("messages").error
+        stationCreateError?.message || t("messages").error
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessEmployeeCreated, isEmployeeCreateError, is_edit]);
+  }, [isSuccessStationCreated, isStationCreateError, is_edit]);
 
   useEffect(() => {
     if (is_edit) {
-      if (!isEmployeeLoading && employee && isSuccessEmployeeData && is_edit) {
+      if (!isStationLoading && station && isSuccessStationData && is_edit) {
         setLoader("0");
         setOpacity("1");
       } else {
@@ -112,7 +105,7 @@ function AddEmployee() {
       setOpacity("1");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isEmployeeLoading, employee, is_edit]);
+  }, [isStationLoading, station, is_edit]);
 
   return (
     <>
@@ -136,7 +129,7 @@ function AddEmployee() {
           <div className="header_wrapper">
             <div className="page_info">
               <h2>
-                {is_edit ? "Xodimni tahrirlash" : "Yangi xodim qo'shish"}
+                {is_edit ? "Stansiyani tahrirlash" : "Yangi stansiya qo'shish"}
               </h2>
 
               <span className="breadcrumb">
@@ -144,13 +137,13 @@ function AddEmployee() {
                   separator={<Icon icon="chevron" />}
                   items={[
                     {
-                      title: "Xodimlar ro'yxati",
-                      href: "/employees",
+                      title: "Stansiyalar ro'yxati",
+                      href: "/stations",
                     },
                     {
                       title: is_edit
-                        ? employee?.fullname || "Tahrirlash"
-                        : "Yangi xodim",
+                        ? station?.name || "Tahrirlash"
+                        : "Yangi stansiya",
                       href: "",
                     },
                   ]}
@@ -162,7 +155,7 @@ function AddEmployee() {
 
         <div className="partner_action">
           <Form
-            name="employee_form"
+            name="station_form"
             className="action_form"
             form={form}
             onFinish={onFinish}
@@ -172,7 +165,7 @@ function AddEmployee() {
               <div className="action_item company_info">
                 <div className="item_wrapper">
                   <div className="item_title">
-                    <h3>Xodim ma'lumotlari</h3>
+                    <h3>Stansiya ma'lumotlari</h3>
                   </div>
 
                   <div className="drap_area_wrapper">
@@ -181,27 +174,12 @@ function AddEmployee() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="To'liq ism"
-                          name="fullname"
+                          label="Stansiya nomi"
+                          name="name"
                           rules={[
                             {
                               required: true,
-                              message: "To'liq ism kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <PhoneNumberInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Telefon raqami"
-                          name="phone"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Telefon raqami kiritilishi shart",
+                              message: "Stansiya nomi kiritilishi shart",
                             },
                           ]}
                         />
@@ -218,7 +196,7 @@ function AddEmployee() {
           <div className="footer_wrapper">
             <div className="footer_buttons">
               <Button
-                loading={isEmployeeCreateLoading}
+                loading={isStationCreateLoading}
                 onClick={() => form.submit()}
                 type="primary"
               >
@@ -232,4 +210,5 @@ function AddEmployee() {
   );
 }
 
-export default AddEmployee;
+export default AddStation;
+

@@ -17,13 +17,27 @@ const CustomSelect = ({
   const [isFilled, setIsFilled] = useState(false);
 
   useEffect(() => {
-    const currentValue = form?.getFieldValue(name);
-    // eslint-disable-next-line no-mixed-operators
-    if ((defaultValue || (currentValue || currentValue === 0) && isEdit)) {
-      setIsFilled(true);
-    }
+    // Check value after form is initialized
+    const checkValue = () => {
+      const currentValue = form?.getFieldValue(name);
+      const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== "";
+      if (hasValue || defaultValue) {
+        setIsFilled(true);
+      } else {
+        setIsFilled(false);
+      }
+    };
+    
+    checkValue();
+    
+    // Also check when form values change
+    const timer = setTimeout(() => {
+      checkValue();
+    }, 100);
+    
+    return () => clearTimeout(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, name, isEdit]);
+  }, [form, name, defaultValue, isEdit, value]);
 
   const handleChange = (val) => {
     setIsFilled(!!val || val === 0);

@@ -71,6 +71,12 @@ const LayoutComponent = ({ children }) => {
       label: `${t("Pages").flights}`,
       accessRoles:["showroom_admin", "dispatcher"]
     },
+    {
+      key: "/stations",
+      icon: <Icon icon="ic_reports" />,
+      label: `${t("Pages").stations}`,
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
     // {
     //   key: "/fueltransaction",
     //   icon: <Icon icon="fuel_transaction" />,

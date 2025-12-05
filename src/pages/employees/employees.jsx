@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Input,
   Button,
@@ -6,136 +6,112 @@ import {
   Pagination,
   Breadcrumb,
   Popover,
-  Tag,
 } from "antd";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-import { useLocalization } from "../../LocalizationContext";
+import { BASE_URL } from "../../consts/variables";
+import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
-
-// Mock data for employees
-const mockEmployees = [
-  {
-    id: 1,
-    full_name: "Abdullayev Akmal Toshmatovich",
-    phone_number: "+998901234567",
-    role: "Lokomotiv haydovchisi",
-    username: "akmal.abdullayev",
-    status: "active",
-    department: "Yuk tashish bo'limi",
-    experience: "5 yil",
-  },
-  {
-    id: 2,
-    full_name: "Karimova Dilshoda Rustamovna",
-    phone_number: "+998901234568",
-    role: "Dispetcher",
-    username: "dilshoda.karimova",
-    status: "active",
-    department: "Operatsion bo'lim",
-    experience: "3 yil",
-  },
-  {
-    id: 3,
-    full_name: "Toshmatov Bahodir Alimovich",
-    phone_number: "+998901234569",
-    role: "Yoqilg'i operatori",
-    username: "bahodir.toshmatov",
-    status: "active",
-    department: "Yoqilg'i xizmati",
-    experience: "7 yil",
-  },
-  {
-    id: 4,
-    full_name: "Nazarova Gulnoza Farhodovna",
-    phone_number: "+998901234570",
-    role: "Kassir",
-    username: "gulnoza.nazarova",
-    status: "active",
-    department: "Kassa bo'limi",
-    experience: "2 yil",
-  },
-  {
-    id: 5,
-    full_name: "Rahimov Otabek Shavkatovich",
-    phone_number: "+998901234571",
-    role: "Texnik xodim",
-    username: "otabek.rahimov",
-    status: "inactive",
-    department: "Texnik xizmat",
-    experience: "4 yil",
-  },
-  {
-    id: 6,
-    full_name: "Yuldasheva Madina Azizovna",
-    phone_number: "+998901234572",
-    role: "Lokomotiv haydovchisi",
-    username: "madina.yuldasheva",
-    status: "active",
-    department: "Yuk tashish bo'limi",
-    experience: "6 yil",
-  },
-  {
-    id: 7,
-    full_name: "Ismoilov Farrux Bahodirovich",
-    phone_number: "+998901234573",
-    role: "Dispetcher",
-    username: "farrux.ismoilov",
-    status: "active",
-    department: "Operatsion bo'lim",
-    experience: "8 yil",
-  },
-  {
-    id: 8,
-    full_name: "Sattorova Nigora Turgunovna",
-    phone_number: "+998901234574",
-    role: "Yoqilg'i operatori",
-    username: "nigora.sattorova",
-    status: "active",
-    department: "Yoqilg'i xizmati",
-    experience: "5 yil",
-  },
-];
+import { LoadingOutlined } from "@ant-design/icons";
+import { useLocalization } from "../../LocalizationContext";
+import { useNotification } from "../../components/notification";
 
 function Employees() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
   const navigate = useNavigate();
-  const { t } = useLocalization();
+  const location = useLocation();
+  const accessToken = localStorage.getItem("access_token");
   
+  const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 10;
   const searchValue = searchParams.get("search") || "";
-
+  const { t } = useLocalization();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentEmployee, setCurrentEmployee] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
-    total: mockEmployees.length,
+    total: 0,
   });
 
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentEmployee, setCurrentEmployee] = useState(null);
-  const [employees, setEmployees] = useState(mockEmployees);
+  const {
+    data: fetchedEmployeesData,
+    isPending: isEmployeesLoading,
+    refetch: refetchData,
+  } = useFetchQuery({
+    queryKey: [
+      "employees",
+      pagination.current,
+      pagination.pageSize,
+      searchValue,
+    ],
+    url: `${BASE_URL}/employee`,
+    params: {
+      page_size: pagination.pageSize,
+      page: pagination.current,
+      search: searchValue,
+    },
+    token: accessToken,
+  });
 
-  // Filter employees based on search
-  const filteredEmployees = employees.filter((employee) =>
-    employee.full_name.toLowerCase().includes(searchValue.toLowerCase()) ||
-    employee.phone_number.includes(searchValue) ||
-    employee.role.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  const allEmployees = fetchedEmployeesData?.data?.data || fetchedEmployeesData?.data || fetchedEmployeesData || [];
+
+  const {
+    data: employeeDeleteData,
+    isSuccess: isSuccessDeleted,
+    mutate: employeeDelete,
+    isPending: isEmployeeDeleteLoading,
+    error: employeeDeleteError,
+    isError: isEmployeeDeleteError,
+  } = useDeleteMutation({
+    url: `${BASE_URL}/employee`,
+    method: "DELETE",
+    token: accessToken,
+  });
 
   const handleDelete = () => {
-    if (currentEmployee) {
-      setEmployees(employees.filter((emp) => emp.id !== currentEmployee));
-      setModalVisible(false);
-      setCurrentEmployee(null);
-    }
+    employeeDelete({
+      id: currentEmployee,
+    });
   };
 
-  // Paginate filtered results
-  const paginatedEmployees = filteredEmployees.slice(
-    (pagination.current - 1) * pagination.pageSize,
-    pagination.current * pagination.pageSize
-  );
+  useEffect(() => {
+    if (location.pathname) {
+      refetchData();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (isSuccessDeleted) {
+      refetchData();
+      showNotification(
+        "success",
+        t("messages").delete_success,
+        employeeDeleteData?.message || t("messages").success
+      );
+      setCurrentEmployee(null);
+      setModalVisible(false);
+    } else if (isEmployeeDeleteError) {
+      showNotification(
+        "error",
+        t("messages").error_2,
+        employeeDeleteError?.message || t("messages").error
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessDeleted, employeeDeleteError, isEmployeeDeleteError]);
+
+  useEffect(() => {
+    if (fetchedEmployeesData) {
+      setPagination((prev) => ({
+        ...prev,
+        total: fetchedEmployeesData?.total || fetchedEmployeesData?.data?.total || fetchedEmployeesData?.data?.length || fetchedEmployeesData?.length || 0,
+      }));
+    }
+  }, [fetchedEmployeesData]);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -163,73 +139,41 @@ function Employees() {
 
   const columns = [
     {
+      title: "ID",
+      dataIndex: "id",
+      width: 80,
+      render: (_, record) => (
+        <span className="table_id">
+          <p>{record?.id}</p>
+        </span>
+      ),
+    },
+    {
       title: "To'liq ism",
-      dataIndex: "full_name",
+      dataIndex: "fullname",
       minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          <Popover placement="bottom" content={record?.full_name}>
-            <p>{record?.full_name}</p>
+          <Popover placement="bottom" content={record?.fullname}>
+            <p>{record?.fullname}</p>
           </Popover>
         </span>
       ),
     },
     {
       title: "Telefon raqami",
-      dataIndex: "phone_number",
+      dataIndex: "phone",
       width: 150,
       render: (_, record) => (
         <span className="table_phone_number">
-          <a href={`tel:${record?.phone_number}`}>{record?.phone_number}</a>
-        </span>
-      ),
-    },
-    {
-      title: "Lavozim",
-      dataIndex: "role",
-      width: 180,
-      render: (_, record) => (
-        <span className="table_role">
-          <p>{record?.role}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Bo'lim",
-      dataIndex: "department",
-      width: 180,
-      render: (_, record) => (
-        <span className="table_department">
-          <p>{record?.department}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Tajriba",
-      dataIndex: "experience",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_experience">
-          <p>{record?.experience}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Holat",
-      dataIndex: "status",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_status">
-          <Tag color={record?.status === "active" ? "green" : "default"}>
-            {record?.status === "active" ? "Faol" : "Nofaol"}
-          </Tag>
+          <a href={`tel:${record?.phone}`}>{record?.phone}</a>
         </span>
       ),
     },
     {
       title: "Amal",
       dataIndex: "action",
-      width: 100,
+      width: 120,
       render: (_, record) => (
         <span className="action_wrapper">
           <Icon
@@ -254,8 +198,13 @@ function Employees() {
     },
   ];
 
+  const customLoader = {
+    spinning: true,
+    indicator: <LoadingOutlined style={{ fontSize: 40 }} spin />,
+  };
+
   const handlePaginationChange = (page, pageSize) => {
-    setPagination({ current: page, pageSize, total: filteredEmployees.length });
+    setPagination({ current: page, pageSize });
     handleTableChange({ current: page, pageSize });
   };
 
@@ -307,10 +256,11 @@ function Employees() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={paginatedEmployees.map((item) => ({
+            dataSource={Array.isArray(allEmployees) ? allEmployees.map((item) => ({
               ...item,
               key: item?.id,
-            }))}
+            })) : []}
+            loading={isEmployeesLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
           />
@@ -318,15 +268,16 @@ function Employees() {
         <Pagination
           current={pagination.current}
           pageSize={pagination.pageSize}
-          total={filteredEmployees.length}
+          total={pagination.total}
           showSizeChanger
           onChange={handlePaginationChange}
           style={{ marginTop: 20, textAlign: "center" }}
-          locale={{ items_per_page: `/ sahifa` }}
+          locale={{ items_per_page: `/ ${t("Common").page}` }}
         />
         <DeleteConfirmModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
+          isLoading={isEmployeeDeleteLoading}
           onConfirm={handleDelete}
           title="Xodimni o'chirish?"
           message="Bu xodimni o'chirmoqchimisiz?"
@@ -338,4 +289,3 @@ function Employees() {
 }
 
 export default Employees;
-

@@ -6,7 +6,6 @@ import {
   Pagination,
   Breadcrumb,
   Popover,
-  Tag,
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -16,9 +15,8 @@ import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
-import dayjs from "dayjs";
 
-function Flights() {
+function Stations() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
   const navigate = useNavigate();
@@ -31,7 +29,7 @@ function Flights() {
   const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentFlight, setCurrentFlight] = useState(null);
+  const [currentStation, setCurrentStation] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -39,17 +37,17 @@ function Flights() {
   });
 
   const {
-    data: fetchedFlightsData,
-    isPending: isFlightsLoading,
+    data: fetchedStationsData,
+    isPending: isStationsLoading,
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "train-schedule",
+      "stations",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `${BASE_URL}/train-schedule`,
+    url: `${BASE_URL}/station`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
@@ -58,24 +56,24 @@ function Flights() {
     token: accessToken,
   });
 
-  const allFlights = fetchedFlightsData?.data?.data || fetchedFlightsData?.data || fetchedFlightsData || [];
+  const allStations = fetchedStationsData?.data?.data || fetchedStationsData || [];
 
   const {
-    data: flightDeleteData,
+    data: stationDeleteData,
     isSuccess: isSuccessDeleted,
-    mutate: flightDelete,
-    isPending: isFlightDeleteLoading,
-    error: flightDeleteError,
-    isError: isFlightDeleteError,
+    mutate: stationDelete,
+    isPending: isStationDeleteLoading,
+    error: stationDeleteError,
+    isError: isStationDeleteError,
   } = useDeleteMutation({
-    url: `${BASE_URL}/train-schedule`,
+    url: `${BASE_URL}/station`,
     method: "DELETE",
     token: accessToken,
   });
 
   const handleDelete = () => {
-    flightDelete({
-      id: currentFlight,
+    stationDelete({
+      id: currentStation,
     });
   };
 
@@ -92,28 +90,28 @@ function Flights() {
       showNotification(
         "success",
         t("messages").delete_success,
-        flightDeleteData?.message || t("messages").success
+        stationDeleteData?.message || t("messages").success
       );
-      setCurrentFlight(null);
+      setCurrentStation(null);
       setModalVisible(false);
-    } else if (isFlightDeleteError) {
+    } else if (isStationDeleteError) {
       showNotification(
         "error",
         t("messages").error_2,
-        flightDeleteError?.message || t("messages").error
+        stationDeleteError?.message || t("messages").error
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessDeleted, flightDeleteError, isFlightDeleteError]);
+  }, [isSuccessDeleted, stationDeleteError, isStationDeleteError]);
 
   useEffect(() => {
-    if (fetchedFlightsData) {
+    if (fetchedStationsData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedFlightsData?.total || fetchedFlightsData?.data?.total || fetchedFlightsData?.data?.length || fetchedFlightsData?.length || 0,
+        total: fetchedStationsData?.total || fetchedStationsData?.length || 0,
       }));
     }
-  }, [fetchedFlightsData]);
+  }, [fetchedStationsData]);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -139,32 +137,6 @@ function Flights() {
     });
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "active":
-        return "green";
-      case "completed":
-        return "blue";
-      case "delayed":
-        return "orange";
-      default:
-        return "default";
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case "active":
-        return "Faol";
-      case "completed":
-        return "Yakunlangan";
-      case "delayed":
-        return "Kechikkan";
-      default:
-        return status;
-    }
-  };
-
   const columns = [
     {
       title: "ID",
@@ -177,82 +149,14 @@ function Flights() {
       ),
     },
     {
-      title: "Poyezd raqami",
-      dataIndex: "trainNumber",
-      width: 150,
+      title: "Stansiya nomi",
+      dataIndex: "name",
+      minWidth: 200,
       render: (_, record) => (
-        <span className="table_flight_number">
-          <p style={{ fontWeight: 600 }}>{record?.trainNumber}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Ketish stansiyasi",
-      dataIndex: "departureStation",
-      minWidth: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          <p>{record?.departureStation?.name || `ID: ${record?.departureStationId}`}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Kelish stansiyasi",
-      dataIndex: "arrivalStation",
-      minWidth: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          <p>{record?.arrivalStation?.name || `ID: ${record?.arrivalStationId}`}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Ketish vaqti",
-      dataIndex: "departureTime",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_departure">
-          <p>{record?.departureTime}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Kelish vaqti",
-      dataIndex: "arrivalTime",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_arrival">
-          <p>{record?.arrivalTime}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Ketish sanasi",
-      dataIndex: "departureDate",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_departure">
-          <p>{record?.departureDate ? dayjs(record.departureDate).format("DD.MM.YYYY") : "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Kelish sanasi",
-      dataIndex: "arrivalDate",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_arrival">
-          <p>{record?.arrivalDate ? dayjs(record.arrivalDate).format("DD.MM.YYYY") : "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Xodimlar soni",
-      dataIndex: "staff",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_staff">
-          <p>{record?.staff?.length || 0}</p>
+        <span className="table_name">
+          <Popover placement="bottom" content={record?.name}>
+            <p>{record?.name}</p>
+          </Popover>
         </span>
       ),
     },
@@ -267,7 +171,7 @@ function Flights() {
             className="icon edit"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/flights/${record.id}`);
+              navigate(`/stations/${record.id}`);
             }}
           />
           <Icon
@@ -276,7 +180,7 @@ function Flights() {
             onClick={(e) => {
               e.stopPropagation();
               setModalVisible(true);
-              setCurrentFlight(record.id);
+              setCurrentStation(record.id);
             }}
           />
         </span>
@@ -299,13 +203,13 @@ function Flights() {
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Reyslar</h2>
+            <h2>Stansiyalar</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Reyslar ro'yxati",
+                    title: "Stansiyalar ro'yxati",
                     href: "",
                   },
                 ]}
@@ -313,8 +217,8 @@ function Flights() {
             </span>
           </div>
           <div className="filter">
-            <Link to="/flights/add">
-              <Button type="primary">Reys qo'shish</Button>
+            <Link to="/stations/add">
+              <Button type="primary">Stansiya qo'shish</Button>
             </Link>
           </div>
         </div>
@@ -323,7 +227,7 @@ function Flights() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="Poyezd raqami bo'yicha qidirish"
+              placeholder="Stansiya nomi bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -342,17 +246,13 @@ function Flights() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allFlights) ? allFlights.map((item) => ({
+            dataSource={Array.isArray(allStations) ? allStations.map((item) => ({
               ...item,
               key: item?.id,
             })) : []}
-            loading={isFlightsLoading ? customLoader : false}
+            loading={isStationsLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
-            onRow={(record) => ({
-              onClick: () => navigate(`/flights/detail/${record.id}`),
-              style: { cursor: "pointer" },
-            })}
           />
         </div>
         <Pagination
@@ -367,15 +267,16 @@ function Flights() {
         <DeleteConfirmModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
-          isLoading={isFlightDeleteLoading}
+          isLoading={isStationDeleteLoading}
           onConfirm={handleDelete}
-          title="Reysni o'chirish?"
-          message="Bu reysni o'chirmoqchimisiz?"
-          dangerMessage="Barcha reys ma'lumotlari qayta tiklanmaydi."
+          title="Stansiyani o'chirish?"
+          message="Bu stansiyani o'chirmoqchimisiz?"
+          dangerMessage="Barcha stansiya ma'lumotlari qayta tiklanmaydi."
         />
       </div>
     </section>
   );
 }
 
-export default Flights;
+export default Stations;
+

@@ -1,0 +1,24 @@
+@import "../../styles/variables";
+
+.stations {
+  .partners_table {
+    .table_id,
+    .table_name {
+      font-size: 15px;
+      font-weight: 500;
+      color: $primary_black;
+      display: flex;
+      p {
+        margin: 0;
+      }
+    }
+    
+    .table_id {
+      p {
+        color: $secondary_text;
+        font-weight: 400;
+      }
+    }
+  }
+}
+

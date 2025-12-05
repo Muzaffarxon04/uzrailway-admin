@@ -4,7 +4,7 @@ const LocalizationContext = createContext();
 
 export const LocalizationProvider = ({ children }) => {
   const [language, setLanguageState] = useState(() => {
-    return localStorage.getItem("app-language") || "en";
+    return localStorage.getItem("app-language") || "uz";
   });
 
   const [translations, setTranslations] = useState({});

@@ -5,8 +5,7 @@ import {
   Table,
   Pagination,
   Breadcrumb,
-  Popover,
-  Tag,
+
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -139,31 +138,31 @@ function Flights() {
     });
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "active":
-        return "green";
-      case "completed":
-        return "blue";
-      case "delayed":
-        return "orange";
-      default:
-        return "default";
-    }
-  };
+  // const getStatusColor = (status) => {
+  //   switch (status) {
+  //     case "active":
+  //       return "green";
+  //     case "completed":
+  //       return "blue";
+  //     case "delayed":
+  //       return "orange";
+  //     default:
+  //       return "default";
+  //   }
+  // };
 
-  const getStatusText = (status) => {
-    switch (status) {
-      case "active":
-        return "Faol";
-      case "completed":
-        return "Yakunlangan";
-      case "delayed":
-        return "Kechikkan";
-      default:
-        return status;
-    }
-  };
+  // const getStatusText = (status) => {
+  //   switch (status) {
+  //     case "active":
+  //       return "Faol";
+  //     case "completed":
+  //       return "Yakunlangan";
+  //     case "delayed":
+  //       return "Kechikkan";
+  //     default:
+  //       return status;
+  //   }
+  // };
 
   const columns = [
     {

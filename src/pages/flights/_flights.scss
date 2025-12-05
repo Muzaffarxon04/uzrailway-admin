@@ -1,0 +1,29 @@
+@import "../../styles/variables";
+
+.flights {
+  .partners_table {
+    .table_flight_number,
+    .table_route,
+    .table_train_type,
+    .table_departure,
+    .table_arrival,
+    .table_locomotive,
+    .table_driver,
+    .table_cargo {
+      font-size: 15px;
+      font-weight: 400;
+      color: $primary_black;
+      display: flex;
+      p {
+        margin: 0;
+      }
+    }
+
+    .table_flight_number {
+      p {
+        font-weight: 600;
+      }
+    }
+  }
+}
+

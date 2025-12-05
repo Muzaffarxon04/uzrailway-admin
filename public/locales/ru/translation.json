@@ -111,6 +111,8 @@
     "moderation": "Запросы на модерацию",
     "clients": "Сотрудники",
     "admins": "Администраторы",
+    "employees": "Сотрудники",
+    "flights": "Рейсы",
     "log_out": "Выйти",
     "settings": "Настройки",
     "action": {

@@ -1,0 +1,18 @@
+@import "../../styles/variables";
+
+.employees {
+  .partners_table {
+    .table_role,
+    .table_department,
+    .table_experience {
+      font-size: 15px;
+      font-weight: 400;
+      color: $primary_black;
+      display: flex;
+      p {
+        margin: 0;
+      }
+    }
+  }
+}
+

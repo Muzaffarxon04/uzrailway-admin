@@ -49,7 +49,7 @@ function Login() {
       );
 
     
-      navigate("/admins");
+      navigate("/employees");
         
       
 

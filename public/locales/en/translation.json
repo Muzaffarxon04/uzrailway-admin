@@ -114,6 +114,8 @@
     "moderation": "Moderation requests",
     "clients": "Employees",
     "admins": "Admins",
+    "employees": "Employees",
+    "flights": "Flights",
     "log_out": "Log out",
     "settings": "Settings",
     "action": {

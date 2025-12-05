@@ -11,7 +11,7 @@ import { useNavigate, Outlet, useLocation,
 
 } from "react-router-dom"; // Import routing utilities
 // import LogoMin from "../../assets/img/logo_part.svg";
-import Logo from "../../assets/img/logo.png";
+import Logo from "../../assets/img/favicon.svg";
 import Icon from "../Icon";
 import DeleteConfirmModal from "../modals/deleteConfirm";
 import { useLocalization } from "../../LocalizationContext";
@@ -53,40 +53,52 @@ const LayoutComponent = ({ children }) => {
     //   icon: <Icon icon="ic_square" />,
     //   label: `${t("Pages").dashboard}`,
     // },
+    // {
+    //   key: "/admins",
+    //   icon: <Icon icon="ic_users" />,
+    //   label: `${t("Pages").admins}`,
+    //   accessRoles:["showroom_admin"]
+    // },
     {
-      key: "/admins",
+      key: "/employees",
       icon: <Icon icon="ic_users" />,
-      label: `${t("Pages").admins}`,
-      accessRoles:["super_admin"]
+      label: `${t("Pages").employees}`,
+      accessRoles:["showroom_admin", "dispatcher"]
     },
     {
-      key: "/fueltransaction",
-      icon: <Icon icon="fuel_transaction" />,
-      label: `${t("Pages").fueltransaction}`,
-      accessRoles:["super_admin", "fueler"]
-
-    },
-    {
-      key: "/tolltransaction",
-      icon: <Icon icon="toll_transaction" />,
-      label: `${t("Pages").tolltransaction}`,
-      accessRoles:["super_admin", "dispatcher"]
-
-    },
-    {
-      key: "/totalgrosses",
-      icon: <Icon icon="total_grosses" />,
-      label: `${t("Pages").totalgrosses}`,
-      accessRoles:["super_admin", "dispatcher"]
-
-    },
-        {
-      key: "/reports",
+      key: "/flights",
       icon: <Icon icon="ic_reports" />,
-      label: `${t("Pages").reports}`,
-      accessRoles:["super_admin", "dispatcher"]
-
+      label: `${t("Pages").flights}`,
+      accessRoles:["showroom_admin", "dispatcher"]
     },
+    // {
+    //   key: "/fueltransaction",
+    //   icon: <Icon icon="fuel_transaction" />,
+    //   label: `${t("Pages").fueltransaction}`,
+    //   accessRoles:["showroom_admin", "fueler"]
+
+    // },
+    // {
+    //   key: "/tolltransaction",
+    //   icon: <Icon icon="toll_transaction" />,
+    //   label: `${t("Pages").tolltransaction}`,
+    //   accessRoles:["showroom_admin", "dispatcher"]
+
+    // },
+    // {
+    //   key: "/totalgrosses",
+    //   icon: <Icon icon="total_grosses" />,
+    //   label: `${t("Pages").totalgrosses}`,
+    //   accessRoles:["showroom_admin", "dispatcher"]
+
+    // },
+    //     {
+    //   key: "/reports",
+    //   icon: <Icon icon="ic_reports" />,
+    //   label: `${t("Pages").reports}`,
+    //   accessRoles:["showroom_admin", "dispatcher"]
+
+    // },
   ];
 
   const handleDelete = () => {

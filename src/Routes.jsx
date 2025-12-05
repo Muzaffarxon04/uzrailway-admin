@@ -12,6 +12,8 @@ import TotalGrosses from "./pages/totalgrosses/totalgrosses";
 import FuelTransaction from "./pages/fueltransaction/fueltransaction";
 import Reports from "./pages/reports/reports";
 import ReportsInner from "./pages/reports/reportsInner";
+import Employees from "./pages/employees/employees";
+import Flights from "./pages/flights/flights";
 
 function RoutesComponent() {
   return (
@@ -105,6 +107,22 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <TotalgrossesAddAction />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/employees"
+        element={
+          <PrivateRoute>
+            <Employees />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/flights"
+        element={
+          <PrivateRoute>
+            <Flights />
           </PrivateRoute>
         }
       />

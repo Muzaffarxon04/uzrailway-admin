@@ -5,8 +5,8 @@ import {
   Table,
   Pagination,
   Breadcrumb,
-
 } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined, RightOutlined } from "@ant-design/icons";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
 import { BASE_URL } from "../../consts/variables";
@@ -57,7 +57,44 @@ function Flights() {
     token: accessToken,
   });
 
-  const allFlights = fetchedFlightsData?.data?.data || fetchedFlightsData?.data || fetchedFlightsData || [];
+  const allFlightsRaw = fetchedFlightsData?.data?.data || fetchedFlightsData?.data || fetchedFlightsData || [];
+  
+  // Transform data to flat structure - first row with all info, subsequent rows only for supervisors
+  const allFlights = Array.isArray(allFlightsRaw) ? allFlightsRaw.flatMap((flight, flightIndex) => {
+    const supervisors = flight?.staff?.filter(s => s?.role === "wagon_supervisor") || [];
+    
+    const rows = [];
+    
+    // First row - main row with all columns filled
+    rows.push({
+      ...flight,
+      key: `flight-${flight?.id}-main`,
+      isFirstRow: true,
+      currentSupervisor: supervisors[0] || null,
+    });
+    
+    // Additional rows for remaining supervisors (if any)
+    if (supervisors.length > 1) {
+      supervisors.slice(1).forEach((supervisor, idx) => {
+        rows.push({
+          ...flight,
+          key: `flight-${flight?.id}-supervisor-${supervisor?.id || idx + 1}`,
+          isFirstRow: false,
+          currentSupervisor: supervisor,
+        });
+      });
+    } else if (supervisors.length === 0) {
+      // If no supervisors, add one empty row
+      rows.push({
+        ...flight,
+        key: `flight-${flight?.id}-empty`,
+        isFirstRow: false,
+        currentSupervisor: null,
+      });
+    }
+    
+    return rows;
+  }) : [];
 
   const {
     data: flightDeleteData,
@@ -107,11 +144,14 @@ function Flights() {
 
   useEffect(() => {
     if (fetchedFlightsData) {
+      // Count only first rows (flights) for pagination
+      const firstRowsCount = allFlightsRaw?.length || 0;
       setPagination((prev) => ({
         ...prev,
-        total: fetchedFlightsData?.total || fetchedFlightsData?.data?.total || fetchedFlightsData?.data?.length || fetchedFlightsData?.length || 0,
+        total: fetchedFlightsData?.total || fetchedFlightsData?.data?.total || firstRowsCount || 0,
       }));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchedFlightsData]);
 
   const handleTableChange = (pagination) => {
@@ -166,94 +206,165 @@ function Flights() {
 
   const columns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      width: 80,
-      render: (_, record) => (
-        <span className="table_id">
-          <p>#{record?.id}</p>
-        </span>
-      ),
+      title: "№",
+      dataIndex: "index",
+      width: 60,
+      render: (_, record, index) => {
+        // Only show number for first row of each flight
+        if (!record?.isFirstRow) return null;
+        const pageIndex = (pagination.current - 1) * pagination.pageSize + 
+          allFlights.filter((r, i) => i < index && r.isFirstRow).length + 1;
+        return (
+          <span className="table_number">
+            {pageIndex}
+          </span>
+        );
+      },
     },
     {
-      title: "Poyezd raqami",
+      title: "Кетиш вакти",
+      dataIndex: "departureDate",
+      width: 130,
+      render: (_, record) => {
+        if (!record?.isFirstRow) return null;
+        return (
+          <span className="table_departure">
+            {record?.departureDate ? dayjs(record.departureDate).format("DD.MM.YYYY") : "-"}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Поезд рақами",
       dataIndex: "trainNumber",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_flight_number">
-          <p>{record?.trainNumber}</p>
-        </span>
-      ),
+      width: 130,
+      render: (_, record) => {
+        if (!record?.isFirstRow) return null;
+        return (
+          <span className="table_flight_number">
+            {record?.trainNumber || "-"}
+          </span>
+        );
+      },
     },
     {
-      title: "Ketish stansiyasi",
+      title: "Жўнаш станцияси",
       dataIndex: "departureStation",
       minWidth: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          <p>{record?.departureStation?.name || `ID: ${record?.departureStationId}`}</p>
-        </span>
-      ),
+      render: (_, record) => {
+        if (!record?.isFirstRow) return null;
+        return (
+          <span className="table_route">
+            {record?.departureStation?.name || `ID: ${record?.departureStationId}` || "-"}
+          </span>
+        );
+      },
     },
     {
-      title: "Kelish stansiyasi",
+      title: "Поезд бошлиғи",
+      dataIndex: "trainChief",
+      minWidth: 200,
+      render: (_, record) => {
+        if (!record?.isFirstRow) return null;
+        const trainChief = record?.staff?.find(s => s?.role === "train_chief");
+        return (
+          <span className="table_train_chief">
+            {trainChief ? (
+              <>
+                <span className="chief_name">
+                  {trainChief?.employee?.fullname || `ID: ${trainChief?.employeeId}`}
+                </span>
+                <RightOutlined className="arrow_icon" />
+              </>
+            ) : (
+              "-"
+            )}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Вагон кузатувчиси",
+      dataIndex: "wagonSupervisors",
+      minWidth: 250,
+      render: (_, record) => {
+        const supervisor = record?.currentSupervisor;
+        if (!supervisor) return "-";
+        
+        const arrivalStatus = supervisor?.arrivalStatus;
+        const departureStatus = supervisor?.departureStatus;
+        const isConfirmed = arrivalStatus === "arrived" || departureStatus === "arrived";
+        const isRejected = arrivalStatus === "rejected" || departureStatus === "rejected";
+        
+        return (
+          <div className="table_supervisors">
+            <div className="supervisor_item">
+              <span className="supervisor_name">
+                {supervisor?.employee?.fullname || `ID: ${supervisor?.employeeId}`}
+              </span>
+              {isConfirmed ? (
+                <CheckCircleOutlined className="confirm_icon confirmed" />
+              ) : isRejected ? (
+                <CloseCircleOutlined className="confirm_icon rejected" />
+              ) : (
+                <RightOutlined className="arrow_icon" />
+              )}
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Етиб бориш станцияси",
       dataIndex: "arrivalStation",
       minWidth: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          <p>{record?.arrivalStation?.name || `ID: ${record?.arrivalStationId}`}</p>
-        </span>
-      ),
+      render: (_, record) => {
+        return (
+          <span className="table_route">
+            {record?.arrivalStation?.name || `ID: ${record?.arrivalStationId}` || "-"}
+          </span>
+        );
+      },
     },
     {
-      title: "Ketish vaqti",
-      dataIndex: "departureTime",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_departure">
-          <p>{record?.departureTime}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Kelish vaqti",
-      dataIndex: "arrivalTime",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_arrival">
-          <p>{record?.arrivalTime}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Ketish sanasi",
-      dataIndex: "departureDate",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_departure">
-          <p>{record?.departureDate ? dayjs(record.departureDate).format("DD.MM.YYYY") : "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Kelish sanasi",
+      title: "Етиб бориш вакти",
       dataIndex: "arrivalDate",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_arrival">
-          <p>{record?.arrivalDate ? dayjs(record.arrivalDate).format("DD.MM.YYYY") : "-"}</p>
-        </span>
-      ),
+      width: 130,
+      render: (_, record) => {
+        return (
+          <span className="table_arrival">
+            {record?.arrivalDate ? dayjs(record.arrivalDate).format("DD.MM.YYYY") : "-"}
+          </span>
+        );
+      },
     },
     {
-      title: "Xodimlar soni",
-      dataIndex: "staff",
+      title: "Тасдиқлаш",
+      dataIndex: "confirmation",
       width: 120,
-      render: (_, record) => (
-        <span className="table_staff">
-          <p>{record?.staff?.length || 0}</p>
-        </span>
-      ),
+      align: "center",
+      render: (_, record) => {
+        // Check if there's a supervisor in this row
+        const supervisor = record?.currentSupervisor;
+        if (!supervisor) {
+          // If no supervisor, show nothing for non-first rows, but for first row show nothing too
+          return null;
+        }
+        
+        // Check arrivalStatus - if "arrived" then confirmed, otherwise rejected
+        const arrivalStatus = supervisor?.arrivalStatus;
+        const isConfirmed = arrivalStatus === "arrived";
+        
+        return (
+          <div className="confirmation_cell">
+            {isConfirmed ? (
+              <CheckCircleOutlined className="confirm_icon confirmed" style={{ fontSize: 20, color: '#52c41a' }} />
+            ) : (
+              <CloseCircleOutlined className="confirm_icon rejected" style={{ fontSize: 20, color: '#ff4d4f' }} />
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "",
@@ -295,7 +406,7 @@ function Flights() {
   };
 
   return (
-    <section className="page partners">
+    <section className="page partners flights">
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
@@ -342,16 +453,21 @@ function Flights() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allFlights) ? allFlights.map((item) => ({
-              ...item,
-              key: item?.id,
-            })) : []}
+            dataSource={allFlights}
             loading={isFlightsLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
+            scroll={{ y: 'calc(100vh - 300px)', x: 'max-content' }}
             onRow={(record) => ({
-              onClick: () => navigate(`/flights/detail/${record.id}`),
-              style: { cursor: "pointer" },
+              onClick: () => {
+                if (record?.isFirstRow) {
+                  navigate(`/flights/detail/${record.id}`);
+                }
+              },
+              className: !record?.isFirstRow ? "sub-row" : "",
+              style: { 
+                cursor: record?.isFirstRow ? "pointer" : "default",
+              },
             })}
           />
         </div>

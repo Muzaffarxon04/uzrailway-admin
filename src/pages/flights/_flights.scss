@@ -7,6 +7,10 @@
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
       overflow: hidden;
+      border: 1px solid #e0e0e0;
+      max-height: calc(100vh - 300px);
+      overflow-y: auto;
+      overflow-x: auto;
       
       .ant-table {
         .ant-table-container {
@@ -14,19 +18,25 @@
           box-shadow: none;
         }
         
+        .ant-table-body {
+          overflow-y: auto !important;
+        }
+        
         .ant-table-thead {
-          background-color: transparent;
+          background-color: #1890ff;
+          position: sticky;
+          top: 0;
+          z-index: 10;
           
           tr {
             th {
-              background-color: transparent;
-              border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+              background-color: #1890ff;
+              border-bottom: 1px solid #0d7ae6;
+              border-right: 1px solid #0d7ae6;
               padding: 12px 16px;
-              font-size: 12px;
+              font-size: 13px;
               font-weight: 600;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              color: #6b7280;
+              color: #ffffff;
               text-align: left;
               
               &:first-child {
@@ -35,6 +45,7 @@
               
               &:last-child {
                 padding-right: 20px;
+                border-right: none;
               }
               
               &::before {
@@ -46,21 +57,44 @@
         
         .ant-table-tbody {
           tr {
-            background-color: $white;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid #e0e0e0;
             transition: background-color 0.2s ease;
             
+            &:nth-child(even) {
+              background-color: #e6f7ff;
+            }
+            
+            &:nth-child(odd) {
+              background-color: $white;
+            }
+            
             &:hover {
-              background-color: #f9fafb;
+              background-color: #bae7ff;
             }
             
             &:last-child {
               border-bottom: none;
             }
             
+            // Sub-row styling (for wagon supervisors)
+            &.sub-row {
+              background-color: #f5f5f5 !important;
+              
+              &:hover {
+                background-color: #e8e8e8 !important;
+              }
+              
+              td {
+                padding: 8px 16px;
+                font-size: 13px;
+                border-top: 1px solid #e0e0e0;
+              }
+            }
+            
             td {
-              padding: 16px;
-              border-bottom: none;
+              padding: 12px 16px;
+              border-right: 1px solid #e0e0e0;
+              border-bottom: 1px solid #e0e0e0;
               
               &:first-child {
                 padding-left: 20px;
@@ -68,6 +102,7 @@
               
               &:last-child {
                 padding-right: 20px;
+                border-right: none;
               }
             }
           }
@@ -75,37 +110,93 @@
       }
     }
     
-    .table_id {
+    .table_number {
       font-size: 14px;
       font-weight: 500;
-      color: #6b7280;
-      
-      p {
-        margin: 0;
-        color: #9ca3af;
-        font-weight: 400;
-      }
+      color: #111827;
     }
     
     .table_flight_number,
     .table_route,
     .table_departure,
-    .table_arrival,
-    .table_staff {
+    .table_arrival {
       font-size: 14px;
       font-weight: 500;
       color: #111827;
-      
-      p {
-        margin: 0;
-        color: #111827;
-        font-weight: 500;
-      }
     }
     
     .table_flight_number {
-      p {
-        font-weight: 600;
+      font-weight: 600;
+    }
+    
+    .table_train_chief {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #111827;
+      
+      .chief_name {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      
+      .arrow_icon {
+        font-size: 12px;
+        color: #1890ff;
+      }
+    }
+    
+    .table_supervisors {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      
+      .supervisor_item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        color: #111827;
+        
+        .supervisor_name {
+          flex: 1;
+        }
+        
+        .confirm_icon {
+          font-size: 16px;
+          
+          &.confirmed {
+            color: #52c41a;
+          }
+          
+          &.rejected {
+            color: #ff4d4f;
+          }
+        }
+        
+        .arrow_icon {
+          font-size: 12px;
+          color: #1890ff;
+        }
+      }
+    }
+    
+    .confirmation_cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      
+      .confirm_icon {
+        font-size: 20px;
+        
+        &.confirmed {
+          color: #52c41a;
+        }
+        
+        &.rejected {
+          color: #ff4d4f;
+        }
       }
     }
     

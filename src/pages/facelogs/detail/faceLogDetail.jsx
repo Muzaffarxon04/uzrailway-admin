@@ -206,3 +206,4 @@ function FaceLogDetail() {
 
 export default FaceLogDetail;
 
+

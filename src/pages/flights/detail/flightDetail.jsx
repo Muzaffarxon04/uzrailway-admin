@@ -1,5 +1,5 @@
 // import { useState, useEffect } from "react";
-import { Card, Table, Descriptions, Breadcrumb, Button, Spin } from "antd";
+import { Card, Table, Descriptions, Breadcrumb, Button, Spin, Tag } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../../consts/variables";
 import useUniversalFetch from "../../../Hooks/useApi";
@@ -66,6 +66,70 @@ function FlightDetail() {
           wagon_supervisor: "Vagon nazoratchisi",
         };
         return <span>{roleLabels[record?.role] || record?.role}</span>;
+      },
+    },
+    {
+      title: "Ketish vaqti",
+      dataIndex: "departureTime",
+      width: 150,
+      render: (_, record) => (
+        <span>
+          {record?.departureTime 
+            ? dayjs(record.departureTime).format("DD.MM.YYYY HH:mm") 
+            : "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Kelish vaqti",
+      dataIndex: "arrivalTime",
+      width: 150,
+      render: (_, record) => (
+        <span>
+          {record?.arrivalTime 
+            ? dayjs(record.arrivalTime).format("DD.MM.YYYY HH:mm") 
+            : "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Ketish holati",
+      dataIndex: "departureStatus",
+      width: 150,
+      render: (_, record) => {
+        const statusLabels = {
+          arrived: "Keldi",
+          expected: "Kutilmoqda",
+        };
+        const statusColors = {
+          arrived: "green",
+          expected: "orange",
+        };
+        return record?.departureStatus ? (
+          <Tag color={statusColors[record.departureStatus] || "default"}>
+            {statusLabels[record.departureStatus] || record.departureStatus}
+          </Tag>
+        ) : "-";
+      },
+    },
+    {
+      title: "Kelish holati",
+      dataIndex: "arrivalStatus",
+      width: 150,
+      render: (_, record) => {
+        const statusLabels = {
+          arrived: "Keldi",
+          expected: "Kutilmoqda",
+        };
+        const statusColors = {
+          arrived: "green",
+          expected: "orange",
+        };
+        return record?.arrivalStatus ? (
+          <Tag color={statusColors[record.arrivalStatus] || "default"}>
+            {statusLabels[record.arrivalStatus] || record.arrivalStatus}
+          </Tag>
+        ) : "-";
       },
     },
   ];

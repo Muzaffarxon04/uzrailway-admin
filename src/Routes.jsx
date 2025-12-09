@@ -23,6 +23,7 @@ import Devices from "./pages/devices/devices";
 import AddDevice from "./pages/devices/action/addDevice";
 import FaceLogs from "./pages/facelogs/facelogs";
 import FaceLogDetail from "./pages/facelogs/detail/faceLogDetail";
+import EmployeeData from "./pages/employeedata/employeedata";
 
 function RoutesComponent() {
   return (
@@ -204,6 +205,14 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <FaceLogDetail />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/employeedata"
+        element={
+          <PrivateRoute>
+            <EmployeeData />
           </PrivateRoute>
         }
       />

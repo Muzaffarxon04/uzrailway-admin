@@ -90,6 +90,12 @@ const LayoutComponent = ({ children }) => {
       label: "Keldi-ketdilar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
+    {
+      key: "/employeedata",
+      icon: <Icon icon="ic_reports" />,
+      label: "Xodimlar ma'lumotlari",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
     // {
     //   key: "/fueltransaction",
     //   icon: <Icon icon="fuel_transaction" />,

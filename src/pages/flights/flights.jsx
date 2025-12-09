@@ -6,7 +6,7 @@ import {
   Pagination,
   Breadcrumb,
 } from "antd";
-import { CheckCircleOutlined, CloseCircleOutlined, RightOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, CloseCircleOutlined, RightOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
 import { BASE_URL } from "../../consts/variables";
@@ -109,10 +109,58 @@ function Flights() {
     token: accessToken,
   });
 
+  const [updatingStaffId, setUpdatingStaffId] = useState(null);
+
   const handleDelete = () => {
     flightDelete({
       id: currentFlight,
     });
+  };
+
+  const handleUpdateStaffStatus = async (staffId, e) => {
+    e.stopPropagation();
+    if (!staffId) return;
+    
+    setUpdatingStaffId(staffId);
+    
+    try {
+      const lang = localStorage.getItem("app-language");
+      const response = await fetch(`${BASE_URL}/train-schedule/staff/${staffId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          lang: "en" || lang,
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({}),
+      });
+
+      const responseData = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          responseData?.error?.message ||
+          responseData?.message?.message ||
+          responseData?.message ||
+          "An error occurred"
+        );
+      }
+
+      showNotification(
+        "success",
+        "Muvaffaqiyatli",
+        "Xodim statusi 'keldiga' o'zgartirildi"
+      );
+      refetchData();
+    } catch (error) {
+      showNotification(
+        "error",
+        "Xatolik",
+        error?.message || "Statusni o'zgartirishda xatolik yuz berdi"
+      );
+    } finally {
+      setUpdatingStaffId(null);
+    }
   };
 
   useEffect(() => {
@@ -295,6 +343,7 @@ function Flights() {
         const departureStatus = supervisor?.departureStatus;
         const isConfirmed = arrivalStatus === "arrived" || departureStatus === "arrived";
         const isRejected = arrivalStatus === "rejected" || departureStatus === "rejected";
+        const isLate = arrivalStatus === "late" || departureStatus === "late";
         
         return (
           <div className="table_supervisors">
@@ -306,6 +355,8 @@ function Flights() {
                 <CheckCircleOutlined className="confirm_icon confirmed" />
               ) : isRejected ? (
                 <CloseCircleOutlined className="confirm_icon rejected" />
+              ) : isLate ? (
+                <ClockCircleOutlined className="confirm_icon late" style={{ color: '#faad14' }} />
               ) : (
                 <RightOutlined className="arrow_icon" />
               )}
@@ -341,7 +392,7 @@ function Flights() {
     {
       title: "Тасдиқлаш",
       dataIndex: "confirmation",
-      width: 120,
+      width: 150,
       align: "center",
       render: (_, record) => {
         // Check if there's a supervisor in this row
@@ -351,16 +402,28 @@ function Flights() {
           return null;
         }
         
-        // Check arrivalStatus - if "arrived" then confirmed, otherwise rejected
+        // Check arrivalStatus - if "arrived" then confirmed, if "late" then late, otherwise show button
         const arrivalStatus = supervisor?.arrivalStatus;
         const isConfirmed = arrivalStatus === "arrived";
+        const isLate = arrivalStatus === "late";
+        const staffId = supervisor?.id;
         
         return (
           <div className="confirmation_cell">
             {isConfirmed ? (
               <CheckCircleOutlined className="confirm_icon confirmed" style={{ fontSize: 20, color: '#52c41a' }} />
+            ) : isLate ? (
+              <ClockCircleOutlined className="confirm_icon late" style={{ fontSize: 20, color: '#faad14' }} />
             ) : (
-              <CloseCircleOutlined className="confirm_icon rejected" style={{ fontSize: 20, color: '#ff4d4f' }} />
+              <Button
+                type="primary"
+                size="small"
+                loading={updatingStaffId === staffId}
+                onClick={(e) => handleUpdateStaffStatus(staffId, e)}
+                style={{ fontSize: 12 }}
+              >
+                Keldiga o'tkazish
+              </Button>
             )}
           </div>
         );

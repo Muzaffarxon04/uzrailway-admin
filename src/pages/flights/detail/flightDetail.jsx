@@ -100,10 +100,14 @@ function FlightDetail() {
         const statusLabels = {
           arrived: "Keldi",
           expected: "Kutilmoqda",
+          late: "Kechikkan",
+          rejected: "Rad etilgan",
         };
         const statusColors = {
           arrived: "green",
           expected: "orange",
+          late: "gold",
+          rejected: "red",
         };
         return record?.departureStatus ? (
           <Tag color={statusColors[record.departureStatus] || "default"}>
@@ -120,10 +124,14 @@ function FlightDetail() {
         const statusLabels = {
           arrived: "Keldi",
           expected: "Kutilmoqda",
+          late: "Kechikkan",
+          rejected: "Rad etilgan",
         };
         const statusColors = {
           arrived: "green",
           expected: "orange",
+          late: "gold",
+          rejected: "red",
         };
         return record?.arrivalStatus ? (
           <Tag color={statusColors[record.arrivalStatus] || "default"}>

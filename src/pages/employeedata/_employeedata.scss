@@ -1,0 +1,16 @@
+@import "../stations/stations";
+
+.employeedata {
+  .filters_area {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 20px;
+    
+    .item {
+      flex: 1;
+      max-width: 300px;
+    }
+  }
+}
+

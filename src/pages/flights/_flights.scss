@@ -173,6 +173,10 @@
           &.rejected {
             color: #ff4d4f;
           }
+          
+          &.late {
+            color: #faad14;
+          }
         }
         
         .arrow_icon {
@@ -196,6 +200,10 @@
         
         &.rejected {
           color: #ff4d4f;
+        }
+        
+        &.late {
+          color: #faad14;
         }
       }
     }

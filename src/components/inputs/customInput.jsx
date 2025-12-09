@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input } from "antd";
+import { useWatch } from "antd/es/form/Form";
 
 const CustomInput = ({
   label,
@@ -12,33 +13,25 @@ const CustomInput = ({
   ...props
 }) => {
   const [isFilled, setIsFilled] = useState(false);
+  
+  // Watch the field value to detect changes
+  const fieldValue = useWatch(name, form);
 
   useEffect(() => {
-    // Check value after form is initialized
-    const checkValue = () => {
-      const currentValue = form?.getFieldValue(name);
-      const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== "";
-      if (hasValue || defaultValue) {
-        setIsFilled(true);
-      } else {
-        setIsFilled(false);
-      }
-    };
+    // Check if field has value
+    const currentValue = fieldValue !== undefined ? fieldValue : (form?.getFieldValue(name));
+    const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== "";
     
-    checkValue();
-    
-    // Also check when form values change
-    const timer = setTimeout(() => {
-      checkValue();
-    }, 100);
-    
-    return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, name, defaultValue, isEdit, value]);
+    // Also check defaultValue and value props
+    if (hasValue || defaultValue || value) {
+      setIsFilled(true);
+    } else {
+      setIsFilled(false);
+    }
+  }, [fieldValue, form, name, defaultValue, value]);
 
   const handleBlur = (e) => {
     const inputValue = e.target.value;
-    // console.log("Blur value:", inputValue);
     setIsFilled(!!inputValue);
   };
 

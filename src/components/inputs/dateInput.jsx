@@ -10,17 +10,20 @@ const CustomInput = ({ label, isEdit, name, rules = [], form, ...props }) => {
   const fieldValue = useWatch(name, form);
 
   useEffect(() => {
-    setIsFilled(!!fieldValue || isEdit);
-  }, [fieldValue, isEdit]);
+    // Check if field has value
+    const currentValue = fieldValue !== undefined ? fieldValue : (form?.getFieldValue(name));
+    const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== "";
+    
+    setIsFilled(hasValue);
+  }, [fieldValue, form, name, isEdit]);
 
   const onChange = (date) => {
     form.setFieldsValue({ [name]: date });
   };
 
   const onBlur = () => {
-    if (!form.getFieldValue(name)) {
-      setIsFilled(false);
-    }
+    const currentValue = fieldValue !== undefined ? fieldValue : (form?.getFieldValue(name));
+    setIsFilled(!!currentValue);
   };
 
   return (

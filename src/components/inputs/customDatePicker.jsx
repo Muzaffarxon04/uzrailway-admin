@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Form, DatePicker } from "antd";
+import { useWatch } from "antd/es/form/Form";
 import dayjs from "dayjs";
 
 const CustomDatePicker = ({
@@ -13,14 +14,22 @@ const CustomDatePicker = ({
   ...props
 }) => {
   const [isFilled, setIsFilled] = useState(false);
+  
+  // Watch the field value to detect changes
+  const fieldValue = useWatch(name, form);
 
   useEffect(() => {
-    const fieldValue = form?.getFieldValue(name);
-    if ((fieldValue || defaultValue) && isEdit) {
+    // Check if field has value
+    const currentValue = fieldValue !== undefined ? fieldValue : (form?.getFieldValue(name));
+    const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== "";
+    
+    // Also check defaultValue and value props
+    if (hasValue || defaultValue || value) {
       setIsFilled(true);
+    } else {
+      setIsFilled(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form?.getFieldValue(name), isEdit]);
+  }, [fieldValue, form, name, defaultValue, value, isEdit]);
 
   const handleChange = (date) => {
     setIsFilled(!!date);

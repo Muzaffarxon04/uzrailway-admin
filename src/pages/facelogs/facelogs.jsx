@@ -25,7 +25,7 @@ function FaceLogs() {
   
   const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
-  const pageSize = parseInt(searchParams.get("pageSize")) || 10;
+  const pageSize = parseInt(searchParams.get("pageSize")) || 50;
   const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [pagination, setPagination] = useState({
@@ -266,6 +266,7 @@ function FaceLogs() {
           pageSize={pagination.pageSize}
           total={pagination.total}
           showSizeChanger
+          pageSizeOptions={['10', '20', '50', '100', '200']}
           onChange={handlePaginationChange}
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ ${t("Common").page}` }}

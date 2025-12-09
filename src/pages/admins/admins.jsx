@@ -28,7 +28,7 @@ function Partners() {
   
   const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
-  const pageSize = parseInt(searchParams.get("pageSize")) || 100;
+  const pageSize = parseInt(searchParams.get("pageSize")) || 50;
 
   const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
@@ -291,6 +291,7 @@ if (location.pathname) {
           pageSize={pagination.pageSize}
           total={fetchedPartnersData?.total_elements || 0}
           showSizeChanger
+          pageSizeOptions={['10', '20', '50', '100', '200']}
           onChange={handlePaginationChange}
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ ${t("Common").page}` }}

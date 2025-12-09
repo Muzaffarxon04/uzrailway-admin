@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 
 const theme = {
   token: {
-    colorPrimary: "#D4AF37",
+    colorPrimary: "#1890ff",
     colorText: "#131314",
     borderRadius: 16,
   },

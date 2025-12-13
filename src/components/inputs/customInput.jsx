@@ -35,6 +35,19 @@ const CustomInput = ({
     setIsFilled(!!inputValue);
   };
 
+  const handleNumberChange = (e) => {
+    const value = e.target.value;
+    // Allow only numbers
+    if (value === '' || /^\d+$/.test(value)) {
+      if (props.onChange) {
+        props.onChange(e);
+      }
+      setIsFilled(!!value);
+    }
+  };
+
+  const isNumberType = props.type === 'number' || props.inputType === 'number';
+
   return (
     <div className="single_input_item">
       <p
@@ -50,6 +63,7 @@ const CustomInput = ({
           onBlur={handleBlur}
           value={value}
           defaultValue={defaultValue}
+          onChange={isNumberType ? handleNumberChange : (props.onChange || (() => {}))}
           {...props}
         />
       </Form.Item>

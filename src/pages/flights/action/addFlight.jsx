@@ -1,4 +1,4 @@
-import { Form, Button, Spin, Breadcrumb, InputNumber } from "antd";
+import { Form, Button, Spin, Breadcrumb } from "antd";
 import CustomInput from "../../../components/inputs/customInput";
 import CustomDatePicker from "../../../components/inputs/customDatePicker";
 import CustomSelect from "../../../components/inputs/customSelect";
@@ -336,67 +336,51 @@ function AddFlight() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Asosiy narx</p>
-                          <Form.Item
-                            name="base_price"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Asosiy narx kiritilishi shart",
-                              },
-                            ]}
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              min={0}
-                              step={1000}
-                              placeholder="Asosiy narx"
-                            />
-                          </Form.Item>
-                        </div>
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Asosiy narx"
+                          name="base_price"
+                          inputType="number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Asosiy narx kiritilishi shart",
+                            },
+                          ]}
+                        />
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Bo'sh o'rindiqlar</p>
-                          <Form.Item
-                            name="available_seats"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Bo'sh o'rindiqlar kiritilishi shart",
-                              },
-                            ]}
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              min={0}
-                              placeholder="Bo'sh o'rindiqlar"
-                            />
-                          </Form.Item>
-                        </div>
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Bo'sh o'rindiqlar"
+                          name="available_seats"
+                          inputType="number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Bo'sh o'rindiqlar kiritilishi shart",
+                            },
+                          ]}
+                        />
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Band qilingan o'rindiqlar</p>
-                          <Form.Item
-                            name="booked_seats"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Band qilingan o'rindiqlar kiritilishi shart",
-                              },
-                            ]}
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              min={0}
-                              placeholder="Band qilingan o'rindiqlar"
-                            />
-                          </Form.Item>
-                        </div>
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Band qilingan o'rindiqlar"
+                          name="booked_seats"
+                          inputType="number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Band qilingan o'rindiqlar kiritilishi shart",
+                            },
+                          ]}
+                        />
                       </div>
 
                       <div className="input_item">

@@ -1,4 +1,4 @@
-import { Form, Button, Spin, Breadcrumb, Switch, InputNumber } from "antd";
+import { Form, Button, Spin, Breadcrumb, Switch } from "antd";
 import CustomInput from "../../../components/inputs/customInput";
 import CustomSelect from "../../../components/inputs/customSelect";
 import Icon from "../../../components/Icon";
@@ -260,45 +260,35 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Vagonlar soni</p>
-                          <Form.Item
-                            name="wagon_count"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Vagonlar soni kiritilishi shart",
-                              },
-                            ]}
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              min={1}
-                              placeholder="Vagonlar soni"
-                            />
-                          </Form.Item>
-                        </div>
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Vagonlar soni"
+                          name="wagon_count"
+                          inputType="number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vagonlar soni kiritilishi shart",
+                            },
+                          ]}
+                        />
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Jami sig'im</p>
-                          <Form.Item
-                            name="total_capacity"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Jami sig'im kiritilishi shart",
-                              },
-                            ]}
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              min={1}
-                              placeholder="Jami sig'im"
-                            />
-                          </Form.Item>
-                        </div>
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Jami sig'im"
+                          name="total_capacity"
+                          inputType="number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Jami sig'im kiritilishi shart",
+                            },
+                          ]}
+                        />
                       </div>
 
                       <div className="input_item">
@@ -317,25 +307,19 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Ishlab chiqarilgan yil</p>
-                          <Form.Item
-                            name="manufacture_year"
-                            rules={[
-                              {
-                                required: true,
-                                message: "Ishlab chiqarilgan yil kiritilishi shart",
-                              },
-                            ]}
-                          >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              min={1900}
-                              max={new Date().getFullYear()}
-                              placeholder="Ishlab chiqarilgan yil"
-                            />
-                          </Form.Item>
-                        </div>
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Ishlab chiqarilgan yil"
+                          name="manufacture_year"
+                          inputType="number"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Ishlab chiqarilgan yil kiritilishi shart",
+                            },
+                          ]}
+                        />
                       </div>
 
                       <div className="input_item">
@@ -371,8 +355,8 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">WiFi mavjud</p>
+                        <div className="switch_input_item">
+                          <p className="switch_label">WiFi mavjud</p>
                           <Form.Item name="has_wifi" valuePropName="checked">
                             <Switch />
                           </Form.Item>
@@ -380,8 +364,8 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Konditsioner mavjud</p>
+                        <div className="switch_input_item">
+                          <p className="switch_label">Konditsioner mavjud</p>
                           <Form.Item name="has_ac" valuePropName="checked">
                             <Switch />
                           </Form.Item>
@@ -389,8 +373,8 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Restoran mavjud</p>
+                        <div className="switch_input_item">
+                          <p className="switch_label">Restoran mavjud</p>
                           <Form.Item name="has_restaurant" valuePropName="checked">
                             <Switch />
                           </Form.Item>
@@ -398,8 +382,8 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Zaryadlash mavjud</p>
+                        <div className="switch_input_item">
+                          <p className="switch_label">Zaryadlash mavjud</p>
                           <Form.Item name="has_charging" valuePropName="checked">
                             <Switch />
                           </Form.Item>
@@ -407,8 +391,8 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Faol</p>
+                        <div className="switch_input_item">
+                          <p className="switch_label">Faol</p>
                           <Form.Item name="is_active" valuePropName="checked">
                             <Switch />
                           </Form.Item>

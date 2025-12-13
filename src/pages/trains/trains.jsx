@@ -8,14 +8,13 @@ import {
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
 
-function Employees() {
+function Trains() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
   const navigate = useNavigate();
@@ -28,7 +27,7 @@ function Employees() {
   const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentEmployee, setCurrentEmployee] = useState(null);
+  const [currentTrain, setCurrentTrain] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -36,43 +35,43 @@ function Employees() {
   });
 
   const {
-    data: fetchedEmployeesData,
-    isPending: isEmployeesLoading,
+    data: fetchedTrainsData,
+    isPending: isTrainsLoading,
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "employees",
+      "train",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `${BASE_URL}/employee`,
+    url: `train/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      search: searchValue,
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
 
-  const allEmployees = fetchedEmployeesData?.data?.data || fetchedEmployeesData?.data || fetchedEmployeesData || [];
+  const allTrains = fetchedTrainsData?.data || [];
 
   const {
-    data: employeeDeleteData,
+    data: trainDeleteData,
     isSuccess: isSuccessDeleted,
-    mutate: employeeDelete,
-    isPending: isEmployeeDeleteLoading,
-    error: employeeDeleteError,
-    isError: isEmployeeDeleteError,
+    mutate: trainDelete,
+    isPending: isTrainDeleteLoading,
+    error: trainDeleteError,
+    isError: isTrainDeleteError,
   } = useDeleteMutation({
-    url: `${BASE_URL}/employee`,
+    url: `trains`,
     method: "DELETE",
     token: accessToken,
   });
 
   const handleDelete = () => {
-    employeeDelete({
-      id: currentEmployee,
+    trainDelete({
+      id: currentTrain,
     });
   };
 
@@ -89,28 +88,28 @@ function Employees() {
       showNotification(
         "success",
         t("messages").delete_success,
-        employeeDeleteData?.message || t("messages").success
+        trainDeleteData?.message || t("messages").success
       );
-      setCurrentEmployee(null);
+      setCurrentTrain(null);
       setModalVisible(false);
-    } else if (isEmployeeDeleteError) {
+    } else if (isTrainDeleteError) {
       showNotification(
         "error",
         t("messages").error_2,
-        employeeDeleteError?.message || t("messages").error
+        trainDeleteError?.message || t("messages").error
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessDeleted, employeeDeleteError, isEmployeeDeleteError]);
+  }, [isSuccessDeleted, trainDeleteError, isTrainDeleteError]);
 
   useEffect(() => {
-    if (fetchedEmployeesData) {
+    if (fetchedTrainsData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedEmployeesData?.total || fetchedEmployeesData?.data?.total || fetchedEmployeesData?.data?.length || fetchedEmployeesData?.length || 0,
+        total: fetchedTrainsData?.total_elements || fetchedTrainsData?.total || 0,
       }));
     }
-  }, [fetchedEmployeesData]);
+  }, [fetchedTrainsData]);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -148,49 +147,97 @@ function Employees() {
       ),
     },
     {
-      title: "To'liq ism",
-      dataIndex: "fullname",
-      minWidth: 250,
+      title: "Poyezd raqami",
+      dataIndex: "train_number",
+      minWidth: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.fullname}</p>
+          <p>{record?.train_number || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Telefon raqami",
-      dataIndex: "phone",
-      width: 180,
+      title: "Poyezd nomi",
+      dataIndex: "train_name",
+      minWidth: 200,
       render: (_, record) => (
-        <span className="table_phone_number">
-          <a href={`tel:${record?.phone}`}>{record?.phone}</a>
+        <span className="table_name">
+          <p>{record?.train_name || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Poyezd turi",
+      dataIndex: "train_type",
+      width: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.train_type || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Vagonlar soni",
+      dataIndex: "wagon_count",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.wagon_count || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Jami sig'im",
+      dataIndex: "total_capacity",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.total_capacity || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.status || "-"}</p>
         </span>
       ),
     },
     {
       title: "",
       dataIndex: "action",
-      width: 80,
+      width: 120,
       align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
+          <Icon
+            icon="ic_info"
+            className="icon info"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/trains/detail/${record.id}`);
+            }}
+          />
           <Icon
             icon="ic_edit"
             className="icon edit"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/employees/${record.id}`);
+              navigate(`/trains/${record.id}`);
             }}
           />
-          <Icon
+          {/* <Icon
             icon="ic_trash"
             className="icon trash"
             onClick={(e) => {
               e.stopPropagation();
               setModalVisible(true);
-              setCurrentEmployee(record.id);
+              setCurrentTrain(record.id);
             }}
-          />
+          /> */}
         </span>
       ),
     },
@@ -211,13 +258,13 @@ function Employees() {
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Xodimlar</h2>
+            <h2>Poyezdlar</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Xodimlar ro'yxati",
+                    title: "Poyezdlar ro'yxati",
                     href: "",
                   },
                 ]}
@@ -225,8 +272,8 @@ function Employees() {
             </span>
           </div>
           <div className="filter">
-            <Link to="/employees/add">
-              <Button type="primary">Xodim qo'shish</Button>
+            <Link to="/trains/add">
+              <Button type="primary">Poyezd qo'shish</Button>
             </Link>
           </div>
         </div>
@@ -235,7 +282,7 @@ function Employees() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="Ism bo'yicha qidirish"
+              placeholder="Poyezd raqami yoki nomi bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -254,13 +301,19 @@ function Employees() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allEmployees) ? allEmployees.map((item) => ({
+            dataSource={Array.isArray(allTrains) ? allTrains.map((item) => ({
               ...item,
               key: item?.id,
             })) : []}
-            loading={isEmployeesLoading ? customLoader : false}
+            loading={isTrainsLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
+            onRow={(record) => ({
+              onClick: () => {
+                navigate(`/trains/detail/${record.id}`);
+              },
+              style: { cursor: "pointer" },
+            })}
           />
         </div>
         <Pagination
@@ -276,15 +329,16 @@ function Employees() {
         <DeleteConfirmModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
-          isLoading={isEmployeeDeleteLoading}
+          isLoading={isTrainDeleteLoading}
           onConfirm={handleDelete}
-          title="Xodimni o'chirish?"
-          message="Bu xodimni o'chirmoqchimisiz?"
-          dangerMessage="Barcha xodim ma'lumotlari qayta tiklanmaydi."
+          title="Poyezdni o'chirish?"
+          message="Bu poyezdni o'chirmoqchimisiz?"
+          dangerMessage="Barcha poyezd ma'lumotlari qayta tiklanmaydi."
         />
       </div>
     </section>
   );
 }
 
-export default Employees;
+export default Trains;
+

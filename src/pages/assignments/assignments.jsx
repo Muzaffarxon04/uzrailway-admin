@@ -1,23 +1,22 @@
 import { useState, useEffect } from "react";
 import {
   Input,
-  Button,
   Table,
   Pagination,
   Breadcrumb,
 } from "antd";
-import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
 import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
-import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
+import dayjs from "dayjs";
 
-function Stations() {
+function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
+  const { useFetchQuery } = useUniversalFetch();
   const navigate = useNavigate();
   const location = useLocation();
   const accessToken = localStorage.getItem("access_token");
@@ -27,8 +26,6 @@ function Stations() {
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
   const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentStation, setCurrentStation] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -36,45 +33,26 @@ function Stations() {
   });
 
   const {
-    data: fetchedStationsData,
-    isPending: isStationsLoading,
+    data: fetchedAssignmentsData,
+    isPending: isAssignmentsLoading,
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "stations",
+      "assignments",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `${BASE_URL}/station`,
+    url: `assignments/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      search: searchValue,
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
 
-  const allStations = fetchedStationsData?.data?.data || fetchedStationsData || [];
-
-  const {
-    data: stationDeleteData,
-    isSuccess: isSuccessDeleted,
-    mutate: stationDelete,
-    isPending: isStationDeleteLoading,
-    error: stationDeleteError,
-    isError: isStationDeleteError,
-  } = useDeleteMutation({
-    url: `${BASE_URL}/station`,
-    method: "DELETE",
-    token: accessToken,
-  });
-
-  const handleDelete = () => {
-    stationDelete({
-      id: currentStation,
-    });
-  };
+  const allAssignments = fetchedAssignmentsData?.data || [];
 
   useEffect(() => {
     if (location.pathname) {
@@ -84,33 +62,13 @@ function Stations() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (isSuccessDeleted) {
-      refetchData();
-      showNotification(
-        "success",
-        t("messages").delete_success,
-        stationDeleteData?.message || t("messages").success
-      );
-      setCurrentStation(null);
-      setModalVisible(false);
-    } else if (isStationDeleteError) {
-      showNotification(
-        "error",
-        t("messages").error_2,
-        stationDeleteError?.message || t("messages").error
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessDeleted, stationDeleteError, isStationDeleteError]);
-
-  useEffect(() => {
-    if (fetchedStationsData) {
+    if (fetchedAssignmentsData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedStationsData?.total || fetchedStationsData?.length || 0,
+        total: fetchedAssignmentsData?.total_elements || fetchedAssignmentsData?.total || 0,
       }));
     }
-  }, [fetchedStationsData]);
+  }, [fetchedAssignmentsData]);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -148,39 +106,98 @@ function Stations() {
       ),
     },
     {
-      title: "Stansiya nomi",
-      dataIndex: "name",
-      minWidth: 250,
+      title: "Xodim",
+      dataIndex: "employee",
+      minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.name}</p>
+          <p>{record?.employee?.fullname || record?.employee_name || "-"}</p>
         </span>
       ),
     },
     {
-      title: "",
-      dataIndex: "action",
-      width: 80,
-      align: "right",
+      title: "Reys",
+      dataIndex: "trip",
+      minWidth: 200,
       render: (_, record) => (
-        <span className="action_wrapper">
-          <Icon
-            icon="ic_edit"
-            className="icon edit"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/stations/${record.id}`);
-            }}
-          />
-          <Icon
-            icon="ic_trash"
-            className="icon trash"
-            onClick={(e) => {
-              e.stopPropagation();
-              setModalVisible(true);
-              setCurrentStation(record.id);
-            }}
-          />
+        <span className="table_name">
+          <p>{record?.trip?.trip_number || record?.trip_number || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Rol",
+      dataIndex: "role",
+      width: 150,
+      render: (_, record) => {
+        const roleLabels = {
+          train_chief: "Poyezd boshlig'i",
+          wagon_supervisor: "Vagon nazoratchisi",
+          conductor: "Konduktor",
+        };
+        return (
+          <span className="table_name">
+            <p>{roleLabels[record?.role] || record?.role || "-"}</p>
+          </span>
+        );
+      },
+    },
+    {
+      title: "Sana",
+      dataIndex: "date",
+      width: 130,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>
+            {record?.date 
+              ? dayjs(record.date).format("DD.MM.YYYY") 
+              : record?.created_at 
+              ? dayjs(record.created_at).format("DD.MM.YYYY")
+              : "-"}
+          </p>
+        </span>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      width: 150,
+      render: (_, record) => {
+        const statusLabels = {
+          assigned: "Tayinlangan",
+          confirmed: "Tasdiqlangan",
+          cancelled: "Bekor qilingan",
+          completed: "Yakunlangan",
+        };
+        const statusColors = {
+          assigned: "blue",
+          confirmed: "green",
+          cancelled: "red",
+          completed: "default",
+        };
+        return (
+          <span className="table_name">
+            <p style={{ 
+              color: statusColors[record?.status] || "default",
+              fontWeight: 500 
+            }}>
+              {statusLabels[record?.status] || record?.status || "-"}
+            </p>
+          </span>
+        );
+      },
+    },
+    {
+      title: "Yaratilgan vaqti",
+      dataIndex: "created_at",
+      width: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>
+            {record?.created_at 
+              ? dayjs(record.created_at).format("DD.MM.YYYY HH:mm") 
+              : "-"}
+          </p>
         </span>
       ),
     },
@@ -201,23 +218,18 @@ function Stations() {
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Stansiyalar</h2>
+            <h2>Topshiriqlar</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Stansiyalar ro'yxati",
+                    title: "Topshiriqlar ro'yxati",
                     href: "",
                   },
                 ]}
               />
             </span>
-          </div>
-          <div className="filter">
-            <Link to="/stations/add">
-              <Button type="primary">Stansiya qo'shish</Button>
-            </Link>
           </div>
         </div>
       </div>
@@ -225,7 +237,7 @@ function Stations() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="Stansiya nomi bo'yicha qidirish"
+              placeholder="Xodim yoki reys raqami bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -244,11 +256,11 @@ function Stations() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allStations) ? allStations.map((item) => ({
+            dataSource={Array.isArray(allAssignments) ? allAssignments.map((item) => ({
               ...item,
               key: item?.id,
             })) : []}
-            loading={isStationsLoading ? customLoader : false}
+            loading={isAssignmentsLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
           />
@@ -263,19 +275,10 @@ function Stations() {
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ ${t("Common").page}` }}
         />
-        <DeleteConfirmModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          isLoading={isStationDeleteLoading}
-          onConfirm={handleDelete}
-          title="Stansiyani o'chirish?"
-          message="Bu stansiyani o'chirmoqchimisiz?"
-          dangerMessage="Barcha stansiya ma'lumotlari qayta tiklanmaydi."
-        />
       </div>
     </section>
   );
 }
 
-export default Stations;
+export default Assignments;
 

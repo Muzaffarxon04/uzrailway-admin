@@ -27,7 +27,7 @@ function Login() {
     error: handleSignInConfirmError,
     isError: isHandleSignInConfirmError,
   } = useFetchMutation({
-    url: `https://dev.api.c5.uz/api/showroom/login`,
+    url: `auth/login/`,
     method: "POST",
   });
 
@@ -40,13 +40,26 @@ function Login() {
       );
 
       // Store access token & refresh token in localStorage
+      // New API response structure: { access: "...", refresh: "..." }
       localStorage.setItem(
         "access_token",
-        handleSignInConfirmData?.data?.token
+        handleSignInConfirmData?.access || handleSignInConfirmData?.data?.access
       );
       localStorage.setItem(
+        "refresh_token",
+        handleSignInConfirmData?.refresh || handleSignInConfirmData?.data?.refresh
+      );
+      
+      // Prepare userData with default role if not provided
+      const userDataFromResponse = handleSignInConfirmData?.data || handleSignInConfirmData || {};
+      const userDataWithRole = {
+        ...userDataFromResponse,
+        role: userDataFromResponse?.role || "showroom_admin", // Default role
+      };
+      
+      localStorage.setItem(
         "userData",
-        JSON.stringify(handleSignInConfirmData?.data)
+        JSON.stringify(userDataWithRole)
       );
 
     

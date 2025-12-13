@@ -42,7 +42,7 @@ const CustomDatePicker = ({
         <DatePicker
           onChange={handleChange}
           style={{ width: "100%" }}
-          format="YYYY-MM-DD"
+          format={props.format || "YYYY-MM-DD"}
           value={value}
           defaultValue={defaultValue ? dayjs(defaultValue) : undefined}
           {...props}

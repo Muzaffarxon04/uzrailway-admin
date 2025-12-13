@@ -1,16 +1,16 @@
-import { Form, Button, Spin, Breadcrumb } from "antd";
+import { Form, Button, Spin, Breadcrumb, InputNumber } from "antd";
 import CustomInput from "../../../components/inputs/customInput";
 import CustomDatePicker from "../../../components/inputs/customDatePicker";
 import CustomSelect from "../../../components/inputs/customSelect";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import useUniversalFetch from "../../../Hooks/useApi";
-import { BASE_URL } from "../../../consts/variables";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../components/notification";
 import { useLocalization } from "../../../LocalizationContext";
 import dayjs from "dayjs";
+import TextArea from "antd/es/input/TextArea";
 
 function AddFlight() {
   const [form] = Form.useForm();
@@ -25,79 +25,68 @@ function AddFlight() {
   const [loader, setLoader] = useState("1");
   const navigate = useNavigate();
 
-  // Fetch stations for select
+  // Fetch trains for select
   const {
-    data: stationsData,
-    isPending: isStationsLoading,
+    data: trainsData,
+    isPending: isTrainsLoading,
   } = useFetchQuery({
-    queryKey: ["stations-select"],
-    url: `${BASE_URL}/station`,
+    queryKey: ["trains-select"],
+    url: `train/list/`,
+    params: { page: 1, page_size: 1000 },
     token: accessToken,
   });
 
-  // Fetch employees for select
-  const {
-    data: employeesData,
-    isPending: isEmployeesLoading,
-  } = useFetchQuery({
-    queryKey: ["employees-select"],
-    url: `${BASE_URL}/employee`,
-    token: accessToken,
-  });
-
-  const stations = stationsData?.data?.data || stationsData?.data || stationsData || [];
-  const employees = employeesData?.data?.data || employeesData?.data || employeesData || [];
+  const trains = trainsData?.data || [];
 
   const {
-    data: flightData,
-    isPending: isFlightLoading,
-    isSuccess: isSuccessFlightData,
+    data: tripData,
+    isPending: isTripLoading,
+    isSuccess: isSuccessTripData,
     refetch: refetchData,
   } = useFetchQuery({
-    url: `${BASE_URL}/train-schedule`,
-    queryKey: [`train-schedule`, id],
-    id: is_edit ? id : undefined,
+    url: `trips/detail/${id}/`,
+    queryKey: [`trip-detail`, id],
     config: {
       queryOptions: {
         enabled: is_edit,
-        queryKey: [`train-schedule`, id],
+        queryKey: [`trip-detail`, id],
       },
     },
     token: accessToken,
   });
 
-  const flight = flightData?.data || flightData || {};
+  const trip = useMemo(() => tripData?.data || tripData || {}, [tripData]);
 
   const {
-    mutate: CreateFlight,
-    isPending: isFlightCreateLoading,
-    isSuccess: isSuccessFlightCreated,
-    data: flightCreateData,
-    isError: isFlightCreateError,
-    error: flightCreateError,
+    mutate: CreateTrip,
+    isPending: isTripCreateLoading,
+    isSuccess: isSuccessTripCreated,
+    data: tripCreateData,
+    isError: isTripCreateError,
+    error: tripCreateError,
   } = useFetchMutation({
-    url: is_edit ? `${BASE_URL}/train-schedule/${id}` : `${BASE_URL}/train-schedule`,
-    invalidateKey: ["train-schedule"],
+    url: is_edit ? `trips/update/${id}/` : `trips/create`,
+    invalidateKey: ["trips"],
     method: is_edit ? "PATCH" : "POST",
     token: accessToken,
   });
 
   useEffect(() => {
-    if (is_edit && flight && Object.keys(flight).length > 0) {
+    if (is_edit && trip && Object.keys(trip).length > 0) {
       form.setFieldsValue({
-        trainNumber: flight.trainNumber,
-        departureStationId: flight.departureStationId,
-        arrivalStationId: flight.arrivalStationId,
-        departureTime: flight.departureTime,
-        arrivalTime: flight.arrivalTime,
-        departureDate: flight.departureDate ? dayjs(flight.departureDate) : null,
-        arrivalDate: flight.arrivalDate ? dayjs(flight.arrivalDate) : null,
-        staff: Array.isArray(flight.staff) && flight.staff.length > 0 
-          ? flight.staff.map((s) => ({
-              employeeId: s.employee?.id || s.employeeId,
-              role: s.role,
-            }))
-          : [],
+        train: trip.train?.id || trip.train,
+        trip_date: trip.trip_date ? dayjs(trip.trip_date) : null,
+        departure_station: trip.departure_station,
+        arrival_station: trip.arrival_station,
+        route_name: trip.route_name,
+        scheduled_departure: trip.scheduled_departure ? dayjs(trip.scheduled_departure) : null,
+        scheduled_arrival: trip.scheduled_arrival ? dayjs(trip.scheduled_arrival) : null,
+        intermediate_stations: trip.intermediate_stations || [],
+        base_price: trip.base_price ? parseFloat(trip.base_price) : null,
+        available_seats: trip.available_seats,
+        booked_seats: trip.booked_seats,
+        status: trip.status,
+        notes: trip.notes || "",
       });
       
       // Force form to update all fields
@@ -106,51 +95,53 @@ function AddFlight() {
       }, 50);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [flight, is_edit]);
+  }, [trip, is_edit]);
 
   const onFinish = (values) => {
     const body = {
-      trainNumber: values.trainNumber,
-      departureStationId: parseInt(values.departureStationId),
-      arrivalStationId: parseInt(values.arrivalStationId),
-      departureTime: values.departureTime,
-      arrivalTime: values.arrivalTime,
-      departureDate: values.departureDate ? values.departureDate.toISOString() : null,
-      arrivalDate: values.arrivalDate ? values.arrivalDate.toISOString() : null,
-      staff: (values.staff || []).map((staffMember) => ({
-        employeeId: parseInt(staffMember.employeeId),
-        role: staffMember.role,
+      train: parseInt(values.train),
+      trip_date: values.trip_date ? values.trip_date.format("YYYY-MM-DD") : null,
+      departure_station: values.departure_station,
+      arrival_station: values.arrival_station,
+      route_name: values.route_name,
+      scheduled_departure: values.scheduled_departure ? values.scheduled_departure.format("YYYY-MM-DDTHH:mm:ss") : null,
+      scheduled_arrival: values.scheduled_arrival ? values.scheduled_arrival.format("YYYY-MM-DDTHH:mm:ss") : null,
+      intermediate_stations: (values.intermediate_stations || []).map((station) => ({
+        name: station.name,
+        arrival: station.arrival,
+        departure: station.departure,
       })),
+      base_price: values.base_price ? values.base_price.toFixed(2) : "0.00",
+      available_seats: parseInt(values.available_seats) || 0,
+      booked_seats: parseInt(values.booked_seats) || 0,
+      status: values.status,
+      notes: values.notes || "",
     };
-    CreateFlight(body);
+    CreateTrip(body);
   };
 
   useEffect(() => {
-    if (isSuccessFlightCreated) {
+    if (isSuccessTripCreated) {
       refetchData();
-      const notificationDuration = is_edit ? 1 : 4.5;
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        flightCreateData?.message || t("messages").create_success,
-        notificationDuration
+        t("messages").partner_created,
+        tripCreateData?.message || t("messages").create_success
       );
-      setTimeout(() => {
-        navigate("/flights");
-      }, is_edit ? 1000 : 0);
-    } else if (isFlightCreateError) {
+      navigate("/flights");
+    } else if (isTripCreateError) {
       showNotification(
         "error",
         t("messages").error_2,
-        flightCreateError?.message || t("messages").error
+        tripCreateError?.message || t("messages").error
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessFlightCreated, isFlightCreateError, is_edit]);
+  }, [isSuccessTripCreated, isTripCreateError]);
 
   useEffect(() => {
     if (is_edit) {
-      if (!isFlightLoading && flight && isSuccessFlightData && is_edit) {
+      if (!isTripLoading && trip && Object.keys(trip).length > 0 && isSuccessTripData && is_edit) {
         setLoader("0");
         setOpacity("1");
       } else {
@@ -162,7 +153,7 @@ function AddFlight() {
       setOpacity("1");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFlightLoading, flight, is_edit]);
+  }, [isTripLoading, trip, is_edit, isSuccessTripData]);
 
   return (
     <>
@@ -199,7 +190,7 @@ function AddFlight() {
                     },
                     {
                       title: is_edit
-                        ? flight?.trainNumber || "Tahrirlash"
+                        ? trip?.trip_number || "Tahrirlash"
                         : "Yangi reys",
                       href: "",
                     },
@@ -218,7 +209,8 @@ function AddFlight() {
             onFinish={onFinish}
             initialValues={{ 
               remember: true,
-              staff: [], // Initial empty staff array
+              intermediate_stations: [],
+              status: "scheduled",
             }}
           >
             <div className="action_wrapper">
@@ -231,69 +223,34 @@ function AddFlight() {
                   <div className="drap_area_wrapper">
                     <div className="form_items">
                       <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Poyezd raqami"
-                          name="trainNumber"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Poyezd raqami kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
                         <CustomSelect
-                          label="Ketish stansiyasi"
-                          name="departureStationId"
+                          label="Poyezd"
+                          name="train"
                           form={form}
                           rules={[
                             {
                               required: true,
-                              message: "Ketish stansiyasi tanlanishi shart",
+                              message: "Poyezd tanlanishi shart",
                             },
                           ]}
-                          options={Array.isArray(stations) ? stations.map((station) => ({
-                            label: station.name,
-                            value: station.id,
+                          options={Array.isArray(trains) ? trains.map((train) => ({
+                            label: `${train.train_number} - ${train.train_name}`,
+                            value: train.id,
                           })) : []}
-                          loading={isStationsLoading}
+                          loading={isTrainsLoading}
                         />
                       </div>
 
                       <div className="input_item">
-                        <CustomSelect
-                          label="Kelish stansiyasi"
-                          name="arrivalStationId"
-                          form={form}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Kelish stansiyasi tanlanishi shart",
-                            },
-                          ]}
-                          options={Array.isArray(stations) ? stations.map((station) => ({
-                            label: station.name,
-                            value: station.id,
-                          })) : []}
-                          loading={isStationsLoading}
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
+                        <CustomDatePicker
                           isEdit={is_edit}
                           form={form}
-                          label="Ketish vaqti"
-                          name="departureTime"
-                          placeholder="HH:MM"
+                          label="Reys sanasi"
+                          name="trip_date"
                           rules={[
                             {
                               required: true,
-                              message: "Ketish vaqti kiritilishi shart",
+                              message: "Reys sanasi tanlanishi shart",
                             },
                           ]}
                         />
@@ -303,13 +260,42 @@ function AddFlight() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="Kelish vaqti"
-                          name="arrivalTime"
-                          placeholder="HH:MM"
+                          label="Jo'nash stanstiyasi"
+                          name="departure_station"
                           rules={[
                             {
                               required: true,
-                              message: "Kelish vaqti kiritilishi shart",
+                              message: "Jo'nash stanstiyasi kiritilishi shart",
+                            },
+                          ]}
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Etib borish stanstiyasi"
+                          name="arrival_station"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Etib borish stanstiyasi kiritilishi shart",
+                            },
+                          ]}
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Marshrut nomi"
+                          name="route_name"
+                          rules={[
+                            {
+                              required: true,
+                              message: "Marshrut nomi kiritilishi shart",
                             },
                           ]}
                         />
@@ -319,12 +305,14 @@ function AddFlight() {
                         <CustomDatePicker
                           isEdit={is_edit}
                           form={form}
-                          label="Ketish sanasi"
-                          name="departureDate"
+                          label="Jo'nash vaqti"
+                          name="scheduled_departure"
+                          showTime
+                          format="YYYY-MM-DD HH:mm"
                           rules={[
                             {
                               required: true,
-                              message: "Ketish sanasi tanlanishi shart",
+                              message: "Jo'nash vaqti tanlanishi shart",
                             },
                           ]}
                         />
@@ -334,22 +322,124 @@ function AddFlight() {
                         <CustomDatePicker
                           isEdit={is_edit}
                           form={form}
-                          label="Kelish sanasi"
-                          name="arrivalDate"
+                          label="Etib borish vaqti"
+                          name="scheduled_arrival"
+                          showTime
+                          format="YYYY-MM-DD HH:mm"
                           rules={[
                             {
                               required: true,
-                              message: "Kelish sanasi tanlanishi shart",
+                              message: "Etib borish vaqti tanlanishi shart",
                             },
                           ]}
                         />
+                      </div>
+
+                      <div className="input_item">
+                        <div className="single_input_item">
+                          <p className="label label_active">Asosiy narx</p>
+                          <Form.Item
+                            name="base_price"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Asosiy narx kiritilishi shart",
+                              },
+                            ]}
+                          >
+                            <InputNumber
+                              style={{ width: "100%" }}
+                              min={0}
+                              step={1000}
+                              placeholder="Asosiy narx"
+                            />
+                          </Form.Item>
+                        </div>
+                      </div>
+
+                      <div className="input_item">
+                        <div className="single_input_item">
+                          <p className="label label_active">Bo'sh o'rindiqlar</p>
+                          <Form.Item
+                            name="available_seats"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Bo'sh o'rindiqlar kiritilishi shart",
+                              },
+                            ]}
+                          >
+                            <InputNumber
+                              style={{ width: "100%" }}
+                              min={0}
+                              placeholder="Bo'sh o'rindiqlar"
+                            />
+                          </Form.Item>
+                        </div>
+                      </div>
+
+                      <div className="input_item">
+                        <div className="single_input_item">
+                          <p className="label label_active">Band qilingan o'rindiqlar</p>
+                          <Form.Item
+                            name="booked_seats"
+                            rules={[
+                              {
+                                required: true,
+                                message: "Band qilingan o'rindiqlar kiritilishi shart",
+                              },
+                            ]}
+                          >
+                            <InputNumber
+                              style={{ width: "100%" }}
+                              min={0}
+                              placeholder="Band qilingan o'rindiqlar"
+                            />
+                          </Form.Item>
+                        </div>
+                      </div>
+
+                      <div className="input_item">
+                        <CustomSelect
+                          label="Status"
+                          name="status"
+                          form={form}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Status tanlanishi shart",
+                            },
+                          ]}
+                          options={[
+                            { label: "Scheduled", value: "scheduled" },
+                            { label: "Boarding", value: "boarding" },
+                            { label: "Departed", value: "departed" },
+                            { label: "In Transit", value: "in_transit" },
+                            { label: "Arrived", value: "arrived" },
+                            { label: "Delayed", value: "delayed" },
+                            { label: "Cancelled", value: "cancelled" },
+                            { label: "Completed", value: "completed" },
+                          ]}
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <div className="single_input_item">
+                          <p className="label label_active">Qo'shimcha ma'lumotlar</p>
+                          <Form.Item name="notes">
+                            <TextArea
+                              rows={4}
+                              placeholder="Qo'shimcha ma'lumotlar"
+                            />
+                          </Form.Item>
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="staff_section" style={{ width: "100%", marginTop: 24 }}>
-                    <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>Xodimlar</h4>
-                    <Form.List name="staff">
+                  <div className="intermediate_stations_section" style={{ width: "100%", marginTop: 24 }}>
+                    <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>O'rta stanstiyalar</h4>
+                    <Form.List name="intermediate_stations">
                       {(fields, { add, remove }) => (
                         <>
                           {fields.map(({ key, name, ...restField }) => (
@@ -364,37 +454,43 @@ function AddFlight() {
                               backgroundColor: "#f8f8f8"
                             }}>
                               <div style={{ flex: 1 }}>
-                                <CustomSelect
-                                  label="Xodim"
-                                  name={[name, "employeeId"]}
+                                <CustomInput
+                                  label="Stanstiya nomi"
+                                  name={[name, "name"]}
                                   form={form}
                                   rules={[
                                     {
                                       required: true,
-                                      message: "Xodim tanlanishi shart",
+                                      message: "Stanstiya nomi kiritilishi shart",
                                     },
                                   ]}
-                                  options={Array.isArray(employees) ? employees.map((employee) => ({
-                                    label: employee.fullname,
-                                    value: employee.id,
-                                  })) : []}
-                                  loading={isEmployeesLoading}
                                 />
                               </div>
                               <div style={{ flex: 1 }}>
-                                <CustomSelect
-                                  label="Rol"
-                                  name={[name, "role"]}
+                                <CustomInput
+                                  label="Kelish vaqti"
+                                  name={[name, "arrival"]}
                                   form={form}
+                                  placeholder="HH:MM"
                                   rules={[
                                     {
                                       required: true,
-                                      message: "Rol tanlanishi shart",
+                                      message: "Kelish vaqti kiritilishi shart",
                                     },
                                   ]}
-                                  options={[
-                                    { label: "Poyezd boshlig'i", value: "train_chief" },
-                                    { label: "Vagon nazoratchisi", value: "wagon_supervisor" },
+                                />
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <CustomInput
+                                  label="Jo'nash vaqti"
+                                  name={[name, "departure"]}
+                                  form={form}
+                                  placeholder="HH:MM"
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Jo'nash vaqti kiritilishi shart",
+                                    },
                                   ]}
                                 />
                               </div>
@@ -416,7 +512,7 @@ function AddFlight() {
                             icon={<PlusOutlined />}
                             style={{ marginTop: 8 }}
                           >
-                            Xodim qo'shish
+                            O'rta stanstiya qo'shish
                           </Button>
                         </>
                       )}
@@ -426,7 +522,7 @@ function AddFlight() {
                   <div className="form_actions">
                     <div className="footer_buttons">
                       <Button
-                        loading={isFlightCreateLoading}
+                        loading={isTripCreateLoading}
                         onClick={() => form.submit()}
                         type="primary"
                       >

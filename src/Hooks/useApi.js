@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { BASE_URL } from "../consts/variables";
 
 function useUniversalFetch() {
   const queryClient = useQueryClient();
@@ -20,11 +21,11 @@ function useUniversalFetch() {
 
     // console.log("Fetching API:", { url, method, body, headers: fetchHeaders });
 
-    const response = await fetch(url, {
+    const response = await fetch(`${BASE_URL}/${url}`, {
       method,
       headers: fetchHeaders,
       body:
-        !isFormData && method !== "GET" && method !== "DELETE"
+        !isFormData && method !== "GET"
           ? JSON.stringify(body)
           : body,
     });
@@ -117,7 +118,12 @@ function useUniversalFetch() {
   }) =>
     useMutation({
       mutationFn: ({ id }) =>
-        fetchData({ url: `${url}/${id}`, method: "DELETE", token }),
+        fetchData({ 
+          url: `${url}/delete/`, 
+          method: "POST", 
+          token, 
+          body: { id } 
+        }),
       onSuccess: (data) => {
         // console.log("Delete Mutation Success:", data);
         if (invalidateKey) {

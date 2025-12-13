@@ -6,7 +6,7 @@ import React, {
 import { Button, Layout, Menu, Modal, Select,
   //  Switch
    } from "antd";
-import { LaptopOutlined, BankOutlined } from "@ant-design/icons";
+import { LaptopOutlined, CarOutlined } from "@ant-design/icons";
 import { useNavigate, Outlet, useLocation,
   //  useSearchParams 
 
@@ -20,7 +20,8 @@ import { useLocalization } from "../../LocalizationContext";
 
 const { Sider, Content } = Layout;
 const LayoutComponent = ({ children }) => {
-  const userData = JSON.parse(localStorage.getItem("userData") || []);
+  const userDataRaw = localStorage.getItem("userData");
+  const userData = userDataRaw ? JSON.parse(userDataRaw) : { role: "showroom_admin" };
   // const [searchParams, setSearchParams] = useSearchParams(); // ✅ Hook to manage URL parameters
 
   const [collapsed, setCollapsed] = useState(false);
@@ -61,21 +62,9 @@ const LayoutComponent = ({ children }) => {
     //   accessRoles:["showroom_admin"]
     // },
     {
-      key: "/employees",
-      icon: <Icon icon="ic_users" />,
-      label: `${t("Pages").employees}`,
-      accessRoles:["showroom_admin", "dispatcher"]
-    },
-    {
       key: "/flights",
       icon: <Icon icon="ic_order_list" />,
       label: `${t("Pages").flights}`,
-      accessRoles:["showroom_admin", "dispatcher"]
-    },
-    {
-      key: "/stations",
-      icon: <BankOutlined />,
-      label: `${t("Pages").stations}`,
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
@@ -85,15 +74,21 @@ const LayoutComponent = ({ children }) => {
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
-      key: "/facelogs",
-      icon: <Icon icon="ic_users" />,
-      label: "Keldi-ketdilar",
+      key: "/trains",
+      icon: <CarOutlined />,
+      label: "Poyezdlar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
-      key: "/employeedata",
-      icon: <Icon icon="ic_reports" />,
-      label: "Xodimlar ma'lumotlari",
+      key: "/attendance",
+      icon: <Icon icon="ic_users" />,
+      label: "Davomat",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
+    {
+      key: "/assignments",
+      icon: <Icon icon="ic_order_list" />,
+      label: "Topshiriqlar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
     // {
@@ -274,3 +269,4 @@ const LayoutComponent = ({ children }) => {
 };
 
 export default LayoutComponent;
+

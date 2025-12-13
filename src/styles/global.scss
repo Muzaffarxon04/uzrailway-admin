@@ -7,8 +7,6 @@
 @import "../pages/employees/employees";
 @import "../pages/flights/flights";
 @import "../pages/stations/stations";
-@import "../pages/devices/devices";
-@import "../pages/facelogs/facelogs";
 
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
@@ -61,17 +59,10 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  overflow-y: auto;
-  overflow-x: hidden;
   .header {
     border-radius: 12px;
     background-color: $white;
     padding: 16px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     h2 {
       margin: 0;
       font-weight: 700;

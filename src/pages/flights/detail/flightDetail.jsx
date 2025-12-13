@@ -3,7 +3,6 @@ import { Card, Table, Descriptions, Breadcrumb, Button, Spin, Tag } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../../../consts/variables";
 import useUniversalFetch from "../../../Hooks/useApi";
-import { useLocalization } from "../../../LocalizationContext";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -12,137 +11,83 @@ function FlightDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("access_token");
-  const { t } = useLocalization();
   const { useFetchQuery } = useUniversalFetch();
 
   const {
-    data: flightData,
-    isPending: isFlightLoading,
+    data: tripData,
+    isPending: isTripLoading,
   } = useFetchQuery({
-    queryKey: [`train-schedule-detail`, id],
-    url: `${BASE_URL}/train-schedule`,
-    id: id,
+    queryKey: [`trip-detail`, id],
+    url: `trips/detail/${id}/`,
     token: accessToken,
   });
 
-  const flight = flightData?.data || flightData || {};
+  const trip = tripData?.data || tripData || {};
 
-  const staffColumns = [
+  const getStatusLabel = (status) => {
+    const statusLabels = {
+      scheduled: "Rejalashtirilgan",
+      boarding: "O'tirish",
+      departed: "Jo'nab ketgan",
+      in_transit: "Yo'lda",
+      arrived: "Yetib kelgan",
+      delayed: "Kechikkan",
+      cancelled: "Bekor qilingan",
+      completed: "Yakunlangan",
+    };
+    return statusLabels[status] || status;
+  };
+
+  const getStatusColor = (status) => {
+    const statusColors = {
+      scheduled: "blue",
+      boarding: "orange",
+      departed: "cyan",
+      in_transit: "purple",
+      arrived: "green",
+      delayed: "gold",
+      cancelled: "red",
+      completed: "green",
+    };
+    return statusColors[status] || "default";
+  };
+
+  const intermediateStationsColumns = [
     {
-      title: "ID",
-      dataIndex: "id",
-      width: 80,
+      title: "№",
+      dataIndex: "index",
+      width: 60,
       render: (_, record, index) => (
         <span>{index + 1}</span>
       ),
     },
     {
-      title: "Xodim",
-      dataIndex: "employee",
+      title: "Stanstiya nomi",
+      dataIndex: "name",
       minWidth: 200,
       render: (_, record) => (
-        <span>
-          {record?.employee?.fullname || `ID: ${record?.employeeId}`}
-        </span>
-      ),
-    },
-    {
-      title: "Telefon",
-      dataIndex: "employee",
-      width: 150,
-      render: (_, record) => (
-        <span>
-         <a href={`tel:${record?.employee?.phone}`}>{record?.employee?.phone}</a>
-        </span>
-      ),
-    },
-    {
-      title: "Rol",
-      dataIndex: "role",
-      width: 200,
-      render: (_, record) => {
-        const roleLabels = {
-          train_chief: "Poyezd boshlig'i",
-          wagon_supervisor: "Vagon nazoratchisi",
-        };
-        return <span>{roleLabels[record?.role] || record?.role}</span>;
-      },
-    },
-    {
-      title: "Ketish vaqti",
-      dataIndex: "departureTime",
-      width: 150,
-      render: (_, record) => (
-        <span>
-          {record?.departureTime 
-            ? dayjs(record.departureTime).format("DD.MM.YYYY HH:mm") 
-            : "-"}
-        </span>
+        <span>{record?.name || "-"}</span>
       ),
     },
     {
       title: "Kelish vaqti",
-      dataIndex: "arrivalTime",
+      dataIndex: "arrival",
       width: 150,
       render: (_, record) => (
-        <span>
-          {record?.arrivalTime 
-            ? dayjs(record.arrivalTime).format("DD.MM.YYYY HH:mm") 
-            : "-"}
-        </span>
+        <span>{record?.arrival || "-"}</span>
       ),
     },
     {
-      title: "Ketish holati",
-      dataIndex: "departureStatus",
+      title: "Jo'nash vaqti",
+      dataIndex: "departure",
       width: 150,
-      render: (_, record) => {
-        const statusLabels = {
-          arrived: "Keldi",
-          expected: "Kutilmoqda",
-          late: "Kechikkan",
-          rejected: "Rad etilgan",
-        };
-        const statusColors = {
-          arrived: "green",
-          expected: "orange",
-          late: "gold",
-          rejected: "red",
-        };
-        return record?.departureStatus ? (
-          <Tag color={statusColors[record.departureStatus] || "default"}>
-            {statusLabels[record.departureStatus] || record.departureStatus}
-          </Tag>
-        ) : "-";
-      },
-    },
-    {
-      title: "Kelish holati",
-      dataIndex: "arrivalStatus",
-      width: 150,
-      render: (_, record) => {
-        const statusLabels = {
-          arrived: "Keldi",
-          expected: "Kutilmoqda",
-          late: "Kechikkan",
-          rejected: "Rad etilgan",
-        };
-        const statusColors = {
-          arrived: "green",
-          expected: "orange",
-          late: "gold",
-          rejected: "red",
-        };
-        return record?.arrivalStatus ? (
-          <Tag color={statusColors[record.arrivalStatus] || "default"}>
-            {statusLabels[record.arrivalStatus] || record.arrivalStatus}
-          </Tag>
-        ) : "-";
-      },
+      render: (_, record) => (
+        <span>{record?.departure || "-"}</span>
+      ),
     },
   ];
 
-  if (isFlightLoading) {
+  if (isTripLoading) {
     return (
       <section className="page partners">
         <div style={{ 
@@ -179,7 +124,7 @@ function FlightDetail() {
                     href: "/flights",
                   },
                   {
-                    title: flight?.trainNumber || "Reys ma'lumotlari",
+                    title: trip?.trip_number || "Reys ma'lumotlari",
                     href: "",
                   },
                 ]}
@@ -212,56 +157,183 @@ function FlightDetail() {
           labelStyle={{ fontWeight: 600, width: "200px" }}
         >
           <Descriptions.Item label="ID">
-            {flight?.id || "-"}
+            {trip?.id || "-"}
           </Descriptions.Item>
-          <Descriptions.Item label="Poyezd raqami">
-            {flight?.trainNumber || "-"}
+          <Descriptions.Item label="Reys raqami">
+            {trip?.trip_number || "-"}
           </Descriptions.Item>
           
-          <Descriptions.Item label="Ketish stansiyasi">
-            {flight?.departureStation?.name || `ID: ${flight?.departureStationId}` || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Kelish stansiyasi">
-            {flight?.arrivalStation?.name || `ID: ${flight?.arrivalStationId}` || "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Ketish vaqti">
-            {flight?.departureTime || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Kelish vaqti">
-            {flight?.arrivalTime || "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Ketish sanasi">
-            {flight?.departureDate 
-              ? dayjs(flight.departureDate).format("DD.MM.YYYY") 
+          <Descriptions.Item label="Reys sanasi">
+            {trip?.trip_date 
+              ? dayjs(trip.trip_date).format("DD.MM.YYYY") 
               : "-"}
           </Descriptions.Item>
-          <Descriptions.Item label="Kelish sanasi">
-            {flight?.arrivalDate 
-              ? dayjs(flight.arrivalDate).format("DD.MM.YYYY") 
+          <Descriptions.Item label="Status">
+            {trip?.status ? (
+              <Tag color={getStatusColor(trip.status)}>
+                {getStatusLabel(trip.status)}
+              </Tag>
+            ) : "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Poyezd raqami">
+            {trip?.train?.train_number || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Poyezd nomi">
+            {trip?.train?.train_name || "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Poyezd turi">
+            {trip?.train?.train_type || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Vagonlar soni">
+            {trip?.train?.wagon_count || "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Jami sig'im">
+            {trip?.train?.total_capacity || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Marshrut nomi">
+            {trip?.route_name || "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Jo'nash stanstiyasi">
+            {trip?.departure_station || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Etib borish stanstiyasi">
+            {trip?.arrival_station || "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Rejalashtirilgan jo'nash vaqti">
+            {trip?.scheduled_departure 
+              ? dayjs(trip.scheduled_departure).format("DD.MM.YYYY HH:mm") 
               : "-"}
           </Descriptions.Item>
+          <Descriptions.Item label="Rejalashtirilgan etib borish vaqti">
+            {trip?.scheduled_arrival 
+              ? dayjs(trip.scheduled_arrival).format("DD.MM.YYYY HH:mm") 
+              : "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Haqiqiy jo'nash vaqti">
+            {trip?.actual_departure 
+              ? dayjs(trip.actual_departure).format("DD.MM.YYYY HH:mm") 
+              : "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Haqiqiy etib borish vaqti">
+            {trip?.actual_arrival 
+              ? dayjs(trip.actual_arrival).format("DD.MM.YYYY HH:mm") 
+              : "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Davomiyligi">
+            {trip?.duration_hours ? `${trip.duration_hours} soat` : "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Asosiy narx">
+            {trip?.base_price ? `${parseFloat(trip.base_price).toLocaleString()} so'm` : "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Bo'sh o'rindiqlar">
+            {trip?.available_seats ?? "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Band qilingan o'rindiqlar">
+            {trip?.booked_seats ?? "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Bandlik foizi">
+            {trip?.occupancy_percentage ? `${trip.occupancy_percentage}%` : "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Faol">
+            {trip?.is_active !== undefined ? (
+              <Tag color={trip.is_active ? "green" : "red"}>
+                {trip.is_active ? "Ha" : "Yo'q"}
+              </Tag>
+            ) : "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Yaratuvchi">
+            {trip?.created_by?.full_name || trip?.created_by?.username || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Topshiriqlar soni">
+            {trip?.assignments_count ?? "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Yaratilgan vaqti" span={2}>
+            {trip?.created_at 
+              ? dayjs(trip.created_at).format("DD.MM.YYYY HH:mm") 
+              : "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Yangilangan vaqti" span={2}>
+            {trip?.updated_at 
+              ? dayjs(trip.updated_at).format("DD.MM.YYYY HH:mm") 
+              : "-"}
+          </Descriptions.Item>
+
+          {trip?.notes && (
+            <Descriptions.Item label="Qo'shimcha ma'lumotlar" span={2}>
+              {trip.notes}
+            </Descriptions.Item>
+          )}
+
+          {trip?.cancellation_reason && (
+            <Descriptions.Item label="Bekor qilish sababi" span={2}>
+              {trip.cancellation_reason}
+            </Descriptions.Item>
+          )}
         </Descriptions>
 
-        <div style={{ marginTop: 24 }}>
-          <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
-            Xodimlar ({flight?.staff?.length || 0})
-          </h3>
-          <Table
-            dataSource={Array.isArray(flight?.staff) ? flight.staff.map((item, index) => ({
-              ...item,
-              key: item?.id || index,
-            })) : []}
-            columns={staffColumns}
-            rowKey="key"
-            pagination={false}
-            bordered
-            locale={{
-              emptyText: "Xodimlar mavjud emas",
-            }}
-          />
-        </div>
+        {trip?.attendance_stats && (
+          <div style={{ marginTop: 24, marginBottom: 24 }}>
+            <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
+              Davomat statistikasi
+            </h3>
+            <Descriptions 
+              bordered 
+              column={2}
+              labelStyle={{ fontWeight: 600, width: "200px" }}
+            >
+              <Descriptions.Item label="Jami">
+                {trip.attendance_stats?.total || 0}
+              </Descriptions.Item>
+              <Descriptions.Item label="Hozir">
+                {trip.attendance_stats?.present || 0}
+              </Descriptions.Item>
+              <Descriptions.Item label="Yo'q">
+                {trip.attendance_stats?.absent || 0}
+              </Descriptions.Item>
+              <Descriptions.Item label="Kechikkan">
+                {trip.attendance_stats?.late || 0}
+              </Descriptions.Item>
+              <Descriptions.Item label="Davomat foizi" span={2}>
+                {trip.attendance_stats?.attendance_rate 
+                  ? `${trip.attendance_stats.attendance_rate}%` 
+                  : "0%"}
+              </Descriptions.Item>
+            </Descriptions>
+          </div>
+        )}
+
+        {Array.isArray(trip?.intermediate_stations) && trip.intermediate_stations.length > 0 && (
+          <div style={{ marginTop: 24 }}>
+            <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
+              O'rta stanstiyalar ({trip.intermediate_stations.length})
+            </h3>
+            <Table
+              dataSource={trip.intermediate_stations.map((item, index) => ({
+                ...item,
+                key: index,
+              }))}
+              columns={intermediateStationsColumns}
+              rowKey="key"
+              pagination={false}
+              bordered
+              locale={{
+                emptyText: "O'rta stanstiyalar mavjud emas",
+              }}
+            />
+          </div>
+        )}
       </Card>
     </section>
   );

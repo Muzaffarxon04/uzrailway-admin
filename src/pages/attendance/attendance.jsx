@@ -1,11 +1,9 @@
 import { useState, useEffect } from "react";
 import {
   Input,
-  Button,
   Table,
   Pagination,
   Breadcrumb,
-  Tag,
 } from "antd";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -16,7 +14,7 @@ import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
 import dayjs from "dayjs";
 
-function FaceLogs() {
+function Attendance() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { useFetchQuery } = useUniversalFetch();
   const navigate = useNavigate();
@@ -35,26 +33,26 @@ function FaceLogs() {
   });
 
   const {
-    data: fetchedFaceLogsData,
-    isPending: isFaceLogsLoading,
+    data: fetchedAttendanceData,
+    isPending: isAttendanceLoading,
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "face-logs",
+      "attendance",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `${BASE_URL}/face-logs`,
+    url: `attendance/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      search: searchValue,
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
 
-  const allFaceLogs = fetchedFaceLogsData?.data?.data || fetchedFaceLogsData?.data || fetchedFaceLogsData || [];
+  const allAttendance = fetchedAttendanceData?.data || [];
 
   useEffect(() => {
     if (location.pathname) {
@@ -64,28 +62,26 @@ function FaceLogs() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (fetchedFaceLogsData) {
+    if (fetchedAttendanceData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedFaceLogsData?.total || fetchedFaceLogsData?.data?.total || fetchedFaceLogsData?.length || 0,
+        total: fetchedAttendanceData?.total_elements || fetchedAttendanceData?.total || 0,
       }));
     }
-  }, [fetchedFaceLogsData]);
+  }, [fetchedAttendanceData]);
 
-  const handleTableChange = (pagination, filters, sorter) => {
-    if (pagination) {
-      setPagination((prev) => ({
-        ...prev,
-        current: pagination.current,
-        pageSize: pagination.pageSize,
-      }));
+  const handleTableChange = (pagination) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: pagination.current,
+      pageSize: pagination.pageSize,
+    }));
 
-      setSearchParams({
-        page: pagination.current,
-        pageSize: pagination.pageSize,
-        search: searchValue || "",
-      });
-    }
+    setSearchParams({
+      page: pagination.current,
+      pageSize: pagination.pageSize,
+      search: searchValue || "",
+    });
   };
 
   const onSearch = (value) => {
@@ -96,32 +92,6 @@ function FaceLogs() {
       pageSize: pagination.pageSize,
       search: value.trim() || "",
     });
-  };
-
-  const getStatusColor = (status) => {
-    switch (status) {
-      case "recognized":
-        return "green";
-      case "unknown":
-        return "red";
-      case "pending":
-        return "orange";
-      default:
-        return "default";
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case "recognized":
-        return "Tanishgan";
-      case "unknown":
-        return "Noma'lum";
-      case "pending":
-        return "Kutilmoqda";
-      default:
-        return status;
-    }
   };
 
   const columns = [
@@ -136,12 +106,38 @@ function FaceLogs() {
       ),
     },
     {
-      title: "To'liq ism",
-      dataIndex: "fullname",
+      title: "Xodim",
+      dataIndex: "employee",
       minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.fullname || "Noma'lum"}</p>
+          <p>{record?.employee?.fullname || record?.employee_name || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Reys",
+      dataIndex: "trip",
+      minWidth: 200,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.trip?.trip_number || record?.trip_number || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Sana",
+      dataIndex: "date",
+      width: 130,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>
+            {record?.date 
+              ? dayjs(record.date).format("DD.MM.YYYY") 
+              : record?.created_at 
+              ? dayjs(record.created_at).format("DD.MM.YYYY")
+              : "-"}
+          </p>
         </span>
       ),
     },
@@ -149,51 +145,60 @@ function FaceLogs() {
       title: "Status",
       dataIndex: "status",
       width: 150,
-      render: (_, record) => (
-        <Tag color={getStatusColor(record?.status)}>
-          {getStatusText(record?.status)}
-        </Tag>
-      ),
+      render: (_, record) => {
+        const statusLabels = {
+          present: "Hozir",
+          absent: "Yo'q",
+          late: "Kechikkan",
+          on_time: "Vaqtida",
+        };
+        const statusColors = {
+          present: "green",
+          absent: "red",
+          late: "orange",
+          on_time: "blue",
+        };
+        return (
+          <span className="table_name">
+            <p style={{ 
+              color: statusColors[record?.status] || "default",
+              fontWeight: 500 
+            }}>
+              {statusLabels[record?.status] || record?.status || "-"}
+            </p>
+          </span>
+        );
+      },
     },
     {
-      title: "Qurilma IP",
-      dataIndex: "deviceIp",
+      title: "Kelish vaqti",
+      dataIndex: "check_in_time",
       width: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.deviceIp || "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Vaqt",
-      dataIndex: "operatedAt",
-      width: 200,
-      render: (_, record) => (
-        <span className="table_name">
           <p>
-            {record?.operatedAt
-              ? dayjs(record.operatedAt).format("DD.MM.YYYY HH:mm")
+            {record?.check_in_time 
+              ? dayjs(record.check_in_time).format("DD.MM.YYYY HH:mm") 
+              : record?.arrival_time
+              ? dayjs(record.arrival_time).format("DD.MM.YYYY HH:mm")
               : "-"}
           </p>
         </span>
       ),
     },
     {
-      title: "",
-      dataIndex: "action",
-      width: 80,
-      align: "right",
+      title: "Ketish vaqti",
+      dataIndex: "check_out_time",
+      width: 150,
       render: (_, record) => (
-        <span className="action_wrapper">
-          <Icon
-            icon="ic_info"
-            className="icon edit"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/facelogs/detail/${record.id}`);
-            }}
-          />
+        <span className="table_name">
+          <p>
+            {record?.check_out_time 
+              ? dayjs(record.check_out_time).format("DD.MM.YYYY HH:mm") 
+              : record?.departure_time
+              ? dayjs(record.departure_time).format("DD.MM.YYYY HH:mm")
+              : "-"}
+          </p>
         </span>
       ),
     },
@@ -214,13 +219,13 @@ function FaceLogs() {
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Keldi-ketdilar</h2>
+            <h2>Davomat</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Keldi-ketdilar ro'yxati",
+                    title: "Davomat ro'yxati",
                     href: "",
                   },
                 ]}
@@ -233,7 +238,7 @@ function FaceLogs() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="To'liq ism bo'yicha qidirish"
+              placeholder="Xodim yoki reys raqami bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -252,11 +257,11 @@ function FaceLogs() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allFaceLogs) ? allFaceLogs.map((item) => ({
+            dataSource={Array.isArray(allAttendance) ? allAttendance.map((item) => ({
               ...item,
               key: item?.id,
             })) : []}
-            loading={isFaceLogsLoading ? customLoader : false}
+            loading={isAttendanceLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
           />
@@ -276,5 +281,5 @@ function FaceLogs() {
   );
 }
 
-export default FaceLogs;
+export default Attendance;
 

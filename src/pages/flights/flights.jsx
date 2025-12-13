@@ -6,10 +6,9 @@ import {
   Pagination,
   Breadcrumb,
 } from "antd";
-import { CheckCircleOutlined, CloseCircleOutlined, RightOutlined, ClockCircleOutlined } from "@ant-design/icons";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-import { BASE_URL } from "../../consts/variables";
+// import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -43,58 +42,21 @@ function Flights() {
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "train-schedule",
+      "trips",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `${BASE_URL}/train-schedule`,
+    url: `trips/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      search: searchValue,
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
 
-  const allFlightsRaw = fetchedFlightsData?.data?.data || fetchedFlightsData?.data || fetchedFlightsData || [];
-  
-  // Transform data to flat structure - first row with all info, subsequent rows only for supervisors
-  const allFlights = Array.isArray(allFlightsRaw) ? allFlightsRaw.flatMap((flight, flightIndex) => {
-    const supervisors = flight?.staff?.filter(s => s?.role === "wagon_supervisor") || [];
-    
-    const rows = [];
-    
-    // First row - main row with all columns filled
-    rows.push({
-      ...flight,
-      key: `flight-${flight?.id}-main`,
-      isFirstRow: true,
-      currentSupervisor: supervisors[0] || null,
-    });
-    
-    // Additional rows for remaining supervisors (if any)
-    if (supervisors.length > 1) {
-      supervisors.slice(1).forEach((supervisor, idx) => {
-        rows.push({
-          ...flight,
-          key: `flight-${flight?.id}-supervisor-${supervisor?.id || idx + 1}`,
-          isFirstRow: false,
-          currentSupervisor: supervisor,
-        });
-      });
-    } else if (supervisors.length === 0) {
-      // If no supervisors, add one empty row
-      rows.push({
-        ...flight,
-        key: `flight-${flight?.id}-empty`,
-        isFirstRow: false,
-        currentSupervisor: null,
-      });
-    }
-    
-    return rows;
-  }) : [];
+  const allFlights = fetchedFlightsData?.data || [];
 
   const {
     data: flightDeleteData,
@@ -104,63 +66,15 @@ function Flights() {
     error: flightDeleteError,
     isError: isFlightDeleteError,
   } = useDeleteMutation({
-    url: `${BASE_URL}/train-schedule`,
+    url: `trips/`,
     method: "DELETE",
     token: accessToken,
   });
-
-  const [updatingStaffId, setUpdatingStaffId] = useState(null);
 
   const handleDelete = () => {
     flightDelete({
       id: currentFlight,
     });
-  };
-
-  const handleUpdateStaffStatus = async (staffId, e) => {
-    e.stopPropagation();
-    if (!staffId) return;
-    
-    setUpdatingStaffId(staffId);
-    
-    try {
-      const lang = localStorage.getItem("app-language");
-      const response = await fetch(`${BASE_URL}/train-schedule/staff/${staffId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          lang: "en" || lang,
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({}),
-      });
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        throw new Error(
-          responseData?.error?.message ||
-          responseData?.message?.message ||
-          responseData?.message ||
-          "An error occurred"
-        );
-      }
-
-      showNotification(
-        "success",
-        "Muvaffaqiyatli",
-        "Xodim statusi 'keldiga' o'zgartirildi"
-      );
-      refetchData();
-    } catch (error) {
-      showNotification(
-        "error",
-        "Xatolik",
-        error?.message || "Statusni o'zgartirishda xatolik yuz berdi"
-      );
-    } finally {
-      setUpdatingStaffId(null);
-    }
   };
 
   useEffect(() => {
@@ -192,11 +106,9 @@ function Flights() {
 
   useEffect(() => {
     if (fetchedFlightsData) {
-      // Count only first rows (flights) for pagination
-      const firstRowsCount = allFlightsRaw?.length || 0;
       setPagination((prev) => ({
         ...prev,
-        total: fetchedFlightsData?.total || fetchedFlightsData?.data?.total || firstRowsCount || 0,
+        total: fetchedFlightsData?.total_elements || fetchedFlightsData?.total || 0,
       }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -258,10 +170,7 @@ function Flights() {
       dataIndex: "index",
       width: 60,
       render: (_, record, index) => {
-        // Only show number for first row of each flight
-        if (!record?.isFirstRow) return null;
-        const pageIndex = (pagination.current - 1) * pagination.pageSize + 
-          allFlights.filter((r, i) => i < index && r.isFirstRow).length + 1;
+        const pageIndex = (pagination.current - 1) * pagination.pageSize + index + 1;
         return (
           <span className="table_number">
             {pageIndex}
@@ -270,164 +179,154 @@ function Flights() {
       },
     },
     {
-      title: "Кетиш вакти",
-      dataIndex: "departureDate",
-      width: 130,
-      render: (_, record) => {
-        if (!record?.isFirstRow) return null;
-        return (
-          <span className="table_departure">
-            {record?.departureDate ? dayjs(record.departureDate).format("DD.MM.YYYY") : "-"}
-          </span>
-        );
-      },
+      title: "Reys raqami",
+      dataIndex: "trip_number",
+      width: 180,
+      render: (_, record) => (
+        <span className="table_flight_number">
+          {record?.trip_number || "-"}
+        </span>
+      ),
     },
     {
-      title: "Поезд рақами",
-      dataIndex: "trainNumber",
+      title: "Reys sanasi",
+      dataIndex: "trip_date",
       width: 130,
-      render: (_, record) => {
-        if (!record?.isFirstRow) return null;
-        return (
-          <span className="table_flight_number">
-            {record?.trainNumber || "-"}
-          </span>
-        );
-      },
+      render: (_, record) => (
+        <span className="table_departure">
+          {record?.trip_date ? dayjs(record.trip_date).format("DD.MM.YYYY") : "-"}
+        </span>
+      ),
     },
     {
-      title: "Жўнаш станцияси",
-      dataIndex: "departureStation",
+      title: "Poyezd raqami",
+      dataIndex: "train",
+      width: 130,
+      render: (_, record) => (
+        <span className="table_flight_number">
+          {record?.train?.train_number || "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Poyezd nomi",
+      dataIndex: "train",
+      minWidth: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.train?.train_name || "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Poyezd turi",
+      dataIndex: "train",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.train?.train_type || "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Jo'nash stanstiyasi",
+      dataIndex: "departure_station",
       minWidth: 180,
-      render: (_, record) => {
-        if (!record?.isFirstRow) return null;
-        return (
-          <span className="table_route">
-            {record?.departureStation?.name || `ID: ${record?.departureStationId}` || "-"}
-          </span>
-        );
-      },
+      render: (_, record) => (
+        <span className="table_route">
+          {record?.departure_station || "-"}
+        </span>
+      ),
     },
     {
-      title: "Поезд бошлиғи",
-      dataIndex: "trainChief",
-      minWidth: 200,
-      render: (_, record) => {
-        if (!record?.isFirstRow) return null;
-        const trainChief = record?.staff?.find(s => s?.role === "train_chief");
-        return (
-          <span className="table_train_chief">
-            {trainChief ? (
-              <>
-                <span className="chief_name">
-                  {trainChief?.employee?.fullname || `ID: ${trainChief?.employeeId}`}
-                </span>
-                <RightOutlined className="arrow_icon" />
-              </>
-            ) : (
-              "-"
-            )}
-          </span>
-        );
-      },
-    },
-    {
-      title: "Вагон кузатувчиси",
-      dataIndex: "wagonSupervisors",
-      minWidth: 250,
-      render: (_, record) => {
-        const supervisor = record?.currentSupervisor;
-        if (!supervisor) return "-";
-        
-        const arrivalStatus = supervisor?.arrivalStatus;
-        const departureStatus = supervisor?.departureStatus;
-        const isConfirmed = arrivalStatus === "arrived" || departureStatus === "arrived";
-        const isRejected = arrivalStatus === "rejected" || departureStatus === "rejected";
-        const isLate = arrivalStatus === "late" || departureStatus === "late";
-        
-        return (
-          <div className="table_supervisors">
-            <div className="supervisor_item">
-              <span className="supervisor_name">
-                {supervisor?.employee?.fullname || `ID: ${supervisor?.employeeId}`}
-              </span>
-              {isConfirmed ? (
-                <CheckCircleOutlined className="confirm_icon confirmed" />
-              ) : isRejected ? (
-                <CloseCircleOutlined className="confirm_icon rejected" />
-              ) : isLate ? (
-                <ClockCircleOutlined className="confirm_icon late" style={{ color: '#faad14' }} />
-              ) : (
-                <RightOutlined className="arrow_icon" />
-              )}
-            </div>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Етиб бориш станцияси",
-      dataIndex: "arrivalStation",
-      minWidth: 180,
-      render: (_, record) => {
-        return (
-          <span className="table_route">
-            {record?.arrivalStation?.name || `ID: ${record?.arrivalStationId}` || "-"}
-          </span>
-        );
-      },
-    },
-    {
-      title: "Етиб бориш вакти",
-      dataIndex: "arrivalDate",
-      width: 130,
-      render: (_, record) => {
-        return (
-          <span className="table_arrival">
-            {record?.arrivalDate ? dayjs(record.arrivalDate).format("DD.MM.YYYY") : "-"}
-          </span>
-        );
-      },
-    },
-    {
-      title: "Тасдиқлаш",
-      dataIndex: "confirmation",
+      title: "Jo'nash vaqti",
+      dataIndex: "scheduled_departure",
       width: 150,
-      align: "center",
-      render: (_, record) => {
-        // Check if there's a supervisor in this row
-        const supervisor = record?.currentSupervisor;
-        if (!supervisor) {
-          // If no supervisor, show nothing for non-first rows, but for first row show nothing too
-          return null;
-        }
-        
-        // Check arrivalStatus - if "arrived" then confirmed, if "late" then late, otherwise show button
-        const arrivalStatus = supervisor?.arrivalStatus;
-        const isConfirmed = arrivalStatus === "arrived";
-        const isLate = arrivalStatus === "late";
-        const staffId = supervisor?.id;
-        
-        return (
-          <div className="confirmation_cell">
-            {isConfirmed ? (
-              <CheckCircleOutlined className="confirm_icon confirmed" style={{ fontSize: 20, color: '#52c41a' }} />
-            ) : isLate ? (
-              <ClockCircleOutlined className="confirm_icon late" style={{ fontSize: 20, color: '#faad14' }} />
-            ) : (
-              <Button
-                type="primary"
-                size="small"
-                loading={updatingStaffId === staffId}
-                onClick={(e) => handleUpdateStaffStatus(staffId, e)}
-                style={{ fontSize: 12 }}
-              >
-                Keldiga o'tkazish
-              </Button>
-            )}
-          </div>
-        );
-      },
+      render: (_, record) => (
+        <span className="table_departure">
+          {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Etib borish stanstiyasi",
+      dataIndex: "arrival_station",
+      minWidth: 180,
+      render: (_, record) => (
+        <span className="table_route">
+          {record?.arrival_station || "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Etib borish vaqti",
+      dataIndex: "scheduled_arrival",
+      width: 150,
+      render: (_, record) => (
+        <span className="table_arrival">
+          {record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Davomiyligi",
+      dataIndex: "duration_hours",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.duration_hours ? `${record.duration_hours} soat` : "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.status || "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Bo'sh o'rindiqlar",
+      dataIndex: "available_seats",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.available_seats ?? "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Band qilingan o'rindiqlar",
+      dataIndex: "booked_seats",
+      width: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.booked_seats ?? "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Bandlik foizi",
+      dataIndex: "occupancy_percentage",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.occupancy_percentage ? `${record.occupancy_percentage}%` : "-"}
+        </span>
+      ),
+    },
+    {
+      title: "Asosiy narx",
+      dataIndex: "base_price",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          {record?.base_price ? `${parseFloat(record.base_price).toLocaleString()} so'm` : "-"}
+        </span>
+      ),
     },
     {
       title: "",
@@ -497,7 +396,7 @@ function Flights() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="Poyezd raqami bo'yicha qidirish"
+              placeholder="Reys raqami yoki poyezd raqami bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -523,13 +422,10 @@ function Flights() {
             scroll={{ y: 'calc(100vh - 300px)', x: 'max-content' }}
             onRow={(record) => ({
               onClick: () => {
-                if (record?.isFirstRow) {
-                  navigate(`/flights/detail/${record.id}`);
-                }
+                navigate(`/flights/detail/${record.id}`);
               },
-              className: !record?.isFirstRow ? "sub-row" : "",
               style: { 
-                cursor: record?.isFirstRow ? "pointer" : "default",
+                cursor: "pointer",
               },
             })}
           />

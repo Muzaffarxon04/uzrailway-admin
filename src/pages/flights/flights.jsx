@@ -8,7 +8,6 @@ import {
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-// import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -424,6 +423,7 @@ function Flights() {
         <div className="table_wrapper">
           <Table
             columns={columns}
+          
             dataSource={allFlights}
             loading={isFlightsLoading ? customLoader : false}
             pagination={false}

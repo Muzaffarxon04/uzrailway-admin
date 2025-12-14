@@ -1,15 +1,15 @@
-import { Form, Button, Spin, Breadcrumb } from "antd";
+import { Form, Button, Spin, Breadcrumb, Switch } from "antd";
 import CustomInput from "../../../components/inputs/customInput";
 import CustomSelect from "../../../components/inputs/customSelect";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
 import useUniversalFetch from "../../../Hooks/useApi";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../components/notification";
 import { useLocalization } from "../../../LocalizationContext";
 
-function AddDevice() {
+function AddStation() {
   const [form] = Form.useForm();
   const { t } = useLocalization();
   const { useFetchMutation, useFetchQuery } = useUniversalFetch();
@@ -22,98 +22,96 @@ function AddDevice() {
   const [loader, setLoader] = useState("1");
   const navigate = useNavigate();
 
-  // Fetch stations for select
+  // Fetch regions for select
   const {
-    data: stationsData,
-    isPending: isStationsLoading,
+    data: regionsData,
+    isPending: isRegionsLoading,
   } = useFetchQuery({
-    queryKey: ["stations-select"],
-    url: `stations/list/`,
+    queryKey: ["regions-select"],
+    url: `regions/list/`,
     params: { page: 1, page_size: 1000 },
     token: accessToken,
   });
 
-  const stations = stationsData || [];
+  const regions = regionsData || [];
 
   const {
-    data: deviceData,
-    isPending: isDeviceLoading,
-    isSuccess: isSuccessDeviceData,
+    data: stationData,
+    isPending: isStationLoading,
+    isSuccess: isSuccessStationData,
     refetch: refetchData,
   } = useFetchQuery({
-    url: `devices/detail/${id}/`,
-    queryKey: [`device-detail`, id],
+    url: `stations/detail/${id}/`,
+    queryKey: [`station-detail`, id],
     config: {
       queryOptions: {
         enabled: is_edit,
-        queryKey: [`device-detail`, id],
+        queryKey: [`station-detail`, id],
       },
     },
     token: accessToken,
   });
 
-  const device = deviceData?.data || deviceData || {};
+  const station = useMemo(() => stationData?.data || stationData || {}, [stationData]);
 
   const {
-    mutate: CreateDevice,
-    isPending: isDeviceCreateLoading,
-    isSuccess: isSuccessDeviceCreated,
-    data: deviceCreateData,
-    isError: isDeviceCreateError,
-    error: deviceCreateError,
+    mutate: handleStationMutation,
+    isPending: isStationMutationLoading,
+    isSuccess: isSuccessStationMutation,
+    data: stationMutationData,
+    isError: isStationMutationError,
+    error: stationMutationError,
   } = useFetchMutation({
-    url: is_edit ? `devices/update/${id}/` : `devices/create/`,
-    invalidateKey: ["devices"],
+    url: is_edit ? `stations/update/${id}/` : `stations/create/`,
+    invalidateKey: ["stations"],
     method: is_edit ? "PATCH" : "POST",
     token: accessToken,
   });
 
   useEffect(() => {
-    if (is_edit && device && Object.keys(device).length > 0) {
+    if (is_edit && station && Object.keys(station).length > 0) {
       form.setFieldsValue({
-        deviceName: device.deviceName || device.name,
-        macAddress: device.macAddress,
-        type: device.type,
-        ipAddress: device.ipAddress || device.ip,
-        station: device.station || device.stationId || device.station?.id,
+        name: station.name,
+        address: station.address,
+        phone_number: station.phone_number,
+        is_active: station.is_active !== undefined ? station.is_active : true,
+        region: station.region || station.regionId || station.region?.id,
       });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [device, is_edit, form]);
+  }, [station, is_edit, form]);
 
   const onFinish = (values) => {
     const body = {
-      deviceName: values.deviceName,
-      macAddress: values.macAddress,
-      type: values.type,
-      ipAddress: values.ipAddress,
-      station: parseInt(values.station),
+      name: values.name,
+      address: values.address || "",
+      is_active: values.is_active !== undefined ? values.is_active : true,
+      phone_number: values.phone_number || "",
+      region: parseInt(values.region),
     };
-    CreateDevice(body);
+    handleStationMutation(body);
   };
 
   useEffect(() => {
-    if (isSuccessDeviceCreated) {
+    if (isSuccessStationMutation) {
       refetchData();
       showNotification(
         "success",
         is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        deviceCreateData?.message || t("messages").create_success
+        stationMutationData?.message || t("messages").create_success
       );
-      navigate("/devices");
-    } else if (isDeviceCreateError) {
+      navigate("/stations");
+    } else if (isStationMutationError) {
       showNotification(
         "error",
         t("messages").error_2,
-        deviceCreateError?.message || t("messages").error
+        stationMutationError?.message || t("messages").error
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessDeviceCreated, isDeviceCreateError, is_edit]);
+  }, [isSuccessStationMutation, isStationMutationError, is_edit, navigate, refetchData, showNotification, t, stationMutationData?.message, stationMutationError?.message]);
 
   useEffect(() => {
     if (is_edit) {
-      if (!isDeviceLoading && device && isSuccessDeviceData && is_edit) {
+      if (!isStationLoading && station && isSuccessStationData && is_edit) {
         setLoader("0");
         setOpacity("1");
       } else {
@@ -124,8 +122,7 @@ function AddDevice() {
       setLoader("0");
       setOpacity("1");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDeviceLoading, device, is_edit]);
+  }, [isStationLoading, station, is_edit, isSuccessStationData]);
 
   return (
     <>
@@ -149,7 +146,7 @@ function AddDevice() {
           <div className="header_wrapper">
             <div className="page_info">
               <h2>
-                {is_edit ? "Qurilmani tahrirlash" : "Yangi qurilma qo'shish"}
+                {is_edit ? "Stansiyani tahrirlash" : "Yangi stansiya qo'shish"}
               </h2>
 
               <span className="breadcrumb">
@@ -157,13 +154,13 @@ function AddDevice() {
                   separator={<Icon icon="chevron" />}
                   items={[
                     {
-                      title: "Qurilmalar ro'yxati",
-                      href: "/devices",
+                      title: "Stansiyalar ro'yxati",
+                      href: "/stations",
                     },
                     {
                       title: is_edit
-                        ? device?.deviceName || device?.name || "Tahrirlash"
-                        : "Yangi qurilma",
+                        ? station?.name || "Tahrirlash"
+                        : "Yangi stansiya",
                       href: "",
                     },
                   ]}
@@ -175,17 +172,19 @@ function AddDevice() {
 
         <div className="partner_action">
           <Form
-            name="device_form"
+            name="station_form"
             className="action_form"
             form={form}
             onFinish={onFinish}
-            initialValues={{ remember: true }}
+            initialValues={{
+              is_active: true,
+            }}
           >
             <div className="action_wrapper">
               <div className="action_item company_info">
                 <div className="item_wrapper">
                   <div className="item_title">
-                    <h3>Qurilma ma'lumotlari</h3>
+                    <h3>Stansiya ma'lumotlari</h3>
                   </div>
 
                   <div className="drap_area_wrapper">
@@ -194,12 +193,12 @@ function AddDevice() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="Qurilma nomi"
-                          name="deviceName"
+                          label="Stansiya nomi"
+                          name="name"
                           rules={[
                             {
                               required: true,
-                              message: "Qurilma nomi kiritilishi shart",
+                              message: "Stansiya nomi kiritilishi shart",
                             },
                           ]}
                         />
@@ -209,31 +208,13 @@ function AddDevice() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="MAC manzil"
-                          name="macAddress"
+                          label="Manzil"
+                          name="address"
                           rules={[
                             {
                               required: true,
-                              message: "MAC manzil kiritilishi shart",
+                              message: "Manzil kiritilishi shart",
                             },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomSelect
-                          label="Turi"
-                          name="type"
-                          form={form}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Turi tanlanishi shart",
-                            },
-                          ]}
-                          options={[
-                            { label: "Kirish (IN)", value: "IN" },
-                            { label: "Chiqish (OUT)", value: "OUT" },
                           ]}
                         />
                       </div>
@@ -242,12 +223,13 @@ function AddDevice() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="IP manzil"
-                          name="ipAddress"
+                          label="Telefon raqami"
+                          name="phone_number"
+                        //   placeholder="+998951432344"
                           rules={[
                             {
                               required: true,
-                              message: "IP manzil kiritilishi shart",
+                              message: "Telefon raqami kiritilishi shart",
                             },
                           ]}
                         />
@@ -255,29 +237,38 @@ function AddDevice() {
 
                       <div className="input_item">
                         <CustomSelect
-                          label="Stansiya"
-                          name="station"
+                          label="Viloyat"
+                          name="region"
                           form={form}
                           rules={[
                             {
                               required: true,
-                              message: "Stansiya tanlanishi shart",
+                              message: "Viloyat tanlanishi shart",
                             },
                           ]}
-                          options={Array.isArray(stations) ? stations.map((station) => ({
-                            label: station.name,
-                            value: station.id,
+                          options={Array.isArray(regions) ? regions.map((region) => ({
+                            label: region.name || region.region_name,
+                            value: region.id,
                           })) : []}
-                          loading={isStationsLoading}
+                          loading={isRegionsLoading}
                         />
+                      </div>
+
+                      <div className="input_item">
+                        <div className="switch_input_item">
+                          <p className="switch_label">Faol</p>
+                          <Form.Item name="is_active" valuePropName="checked">
+                            <Switch />
+                          </Form.Item>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  
+
                   <div className="form_actions">
                     <div className="footer_buttons">
                       <Button
-                        loading={isDeviceCreateLoading}
+                        loading={isStationMutationLoading}
                         onClick={() => form.submit()}
                         type="primary"
                       >
@@ -295,20 +286,5 @@ function AddDevice() {
   );
 }
 
-export default AddDevice;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+export default AddStation;
 

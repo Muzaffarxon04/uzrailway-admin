@@ -8,15 +8,15 @@ import {
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-// import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
+import { Tag } from "antd";
 import dayjs from "dayjs";
 
-function Flights() {
+function Stations() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
   const navigate = useNavigate();
@@ -29,7 +29,7 @@ function Flights() {
   const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
-  const [currentFlight, setCurrentFlight] = useState(null);
+  const [currentStation, setCurrentStation] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -37,17 +37,17 @@ function Flights() {
   });
 
   const {
-    data: fetchedFlightsData,
-    isPending: isFlightsLoading,
+    data: fetchedStationsData,
+    isPending: isStationsLoading,
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "trips",
+      "stations",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `trips/list/`,
+    url: `stations/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
@@ -56,24 +56,23 @@ function Flights() {
     token: accessToken,
   });
 
-  const allFlights = fetchedFlightsData?.data || [];
+  const allStations = fetchedStationsData?.data || (Array.isArray(fetchedStationsData) ? fetchedStationsData : []);
 
   const {
-    data: flightDeleteData,
+    data: stationDeleteData,
     isSuccess: isSuccessDeleted,
-    mutate: flightDelete,
-    isPending: isFlightDeleteLoading,
-    error: flightDeleteError,
-    isError: isFlightDeleteError,
+    mutate: stationDelete,
+    isPending: isStationDeleteLoading,
+    error: stationDeleteError,
+    isError: isStationDeleteError,
   } = useDeleteMutation({
-    url: `trips/`,
-    method: "DELETE",
+    url: `stations/delete/`,
     token: accessToken,
   });
 
   const handleDelete = () => {
-    flightDelete({
-      id: currentFlight,
+    stationDelete({
+      id: currentStation,
     });
   };
 
@@ -90,29 +89,41 @@ function Flights() {
       showNotification(
         "success",
         t("messages").delete_success,
-        flightDeleteData?.message || t("messages").success
+        stationDeleteData?.message || t("messages").success
       );
-      setCurrentFlight(null);
+      setCurrentStation(null);
       setModalVisible(false);
-    } else if (isFlightDeleteError) {
+    } else if (isStationDeleteError) {
       showNotification(
         "error",
         t("messages").error_2,
-        flightDeleteError?.message || t("messages").error
+        stationDeleteError?.message || t("messages").error
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessDeleted, flightDeleteError, isFlightDeleteError]);
+  }, [isSuccessDeleted, stationDeleteError, isStationDeleteError]);
 
   useEffect(() => {
-    if (fetchedFlightsData) {
+    if (fetchedStationsData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedFlightsData?.total_elements || fetchedFlightsData?.total || 0,
+        total: fetchedStationsData?.total_elements || fetchedStationsData?.total || (Array.isArray(fetchedStationsData) ? fetchedStationsData.length : 0),
       }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchedFlightsData]);
+  }, [fetchedStationsData]);
+
+  // Fetch regions for mapping region ID to name
+  const {
+    data: regionsData,
+  } = useFetchQuery({
+    queryKey: ["regions-select"],
+    url: `regions/list/`,
+    params: { page: 1, page_size: 1000 },
+    token: accessToken,
+  });
+
+  const regions = regionsData?.data || (Array.isArray(regionsData) ? regionsData : []);
+  const regionMap = new Map(regions.map(region => [region.id, region.name || region.region_name]));
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -138,200 +149,81 @@ function Flights() {
     });
   };
 
-  // const getStatusColor = (status) => {
-  //   switch (status) {
-  //     case "active":
-  //       return "green";
-  //     case "completed":
-  //       return "blue";
-  //     case "delayed":
-  //       return "orange";
-  //     default:
-  //       return "default";
-  //   }
-  // };
-
-  // const getStatusText = (status) => {
-  //   switch (status) {
-  //     case "active":
-  //       return "Faol";
-  //     case "completed":
-  //       return "Yakunlangan";
-  //     case "delayed":
-  //       return "Kechikkan";
-  //     default:
-  //       return status;
-  //   }
-  // };
-
   const columns = [
     {
-      title: "№",
-      dataIndex: "index",
-      width: 60,
-      render: (_, record, index) => {
-        const pageIndex = (pagination.current - 1) * pagination.pageSize + index + 1;
-        return (
-          <span className="table_number">
-            {pageIndex}
-          </span>
-        );
-      },
-    },
-    {
-      title: "Reys raqami",
-      dataIndex: "trip_number",
-      width: 180,
+      title: "ID",
+      dataIndex: "id",
+      width: 80,
       render: (_, record) => (
-        <span className="table_flight_number">
-          {record?.trip_number || "-"}
+        <span className="table_id">
+          <p>#{record?.id}</p>
         </span>
       ),
     },
     {
-      title: "Reys sanasi",
-      dataIndex: "trip_date",
-      width: 130,
-      render: (_, record) => (
-        <span className="table_departure">
-          {record?.trip_date ? dayjs(record.trip_date).format("DD.MM.YYYY") : "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Poyezd raqami",
-      dataIndex: "train",
-      width: 130,
-      render: (_, record) => (
-        <span className="table_flight_number">
-          {record?.train?.train_number || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Poyezd nomi",
-      dataIndex: "train",
-      minWidth: 150,
+      title: "Stansiya nomi",
+      dataIndex: "name",
+      minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          {record?.train?.train_name || "-"}
+          <p>{record?.name || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Poyezd turi",
-      dataIndex: "train",
-      width: 120,
+      title: "Manzil",
+      dataIndex: "address",
+      minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          {record?.train?.train_type || "-"}
+          <p>{record?.address || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Jo'nash stanstiyasi",
-      dataIndex: "departure_station",
-      minWidth: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          {record?.departure_station || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Jo'nash vaqti",
-      dataIndex: "scheduled_departure",
+      title: "Telefon raqami",
+      dataIndex: "phone_number",
       width: 150,
       render: (_, record) => (
-        <span className="table_departure">
-          {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
+        <span className="table_name">
+          <p>{record?.phone_number || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Etib borish stanstiyasi",
-      dataIndex: "arrival_station",
-      minWidth: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          {record?.arrival_station || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Etib borish vaqti",
-      dataIndex: "scheduled_arrival",
+      title: "Viloyat",
+      dataIndex: "region",
       width: 150,
       render: (_, record) => (
-        <span className="table_arrival">
-          {record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Davomiyligi",
-      dataIndex: "duration_hours",
-      width: 120,
-      render: (_, record) => (
         <span className="table_name">
-          {record?.duration_hours ? `${record.duration_hours} soat` : "-"}
+          <p>{regionMap.get(record?.region) || record?.region || "-"}</p>
         </span>
       ),
     },
     {
       title: "Status",
-      dataIndex: "status",
-      width: 120,
+      dataIndex: "is_active",
+      width: 100,
       render: (_, record) => (
-        <span className="table_name">
-          {record?.status || "-"}
-        </span>
+        <Tag color={record?.is_active ? "green" : "red"}>
+          {record?.is_active ? "Faol" : "Nofaol"}
+        </Tag>
       ),
     },
     {
-      title: "Bo'sh o'rindiqlar",
-      dataIndex: "available_seats",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.available_seats ?? "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Band qilingan o'rindiqlar",
-      dataIndex: "booked_seats",
+      title: "Yaratilgan vaqti",
+      dataIndex: "created_at",
       width: 150,
       render: (_, record) => (
         <span className="table_name">
-          {record?.booked_seats ?? "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Bandlik foizi",
-      dataIndex: "occupancy_percentage",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.occupancy_percentage ? `${record.occupancy_percentage}%` : "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Asosiy narx",
-      dataIndex: "base_price",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.base_price ? `${parseFloat(record.base_price).toLocaleString()} so'm` : "-"}
+          <p>{record?.created_at ? dayjs(record.created_at).format("DD.MM.YYYY HH:mm") : "-"}</p>
         </span>
       ),
     },
     {
       title: "",
       dataIndex: "action",
-      width: 80,
+      width: 120,
       align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
@@ -340,18 +232,18 @@ function Flights() {
             className="icon edit"
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/flights/${record.id}`);
+              navigate(`/stations/${record.id}`);
             }}
           />
-          {/* <Icon
+          <Icon
             icon="ic_trash"
             className="icon trash"
             onClick={(e) => {
               e.stopPropagation();
               setModalVisible(true);
-              setCurrentFlight(record.id);
+              setCurrentStation(record.id);
             }}
-          /> */}
+          />
         </span>
       ),
     },
@@ -368,17 +260,17 @@ function Flights() {
   };
 
   return (
-    <section className="page partners flights">
+    <section className="page partners">
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Reyslar</h2>
+            <h2>Stansiyalar</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Reyslar ro'yxati",
+                    title: "Stansiyalar ro'yxati",
                     href: "",
                   },
                 ]}
@@ -386,8 +278,8 @@ function Flights() {
             </span>
           </div>
           <div className="filter">
-            <Link to="/flights/add">
-              <Button type="primary">Reys qo'shish</Button>
+            <Link to="/stations/add">
+              <Button type="primary">Stansiya qo'shish</Button>
             </Link>
           </div>
         </div>
@@ -396,7 +288,7 @@ function Flights() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="Reys raqami yoki poyezd raqami bo'yicha qidirish"
+              placeholder="Stansiya nomi bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -415,19 +307,13 @@ function Flights() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={allFlights}
-            loading={isFlightsLoading ? customLoader : false}
+            dataSource={Array.isArray(allStations) ? allStations.map((item) => ({
+              ...item,
+              key: item?.id,
+            })) : []}
+            loading={isStationsLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
-            scroll={{ y: 'calc(100vh - 300px)', x: 'max-content' }}
-            onRow={(record) => ({
-              onClick: () => {
-                navigate(`/flights/detail/${record.id}`);
-              },
-              style: { 
-                cursor: "pointer",
-              },
-            })}
           />
         </div>
         <Pagination
@@ -443,15 +329,16 @@ function Flights() {
         <DeleteConfirmModal
           visible={modalVisible}
           onClose={() => setModalVisible(false)}
-          isLoading={isFlightDeleteLoading}
+          isLoading={isStationDeleteLoading}
           onConfirm={handleDelete}
-          title="Reysni o'chirish?"
-          message="Bu reysni o'chirmoqchimisiz?"
-          dangerMessage="Barcha reys ma'lumotlari qayta tiklanmaydi."
+          title="Stansiyani o'chirish?"
+          message="Bu stansiyani o'chirmoqchimisiz?"
+          dangerMessage="Barcha stansiya ma'lumotlari qayta tiklanmaydi."
         />
       </div>
     </section>
   );
 }
 
-export default Flights;
+export default Stations;
+

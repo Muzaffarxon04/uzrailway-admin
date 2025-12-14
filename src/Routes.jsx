@@ -11,6 +11,10 @@ import AddTrain from "./pages/trains/action/addTrain";
 import TrainDetail from "./pages/trains/detail/trainDetail";
 import Attendance from "./pages/attendance/attendance";
 import Assignments from "./pages/assignments/assignments";
+import Stations from "./pages/stations/stations";
+import AddStation from "./pages/stations/action/addStation";
+import Regions from "./pages/regions/regions";
+import AddRegion from "./pages/regions/action/addRegion";
 
 function RoutesComponent() {
   return (
@@ -101,6 +105,38 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <Assignments />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/stations"
+        element={
+          <PrivateRoute>
+            <Stations />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/stations/:id"
+        element={
+          <PrivateRoute>
+            <AddStation />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/regions"
+        element={
+          <PrivateRoute>
+            <Regions />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/regions/:id"
+        element={
+          <PrivateRoute>
+            <AddRegion />
           </PrivateRoute>
         }
       />

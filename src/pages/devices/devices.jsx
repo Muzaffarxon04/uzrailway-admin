@@ -8,7 +8,6 @@ import {
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -41,21 +40,21 @@ function Devices() {
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "camera-device",
+      "devices",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `${BASE_URL}/camera-device`,
+    url: `devices/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      search: searchValue,
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
 
-  const allDevices = fetchedDevicesData?.data?.data || fetchedDevicesData || [];
+  const allDevices = fetchedDevicesData || [];
 
   const {
     data: deviceDeleteData,
@@ -65,8 +64,7 @@ function Devices() {
     error: deviceDeleteError,
     isError: isDeviceDeleteError,
   } = useDeleteMutation({
-    url: `${BASE_URL}/camera-device`,
-    method: "DELETE",
+    url: `devices/delete/`,
     token: accessToken,
   });
 
@@ -107,7 +105,7 @@ function Devices() {
     if (fetchedDevicesData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedDevicesData?.total || fetchedDevicesData?.length || 0,
+        total: fetchedDevicesData?.total_elements || fetchedDevicesData?.total || 0,
       }));
     }
   }, [fetchedDevicesData]);
@@ -148,32 +146,52 @@ function Devices() {
       ),
     },
     {
-      title: "IP manzil",
-      dataIndex: "ip",
+      title: "Qurilma nomi",
+      dataIndex: "deviceName",
       minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.ip}</p>
+          <p>{record?.deviceName || record?.name || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Username",
-      dataIndex: "username",
+      title: "MAC manzil",
+      dataIndex: "macAddress",
       minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.username}</p>
+          <p>{record?.macAddress || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Turi",
+      dataIndex: "type",
+      width: 120,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.type || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "IP manzil",
+      dataIndex: "ipAddress",
+      minWidth: 200,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.ipAddress || record?.ip || "-"}</p>
         </span>
       ),
     },
     {
       title: "Stansiya",
-      dataIndex: "stationId",
+      dataIndex: "station",
       width: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.station?.name}</p>
+          <p>{record?.station?.name || record?.stationName || "-"}</p>
         </span>
       ),
     },
@@ -245,7 +263,7 @@ function Devices() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="IP manzil bo'yicha qidirish"
+              placeholder="Qurilma nomi bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}

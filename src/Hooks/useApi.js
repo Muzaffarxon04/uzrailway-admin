@@ -99,7 +99,7 @@ function useUniversalFetch() {
     useMutation({
       mutationFn: ({ id, data }) =>
         fetchData({ url: `${url}/${id}`, method: "PATCH", token, body: data }),
-      onSuccess: (data) => {
+      onSuccess: () => {
         // console.log("Patch Mutation Success:", data);
         if (invalidateKey) {
           // console.log("Invalidating Query:", invalidateKey);
@@ -117,13 +117,16 @@ function useUniversalFetch() {
     invalidateKey,
   }) =>
     useMutation({
-      mutationFn: ({ id }) =>
-        fetchData({ 
-          url: `${url}/delete/`, 
+      mutationFn: ({ id }) => {
+        // Remove trailing slashes and /delete/ if already present
+        const cleanUrl = url.replace(/\/+$/, '').replace(/\/delete\/?$/, '');
+        return fetchData({ 
+          url: `${cleanUrl}/delete/`, 
           method: "POST", 
           token, 
           body: { id } 
-        }),
+        });
+      },
       onSuccess: (data) => {
         // console.log("Delete Mutation Success:", data);
         if (invalidateKey) {

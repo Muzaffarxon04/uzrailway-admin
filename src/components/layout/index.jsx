@@ -6,7 +6,7 @@ import React, {
 import { Button, Layout, Menu, Modal, Select,
   //  Switch
    } from "antd";
-import { LaptopOutlined, CarOutlined } from "@ant-design/icons";
+import { LaptopOutlined, CarOutlined, BankOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { useNavigate, Outlet, useLocation,
   //  useSearchParams 
 
@@ -89,6 +89,18 @@ const LayoutComponent = ({ children }) => {
       key: "/assignments",
       icon: <Icon icon="ic_order_list" />,
       label: "Topshiriqlar",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
+    {
+      key: "/stations",
+      icon: <BankOutlined />,
+      label: "Stansiyalar",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
+    {
+      key: "/regions",
+      icon: <EnvironmentOutlined />,
+      label: "Viloyatlar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
     // {
@@ -269,4 +281,5 @@ const LayoutComponent = ({ children }) => {
 };
 
 export default LayoutComponent;
+
 

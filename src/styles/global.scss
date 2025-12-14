@@ -111,3 +111,27 @@
   overflow: hidden;
   border-radius: 24px !important;
 }
+
+// Global table header styles
+.partners_table {
+  .table_wrapper {
+    .ant-table {
+      .ant-table-thead {
+        background-color: #1890ff !important;
+        
+        tr {
+          th {
+            background-color: #1890ff !important;
+            border-bottom: 1px solid #0d7ae6 !important;
+            border-right: 1px solid #0d7ae6 !important;
+            color: #ffffff !important;
+            
+            &:last-child {
+              border-right: none !important;
+            }
+          }
+        }
+      }
+    }
+  }
+}

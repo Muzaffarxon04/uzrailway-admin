@@ -331,10 +331,19 @@ function Flights() {
     {
       title: "",
       dataIndex: "action",
-      width: 80,
+      width: 120,
       align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
+          <Icon
+            icon="ic_statistics"
+            className="icon info"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/flights/statistics/${record.id}`);
+            }}
+            title="Statistika"
+          />
           <Icon
             icon="ic_edit"
             className="icon edit"

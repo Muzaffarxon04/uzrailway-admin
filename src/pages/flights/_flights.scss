@@ -1,5 +1,15 @@
 @import "../../styles/variables";
 
+.flights-detail {
+  .header {
+    background-color: $white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e0e0e0;
+    min-height: 100px;
+  }
+}
+
 .flights {
   .partners_table {
     .table_wrapper {

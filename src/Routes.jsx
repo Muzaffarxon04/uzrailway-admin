@@ -4,6 +4,7 @@ import PrivateRoute from "./utils/PrivateRoute";
 import Flights from "./pages/flights/flights";
 import AddFlight from "./pages/flights/action/addFlight";
 import FlightDetail from "./pages/flights/detail/flightDetail";
+import TripStatistics from "./pages/flights/statistics/tripStatistics";
 import Devices from "./pages/devices/devices";
 import AddDevice from "./pages/devices/action/addDevice";
 import Trains from "./pages/trains/trains";
@@ -41,6 +42,14 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <FlightDetail />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/flights/statistics/:id"
+        element={
+          <PrivateRoute>
+            <TripStatistics />
           </PrivateRoute>
         }
       />

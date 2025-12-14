@@ -110,7 +110,7 @@ function FlightDetail() {
   }
 
   return (
-    <section className="page partners">
+    <section className="page partners flights-detail">
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">

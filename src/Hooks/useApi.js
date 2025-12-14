@@ -124,7 +124,7 @@ function useUniversalFetch() {
           url: `${cleanUrl}/delete/`, 
           method: "POST", 
           token, 
-          body: { id } 
+          body: { ids: [id] } 
         });
       },
       onSuccess: (data) => {

@@ -1,22 +1,24 @@
 import { useState, useEffect } from "react";
 import {
   Input,
+  Button,
   Table,
   Pagination,
   Breadcrumb,
 } from "antd";
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
+import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
+import { Tag } from "antd";
 import dayjs from "dayjs";
 
-function Attendance() {
+function Employees() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { useFetchQuery } = useUniversalFetch();
+  const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
   const navigate = useNavigate();
   const location = useLocation();
   const accessToken = localStorage.getItem("access_token");
@@ -26,6 +28,8 @@ function Attendance() {
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
   const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentEmployee, setCurrentEmployee] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -33,17 +37,17 @@ function Attendance() {
   });
 
   const {
-    data: fetchedAttendanceData,
-    isPending: isAttendanceLoading,
+    data: fetchedEmployeesData,
+    isPending: isEmployeesLoading,
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "attendance",
+      "employees",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `attendance/list/`,
+    url: `auth/employee/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
@@ -52,7 +56,26 @@ function Attendance() {
     token: accessToken,
   });
 
-  const allAttendance = fetchedAttendanceData?.data || [];
+  const allEmployees = fetchedEmployeesData?.data || (Array.isArray(fetchedEmployeesData) ? fetchedEmployeesData : []);
+
+  const {
+    data: employeeDeleteData,
+    isSuccess: isSuccessDeleted,
+    mutate: employeeDelete,
+    isPending: isEmployeeDeleteLoading,
+    error: employeeDeleteError,
+    isError: isEmployeeDeleteError,
+  } = useDeleteMutation({
+    url: `auth/employee/`,
+    token: accessToken,
+    invalidateKey: "employees",
+  });
+
+  const handleDelete = () => {
+    employeeDelete({
+      id: currentEmployee,
+    });
+  };
 
   useEffect(() => {
     if (location.pathname) {
@@ -62,13 +85,33 @@ function Attendance() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (fetchedAttendanceData) {
+    if (isSuccessDeleted) {
+      refetchData();
+      showNotification(
+        "success",
+        t("messages").delete_success,
+        employeeDeleteData?.message || t("messages").success
+      );
+      setCurrentEmployee(null);
+      setModalVisible(false);
+    } else if (isEmployeeDeleteError) {
+      showNotification(
+        "error",
+        t("messages").error_2,
+        employeeDeleteError?.message || t("messages").error
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessDeleted, employeeDeleteError, isEmployeeDeleteError]);
+
+  useEffect(() => {
+    if (fetchedEmployeesData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedAttendanceData?.total_elements || fetchedAttendanceData?.total || 0,
+        total: fetchedEmployeesData?.total_elements || fetchedEmployeesData?.total || (Array.isArray(fetchedEmployeesData) ? fetchedEmployeesData.length : 0),
       }));
     }
-  }, [fetchedAttendanceData]);
+  }, [fetchedEmployeesData]);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -106,99 +149,97 @@ function Attendance() {
       ),
     },
     {
-      title: "Xodim",
-      dataIndex: "employee",
-      minWidth: 200,
+      title: "Ism",
+      dataIndex: "first_name",
+      minWidth: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.employee?.fullname || record?.employee_name || "-"}</p>
+          <p>{record?.first_name || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Reys",
-      dataIndex: "trip",
-      minWidth: 200,
+      title: "Familiya",
+      dataIndex: "last_name",
+      minWidth: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.trip?.trip_number || record?.trip_number || "-"}</p>
+          <p>{record?.last_name || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Sana",
-      dataIndex: "date",
-      width: 130,
+      title: "Telefon raqami",
+      dataIndex: "phone_number",
+      width: 150,
+      render: (_, record) => (
+        <span className="table_phone_number">
+          <a href={`tel:${record?.phone_number}`}>{record?.phone_number || "-"}</a>
+        </span>
+      ),
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      minWidth: 200,
       render: (_, record) => (
         <span className="table_name">
-          <p>
-            {record?.date 
-              ? dayjs(record.date).format("DD.MM.YYYY") 
-              : record?.created_at 
-              ? dayjs(record.created_at).format("DD.MM.YYYY")
-              : "-"}
-          </p>
+          <p>{record?.email || "-"}</p>
         </span>
       ),
     },
     {
       title: "Status",
-      dataIndex: "status",
-      width: 150,
-      render: (_, record) => {
-        const statusLabels = {
-          present: "Hozir",
-          absent: "Yo'q",
-          late: "Kechikkan",
-          on_time: "Vaqtida",
-        };
-        const statusColors = {
-          present: "green",
-          absent: "red",
-          late: "orange",
-          on_time: "blue",
-        };
-        return (
-          <span className="table_name">
-            <p style={{ 
-              color: statusColors[record?.status] || "default",
-              fontWeight: 500 
-            }}>
-              {statusLabels[record?.status] || record?.status || "-"}
-            </p>
-          </span>
-        );
-      },
+      dataIndex: "is_active",
+      width: 100,
+      render: (_, record) => (
+        <Tag color={record?.is_active ? "green" : "red"}>
+          {record?.is_active ? "Faol" : "Nofaol"}
+        </Tag>
+      ),
     },
     {
-      title: "Kelish vaqti",
-      dataIndex: "check_in_time",
+      title: "Yaratilgan vaqti",
+      dataIndex: "created_at",
       width: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>
-            {record?.check_in_time 
-              ? dayjs(record.check_in_time).format("DD.MM.YYYY HH:mm") 
-              : record?.arrival_time
-              ? dayjs(record.arrival_time).format("DD.MM.YYYY HH:mm")
-              : "-"}
-          </p>
+          <p>{record?.created_at ? dayjs(record.created_at).format("DD.MM.YYYY HH:mm") : "-"}</p>
         </span>
       ),
     },
     {
-      title: "Ketish vaqti",
-      dataIndex: "check_out_time",
-      width: 150,
+      title: "",
+      dataIndex: "action",
+      width: 120,
+      align: "right",
       render: (_, record) => (
-        <span className="table_name">
-          <p>
-            {record?.check_out_time 
-              ? dayjs(record.check_out_time).format("DD.MM.YYYY HH:mm") 
-              : record?.departure_time
-              ? dayjs(record.departure_time).format("DD.MM.YYYY HH:mm")
-              : "-"}
-          </p>
+        <span className="action_wrapper">
+          <Icon
+            icon="ic_info"
+            className="icon edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/employees/detail/${record.id}`);
+            }}
+          />
+          <Icon
+            icon="ic_edit"
+            className="icon edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/employees/${record.id}`);
+            }}
+          />
+          <Icon
+            icon="ic_trash"
+            className="icon trash"
+            onClick={(e) => {
+              e.stopPropagation();
+              setModalVisible(true);
+              setCurrentEmployee(record.id);
+            }}
+          />
         </span>
       ),
     },
@@ -215,22 +256,27 @@ function Attendance() {
   };
 
   return (
-    <section className="page partners">
+    <section className="page partners employees">
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Davomat</h2>
+            <h2>Xodimlar</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Davomat ro'yxati",
+                    title: "Xodimlar ro'yxati",
                     href: "",
                   },
                 ]}
               />
             </span>
+          </div>
+          <div className="filter">
+            <Link to="/employees/add">
+              <Button type="primary">Xodim qo'shish</Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -238,7 +284,7 @@ function Attendance() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="Xodim yoki reys raqami bo'yicha qidirish"
+              placeholder="Xodim ismi bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -257,11 +303,11 @@ function Attendance() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allAttendance) ? allAttendance.map((item) => ({
+            dataSource={Array.isArray(allEmployees) ? allEmployees.map((item) => ({
               ...item,
               key: item?.id,
             })) : []}
-            loading={isAttendanceLoading ? customLoader : false}
+            loading={isEmployeesLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
           />
@@ -276,13 +322,19 @@ function Attendance() {
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ ${t("Common").page}` }}
         />
+        <DeleteConfirmModal
+          visible={modalVisible}
+          onClose={() => setModalVisible(false)}
+          isLoading={isEmployeeDeleteLoading}
+          onConfirm={handleDelete}
+          title="Xodimni o'chirish?"
+          message="Bu xodimni o'chirmoqchimisiz?"
+          dangerMessage="Barcha xodim ma'lumotlari qayta tiklanmaydi."
+        />
       </div>
     </section>
   );
 }
 
-export default Attendance;
-
-
-
+export default Employees;
 

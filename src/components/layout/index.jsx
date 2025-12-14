@@ -103,6 +103,24 @@ const LayoutComponent = ({ children }) => {
       label: "Viloyatlar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
+    {
+      key: "/employees",
+      icon: <Icon icon="ic_users" />,
+      label: "Xodimlar",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
+    {
+      key: "/departments",
+      icon: <Icon icon="ic_users" />,
+      label: "Bo'limlar",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
+    {
+      key: "/positions",
+      icon: <Icon icon="ic_users" />,
+      label: "Lavozimlar",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
     // {
     //   key: "/fueltransaction",
     //   icon: <Icon icon="fuel_transaction" />,

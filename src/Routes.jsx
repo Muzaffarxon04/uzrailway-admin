@@ -16,6 +16,13 @@ import Stations from "./pages/stations/stations";
 import AddStation from "./pages/stations/action/addStation";
 import Regions from "./pages/regions/regions";
 import AddRegion from "./pages/regions/action/addRegion";
+import Employees from "./pages/employees/employees";
+import AddEmployee from "./pages/employees/action/addEmployee";
+import EmployeeDetail from "./pages/employees/detail/employeeDetail";
+import Departments from "./pages/departments/departments";
+import AddDepartment from "./pages/departments/action/addDepartment";
+import Positions from "./pages/positions/positions";
+import AddPosition from "./pages/positions/action/addPosition";
 
 function RoutesComponent() {
   return (
@@ -146,6 +153,62 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <AddRegion />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/employees"
+        element={
+          <PrivateRoute>
+            <Employees />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/employees/detail/:id"
+        element={
+          <PrivateRoute>
+            <EmployeeDetail />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/employees/:id"
+        element={
+          <PrivateRoute>
+            <AddEmployee />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/departments"
+        element={
+          <PrivateRoute>
+            <Departments />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/departments/:id"
+        element={
+          <PrivateRoute>
+            <AddDepartment />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/positions"
+        element={
+          <PrivateRoute>
+            <Positions />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/positions/:id"
+        element={
+          <PrivateRoute>
+            <AddPosition />
           </PrivateRoute>
         }
       />

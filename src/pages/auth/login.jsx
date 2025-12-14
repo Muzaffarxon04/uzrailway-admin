@@ -63,7 +63,7 @@ function Login() {
       );
 
     
-      navigate("/employees");
+      navigate("/");
         
       
 

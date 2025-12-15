@@ -85,6 +85,12 @@ const LayoutComponent = ({ children }) => {
       label: "Davomat",
       accessRoles:["showroom_admin", "dispatcher"]
     },
+    {
+      key: "/attendance/statistics",
+      icon: <Icon icon="ic_statistics" />,
+      label: "Davomat statistikasi",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
     
     {
       key: "/events-logs",

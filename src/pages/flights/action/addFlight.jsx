@@ -38,6 +38,21 @@ function AddFlight() {
 
   const trains = trainsData?.data || [];
 
+  // Fetch stations for select
+  const {
+    data: stationsData,
+    isPending: isStationsLoading,
+  } = useFetchQuery({
+    queryKey: ["stations-select"],
+    url: `stations/list/`,
+    params: { page: 1, page_size: 1000 },
+    token: accessToken,
+  });
+
+  const stations =
+    stationsData?.data ||
+    (Array.isArray(stationsData) ? stationsData : []);
+
   const {
     data: tripData,
     isPending: isTripLoading,
@@ -65,7 +80,7 @@ function AddFlight() {
     isError: isTripCreateError,
     error: tripCreateError,
   } = useFetchMutation({
-    url: is_edit ? `trips/update/${id}/` : `trips/create`,
+    url: is_edit ? `trips/update/${id}/` : `trips/create/`,
     invalidateKey: ["trips"],
     method: is_edit ? "PATCH" : "POST",
     token: accessToken,
@@ -76,8 +91,10 @@ function AddFlight() {
       form.setFieldsValue({
         train: trip.train?.id || trip.train,
         trip_date: trip.trip_date ? dayjs(trip.trip_date) : null,
-        departure_station: trip.departure_station,
-        arrival_station: trip.arrival_station,
+        departure_station:
+          trip.departure_station?.id || trip.departure_station || null,
+        arrival_station:
+          trip.arrival_station?.id || trip.arrival_station || null,
         route_name: trip.route_name,
         scheduled_departure: trip.scheduled_departure ? dayjs(trip.scheduled_departure) : null,
         scheduled_arrival: trip.scheduled_arrival ? dayjs(trip.scheduled_arrival) : null,
@@ -98,11 +115,12 @@ function AddFlight() {
   }, [trip, is_edit]);
 
   const onFinish = (values) => {
+    const basePriceValue = values.base_price ? parseFloat(values.base_price) : 0;
     const body = {
       train: parseInt(values.train),
       trip_date: values.trip_date ? values.trip_date.format("YYYY-MM-DD") : null,
-      departure_station: values.departure_station,
-      arrival_station: values.arrival_station,
+      departure_station: values.departure_station ? parseInt(values.departure_station) : null,
+      arrival_station: values.arrival_station ? parseInt(values.arrival_station) : null,
       route_name: values.route_name,
       scheduled_departure: values.scheduled_departure ? values.scheduled_departure.format("YYYY-MM-DDTHH:mm:ss") : null,
       scheduled_arrival: values.scheduled_arrival ? values.scheduled_arrival.format("YYYY-MM-DDTHH:mm:ss") : null,
@@ -111,7 +129,7 @@ function AddFlight() {
         arrival: station.arrival,
         departure: station.departure,
       })),
-      base_price: values.base_price ? values.base_price.toFixed(2) : "0.00",
+      base_price: Number.isFinite(basePriceValue) ? basePriceValue.toFixed(2) : "0.00",
       available_seats: parseInt(values.available_seats) || 0,
       booked_seats: parseInt(values.booked_seats) || 0,
       status: values.status,
@@ -257,32 +275,48 @@ function AddFlight() {
                       </div>
 
                       <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
+                        <CustomSelect
                           label="Jo'nash stanstiyasi"
                           name="departure_station"
+                          form={form}
                           rules={[
                             {
                               required: true,
-                              message: "Jo'nash stanstiyasi kiritilishi shart",
+                              message: "Jo'nash stanstiyasi tanlanishi shart",
                             },
                           ]}
+                          options={
+                            Array.isArray(stations)
+                              ? stations.map((station) => ({
+                                  label: station.name,
+                                  value: station.id,
+                                }))
+                              : []
+                          }
+                          loading={isStationsLoading}
                         />
                       </div>
 
                       <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
+                        <CustomSelect
                           label="Etib borish stanstiyasi"
                           name="arrival_station"
+                          form={form}
                           rules={[
                             {
                               required: true,
-                              message: "Etib borish stanstiyasi kiritilishi shart",
+                              message: "Etib borish stanstiyasi tanlanishi shart",
                             },
                           ]}
+                          options={
+                            Array.isArray(stations)
+                              ? stations.map((station) => ({
+                                  label: station.name,
+                                  value: station.id,
+                                }))
+                              : []
+                          }
+                          loading={isStationsLoading}
                         />
                       </div>
 

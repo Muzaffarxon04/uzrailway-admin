@@ -4,33 +4,37 @@ import {
   Table,
   Pagination,
   Breadcrumb,
+  Button,
+  Tabs,
 } from "antd";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-import { BASE_URL } from "../../consts/variables";
 import useUniversalFetch from "../../Hooks/useApi";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
-import { useNotification } from "../../components/notification";
 import dayjs from "dayjs";
+import DeleteConfirmModal from "../../components/modals/deleteConfirm";
+import { useNotification } from "../../components/notification";
 
 function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { useFetchQuery } = useUniversalFetch();
+  const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
   const navigate = useNavigate();
   const location = useLocation();
   const accessToken = localStorage.getItem("access_token");
-  
   const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
   const searchValue = searchParams.get("search") || "";
+  const [activeTab, setActiveTab] = useState("all");
   const { t } = useLocalization();
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
     total: 0,
   });
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentAssignment, setCurrentAssignment] = useState(null);
 
   const {
     data: fetchedAssignmentsData,
@@ -39,11 +43,12 @@ function Assignments() {
   } = useFetchQuery({
     queryKey: [
       "assignments",
+      activeTab,
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `assignments/list/`,
+    url: activeTab === "my" ? `assignments/my/` : `assignments/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
@@ -52,7 +57,27 @@ function Assignments() {
     token: accessToken,
   });
 
-  const allAssignments = fetchedAssignmentsData?.data || [];
+  const allAssignments =
+    fetchedAssignmentsData?.data ||
+    (Array.isArray(fetchedAssignmentsData) ? fetchedAssignmentsData : []);
+
+  const {
+    data: assignmentDeleteData,
+    isSuccess: isSuccessDeleted,
+    mutate: assignmentDelete,
+    isPending: isAssignmentDeleteLoading,
+    error: assignmentDeleteError,
+    isError: isAssignmentDeleteError,
+  } = useDeleteMutation({
+    url: `assignments/delete/`,
+    token: accessToken,
+  });
+
+  const handleDelete = () => {
+    assignmentDelete({
+      id: currentAssignment,
+    });
+  };
 
   useEffect(() => {
     if (location.pathname) {
@@ -65,10 +90,35 @@ function Assignments() {
     if (fetchedAssignmentsData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedAssignmentsData?.total_elements || fetchedAssignmentsData?.total || 0,
+        total:
+          fetchedAssignmentsData?.total_elements ||
+          fetchedAssignmentsData?.total ||
+          (Array.isArray(fetchedAssignmentsData)
+            ? fetchedAssignmentsData.length
+            : 0),
       }));
     }
   }, [fetchedAssignmentsData]);
+
+  useEffect(() => {
+    if (isSuccessDeleted) {
+      refetchData();
+      showNotification(
+        "success",
+        t("messages").delete_success,
+        assignmentDeleteData?.message || t("messages").success
+      );
+      setCurrentAssignment(null);
+      setModalVisible(false);
+    } else if (isAssignmentDeleteError) {
+      showNotification(
+        "error",
+        t("messages").error_2,
+        assignmentDeleteError?.message || t("messages").error
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSuccessDeleted, assignmentDeleteError, isAssignmentDeleteError]);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -94,6 +144,11 @@ function Assignments() {
     });
   };
 
+  const onTabChange = (key) => {
+    setActiveTab(key);
+    setPagination((prev) => ({ ...prev, current: 1 }));
+  };
+
   const columns = [
     {
       title: "ID",
@@ -102,16 +157,6 @@ function Assignments() {
       render: (_, record) => (
         <span className="table_id">
           <p>#{record?.id}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Xodim",
-      dataIndex: "employee",
-      minWidth: 200,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.employee?.fullname || record?.employee_name || "-"}</p>
         </span>
       ),
     },
@@ -126,14 +171,36 @@ function Assignments() {
       ),
     },
     {
+      title: "Xodim",
+      dataIndex: "employee",
+      minWidth: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>
+            {record?.employee?.full_name ||
+              record?.employee?.fullname ||
+              `${record?.employee?.first_name || ""} ${
+                record?.employee?.last_name || ""
+              }`.trim() ||
+              record?.employee_name ||
+              "-"}
+          </p>
+        </span>
+      ),
+    },
+    {
       title: "Rol",
       dataIndex: "role",
-      width: 150,
+      width: 100,
       render: (_, record) => {
         const roleLabels = {
-          train_chief: "Poyezd boshlig'i",
-          wagon_supervisor: "Vagon nazoratchisi",
+          driver: "Haydovchi",
+          assistant_driver: "Yordamchi haydovchi",
           conductor: "Konduktor",
+          senior_conductor: "Katta konduktor",
+          engineer: "Muhandis",
+          attendant: "Kuzatuvchi",
+          security: "Xavfsizlik",
         };
         return (
           <span className="table_name">
@@ -143,16 +210,26 @@ function Assignments() {
       },
     },
     {
+      title: "Vagon",
+      dataIndex: "wagon_number",
+      width: 90,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.wagon_number || "-"}</p>
+        </span>
+      ),
+    },
+    {
       title: "Sana",
       dataIndex: "date",
       width: 130,
       render: (_, record) => (
         <span className="table_name">
           <p>
-            {record?.date 
-              ? dayjs(record.date).format("DD.MM.YYYY") 
-              : record?.created_at 
-              ? dayjs(record.created_at).format("DD.MM.YYYY")
+            {record?.assignment_date
+              ? dayjs(record.assignment_date).format("DD.MM.YYYY HH:mm")
+              : record?.created_at
+              ? dayjs(record.created_at).format("DD.MM.YYYY HH:mm")
               : "-"}
           </p>
         </span>
@@ -166,12 +243,14 @@ function Assignments() {
         const statusLabels = {
           assigned: "Tayinlangan",
           confirmed: "Tasdiqlangan",
+          declined: "Rad etilgan",
           cancelled: "Bekor qilingan",
           completed: "Yakunlangan",
         };
         const statusColors = {
           assigned: "blue",
           confirmed: "green",
+          declined: "orange",
           cancelled: "red",
           completed: "default",
         };
@@ -188,19 +267,41 @@ function Assignments() {
       },
     },
     {
-      title: "Yaratilgan vaqti",
-      dataIndex: "created_at",
+      title: "",
+      dataIndex: "action",
       width: 150,
+      align: "right",
       render: (_, record) => (
-        <span className="table_name">
-          <p>
-            {record?.created_at 
-              ? dayjs(record.created_at).format("DD.MM.YYYY HH:mm") 
-              : "-"}
-          </p>
+        <span className="action_wrapper">
+          <Icon
+            icon="ic_edit"
+            className="icon edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/assignments/${record.id}`);
+            }}
+          />
+          <Icon
+            icon="ic_info"
+            className="icon edit"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/assignments/detail/${record.id}`);
+            }}
+          />
+          <Icon
+            icon="ic_trash"
+            className="icon trash"
+            onClick={(e) => {
+              e.stopPropagation();
+              setModalVisible(true);
+              setCurrentAssignment(record.id);
+            }}
+          />
         </span>
       ),
     },
+
   ];
 
   const customLoader = {
@@ -231,11 +332,25 @@ function Assignments() {
               />
             </span>
           </div>
+          <div className="filter">
+            <Button type="primary" onClick={() => navigate("/assignments/add")}>
+              Topshiriq qo'shish
+            </Button>
+          </div>
         </div>
       </div>
       <div className="main partners_table">
-        <div className="filters_area">
-          <div className="item">
+        <div
+          className="filters_area"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 8,
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          <div className="item" style={{ width: 320 }}>
             <Input
               placeholder="Xodim yoki reys raqami bo'yicha qidirish"
               allowClear
@@ -252,6 +367,16 @@ function Assignments() {
               }}
             />
           </div>
+
+          <Tabs
+            activeKey={activeTab}
+            onChange={onTabChange}
+            items={[
+              { key: "all", label: "Barcha topshiriqlar" },
+              { key: "my", label: "Mening topshiriqlarim" },
+            ]}
+            style={{ minWidth: 120, marginLeft: 8 }}
+          />
         </div>
         <div className="table_wrapper">
           <Table
@@ -263,6 +388,9 @@ function Assignments() {
             loading={isAssignmentsLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
+            onRow={(record) => ({
+              onClick: () => navigate(`/assignments/detail/${record.id}`),
+            })}
           />
         </div>
         <Pagination
@@ -276,6 +404,12 @@ function Assignments() {
           locale={{ items_per_page: `/ ${t("Common").page}` }}
         />
       </div>
+      <DeleteConfirmModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        onConfirm={handleDelete}
+        isLoading={isAssignmentDeleteLoading}
+      />
     </section>
   );
 }

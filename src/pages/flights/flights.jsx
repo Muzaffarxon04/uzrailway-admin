@@ -230,7 +230,7 @@ function Flights() {
     {
       title: "Jo'nash stanstiyasi",
       dataIndex: "departure_station",
-      minWidth: 180,
+      width: 180,
       render: (_, record) => (
         <span className="table_route">
           {record?.departure_station || "-"}
@@ -250,7 +250,7 @@ function Flights() {
     {
       title: "Etib borish stanstiyasi",
       dataIndex: "arrival_station",
-      minWidth: 180,
+      width: 180,
       render: (_, record) => (
         <span className="table_route">
           {record?.arrival_station || "-"}
@@ -290,7 +290,7 @@ function Flights() {
     {
       title: "Bo'sh o'rindiqlar",
       dataIndex: "available_seats",
-      width: 120,
+      width: 140,
       render: (_, record) => (
         <span className="table_name">
           {record?.available_seats ?? "-"}

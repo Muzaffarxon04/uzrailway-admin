@@ -22,6 +22,7 @@ import Employees from "./pages/employees/employees";
 import AddEmployee from "./pages/employees/action/addEmployee";
 import EmployeeDetail from "./pages/employees/detail/employeeDetail";
 import AttendanceDetail from "./pages/attendance/detail/attendanceDetail";
+import AttendanceStatistics from "./pages/attendance/statistics/attendanceStatistics";
 import EventsLogs from "./pages/eventsLogs/eventsLogs";
 import Departments from "./pages/departments/departments";
 import AddDepartment from "./pages/departments/action/addDepartment";
@@ -134,6 +135,14 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <AttendanceDetail />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/attendance/statistics"
+        element={
+          <PrivateRoute>
+            <AttendanceStatistics />
           </PrivateRoute>
         }
       />

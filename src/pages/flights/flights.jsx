@@ -163,6 +163,14 @@ function Flights() {
   //   }
   // };
 
+  const getStationLabel = (station) => {
+    if (!station) return "-";
+    if (typeof station === "object") {
+      return station.name || station.address || `ID: ${station.id ?? "-"}`;
+    }
+    return station;
+  };
+
   const columns = [
     {
       title: "№",
@@ -233,7 +241,7 @@ function Flights() {
       width: 180,
       render: (_, record) => (
         <span className="table_route">
-          {record?.departure_station || "-"}
+          {getStationLabel(record?.departure_station)}
         </span>
       ),
     },
@@ -253,7 +261,7 @@ function Flights() {
       width: 180,
       render: (_, record) => (
         <span className="table_route">
-          {record?.arrival_station || "-"}
+          {getStationLabel(record?.arrival_station)}
         </span>
       ),
     },

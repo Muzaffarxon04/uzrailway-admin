@@ -21,6 +21,8 @@ import AddRegion from "./pages/regions/action/addRegion";
 import Employees from "./pages/employees/employees";
 import AddEmployee from "./pages/employees/action/addEmployee";
 import EmployeeDetail from "./pages/employees/detail/employeeDetail";
+import AttendanceDetail from "./pages/attendance/detail/attendanceDetail";
+import EventsLogs from "./pages/eventsLogs/eventsLogs";
 import Departments from "./pages/departments/departments";
 import AddDepartment from "./pages/departments/action/addDepartment";
 import Positions from "./pages/positions/positions";
@@ -115,6 +117,23 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <Attendance />
+          </PrivateRoute>
+        }
+      />
+      
+      <Route
+        path="/events-logs"
+        element={
+          <PrivateRoute>
+            <EventsLogs />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/attendance/detail/:id"
+        element={
+          <PrivateRoute>
+            <AttendanceDetail />
           </PrivateRoute>
         }
       />

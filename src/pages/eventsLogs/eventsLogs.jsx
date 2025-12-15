@@ -1,46 +1,36 @@
-import { useState, useEffect } from "react";
-import {
-  Input,
-  Table,
-  Pagination,
-  Breadcrumb,
-} from "antd";
-import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import { Breadcrumb, Input, Pagination, Table, Tag } from "antd";
+import { useSearchParams, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
-import useUniversalFetch from "../../Hooks/useApi";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
+import useUniversalFetch from "../../Hooks/useApi";
 import dayjs from "dayjs";
 
-function Attendance() {
+function EventsLogs() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { useFetchQuery } = useUniversalFetch();
-  const navigate = useNavigate();
   const location = useLocation();
   const accessToken = localStorage.getItem("access_token");
+  const { t } = useLocalization();
 
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
   const searchValue = searchParams.get("search") || "";
-  const { t } = useLocalization();
+
   const [pagination, setPagination] = useState({
     current: currentPage,
-    pageSize: pageSize,
+    pageSize,
     total: 0,
   });
 
   const {
-    data: fetchedAttendanceData,
-    isPending: isAttendanceLoading,
+    data: fetchedLogs,
+    isPending: isLoading,
     refetch: refetchData,
   } = useFetchQuery({
-    queryKey: [
-      "attendance",
-      pagination.current,
-      pagination.pageSize,
-      searchValue,
-    ],
-    url: `attendance/list/`,
+    queryKey: ["events-logs", pagination.current, pagination.pageSize, searchValue],
+    url: `events/logs/list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
@@ -49,7 +39,13 @@ function Attendance() {
     token: accessToken,
   });
 
-  const allAttendance = fetchedAttendanceData?.data || [];
+  const allLogs = useMemo(() => {
+    if (!fetchedLogs) return [];
+    if (Array.isArray(fetchedLogs)) return fetchedLogs;
+    if (Array.isArray(fetchedLogs?.results)) return fetchedLogs.results;
+    if (Array.isArray(fetchedLogs?.data)) return fetchedLogs.data;
+    return [];
+  }, [fetchedLogs]);
 
   useEffect(() => {
     if (location.pathname) {
@@ -59,31 +55,39 @@ function Attendance() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (fetchedAttendanceData) {
+    if (fetchedLogs) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedAttendanceData?.total_elements || fetchedAttendanceData?.total || 0,
+        total:
+          fetchedLogs?.total_elements ||
+          fetchedLogs?.total ||
+          fetchedLogs?.count ||
+          allLogs.length,
       }));
     }
-  }, [fetchedAttendanceData]);
+  }, [fetchedLogs, allLogs.length]);
 
-  const handleTableChange = (pagination) => {
+  const handleTableChange = (tablePagination) => {
     setPagination((prev) => ({
       ...prev,
-      current: pagination.current,
-      pageSize: pagination.pageSize,
+      current: tablePagination.current,
+      pageSize: tablePagination.pageSize,
     }));
 
     setSearchParams({
-      page: pagination.current,
-      pageSize: pagination.pageSize,
+      page: tablePagination.current,
+      pageSize: tablePagination.pageSize,
       search: searchValue || "",
     });
   };
 
+  const handlePaginationChange = (page, size) => {
+    setPagination({ current: page, pageSize: size });
+    handleTableChange({ current: page, pageSize: size });
+  };
+
   const onSearch = (value) => {
     setPagination((prev) => ({ ...prev, current: 1 }));
-
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
@@ -95,32 +99,19 @@ function Attendance() {
     if (!employee) return "-";
     if (employee.full_name) return employee.full_name;
     if (employee.fullname) return employee.fullname;
-    const full =
-      [employee.first_name, employee.last_name]
-        .filter(Boolean)
-        .join(" ")
-        .trim();
+    const full = [employee.first_name, employee.last_name].filter(Boolean).join(" ").trim();
     return full || employee.username || "-";
   };
 
-  const getTripNumber = (record) =>
-    record?.trip_info?.trip_number ||
-    record?.assignment?.trip?.trip_number ||
-    record?.trip?.trip_number ||
-    record?.trip_number ||
+  const getEventTitle = (record) =>
+    record?.event?.name ||
+    record?.event?.title ||
+    record?.event_name ||
+    record?.assignment?.event?.name ||
     "-";
 
-  const formatDateOnly = (value) =>
-    value ? dayjs(value).format("DD.MM.YYYY") : "-";
-
-  const formatDateTime = (value) =>
-    value ? dayjs(value).format("DD.MM.YYYY HH:mm") : "-";
-
-  const getAttendanceDate = (record) =>
-    record?.date ||
-    record?.assignment?.assignment_date ||
-    record?.created_at ||
-    null;
+  const formatDate = (value, withTime = false) =>
+    value ? dayjs(value).format(withTime ? "DD.MM.YYYY HH:mm" : "DD.MM.YYYY") : "-";
 
   const columns = [
     {
@@ -136,93 +127,90 @@ function Attendance() {
     {
       title: "Xodim",
       dataIndex: "employee",
-      minWidth: 200,
+      minWidth: 130,
       render: (_, record) => (
         <span className="table_name">
-          <p>{getEmployeeName(record?.employee) || record?.employee_name || "-"}</p>
+          <p>{getEmployeeName(record?.employee) || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Reys",
-      dataIndex: "trip",
-      minWidth: 200,
+      title: "Kirish stansiya",
+      dataIndex: "entered_station",
+      minWidth: 160,
       render: (_, record) => (
         <span className="table_name">
-          <p>{getTripNumber(record)}</p>
+          <p>{record?.entered_station || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Sana",
-      dataIndex: "date",
-      width: 130,
+      title: "Kirish vaqti",
+      dataIndex: "enter_dateTime",
+      width: 170,
       render: (_, record) => (
         <span className="table_name">
-          <p>
-            {formatDateOnly(getAttendanceDate(record))}
-          </p>
+          <p>{formatDate(record?.enter_dateTime, true)}</p>
         </span>
       ),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      width: 150,
-      render: (_, record) => {
-        const statusLabels = {
-          present: "Hozir",
-          absent: "Yo'q",
-          late: "Kechikkan",
-          on_time: "Vaqtida",
-        };
-        const statusColors = {
-          present: "green",
-          absent: "red",
-          late: "orange",
-          on_time: "blue",
-        };
-        return (
-          <span className="table_name">
-            <p style={{ 
-              color: statusColors[record?.status] || "default",
-              fontWeight: 500 
-            }}>
-              {statusLabels[record?.status] || record?.status || "-"}
-            </p>
-          </span>
-        );
-      },
-    },
-    {
-      title: "Kelish vaqti",
-      dataIndex: "check_in_time",
-      width: 150,
+      title: "Kirish IP / MAC",
+      dataIndex: "entered_ipAddress",
+      width: 200,
       render: (_, record) => (
         <span className="table_name">
-          <p>
-            {record?.check_in_time
-              ? formatDateTime(record.check_in_time)
-              : record?.arrival_time
-              ? formatDateTime(record.arrival_time)
-              : "-"}
-          </p>
+          <p>{record?.entered_ipAddress || "-"}</p>
+          <p style={{ marginBottom: 0 }}>{record?.enterd_macAddress || record?.entered_macAddress || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Ketish vaqti",
-      dataIndex: "check_out_time",
-      width: 150,
+      title: "Chiqish stansiya",
+      dataIndex: "leaved_station",
+      minWidth: 160,
       render: (_, record) => (
         <span className="table_name">
-          <p>
-            {record?.check_out_time
-              ? formatDateTime(record.check_out_time)
-              : record?.departure_time
-              ? formatDateTime(record.departure_time)
-              : "-"}
-          </p>
+          <p>{record?.leaved_station || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Chiqish vaqti",
+      dataIndex: "leave_dateTime",
+      width: 170,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{formatDate(record?.leave_dateTime, true)}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Chiqish IP / MAC",
+      dataIndex: "leaved_ipAddress",
+      width: 200,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.leaved_ipAddress || "-"}</p>
+          <p style={{ marginBottom: 0 }}>{record?.leaved_macAddress || record?.leave_macAddress || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Sub event type",
+      dataIndex: "subEventType",
+      width: 140,
+      render: (_, record) => (
+        <Tag color="blue">{record?.subEventType ?? "-"}</Tag>
+      ),
+    },
+    {
+      title: "Tadbir",
+      dataIndex: "event",
+      minWidth: 160,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{getEventTitle(record)}</p>
         </span>
       ),
     },
@@ -233,23 +221,18 @@ function Attendance() {
     indicator: <LoadingOutlined style={{ fontSize: 40 }} spin />,
   };
 
-  const handlePaginationChange = (page, pageSize) => {
-    setPagination({ current: page, pageSize });
-    handleTableChange({ current: page, pageSize });
-  };
-
   return (
     <section className="page partners">
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Davomat</h2>
+            <h2>Tadbir loglari</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Davomat ro'yxati",
+                    title: "Loglar",
                     href: "",
                   },
                 ]}
@@ -258,11 +241,12 @@ function Attendance() {
           </div>
         </div>
       </div>
+
       <div className="main partners_table">
         <div className="filters_area">
-          <div className="item">
+          <div className="item" style={{ width: 320 }}>
             <Input
-              placeholder="Xodim yoki reys raqami bo'yicha qidirish"
+              placeholder="Xodim yoki tadbir bo'yicha qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -278,24 +262,22 @@ function Attendance() {
             />
           </div>
         </div>
+
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allAttendance) ? allAttendance.map((item) => ({
-              ...item,
-              key: item?.id,
-            })) : []}
-            loading={isAttendanceLoading ? customLoader : false}
+            dataSource={
+              Array.isArray(allLogs)
+                ? allLogs.map((item) => ({
+                    ...item,
+                    key: item?.id,
+                  }))
+                : []
+            }
+            loading={isLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
-            onRow={(record) => ({
-              onClick: () => {
-                if (record?.id) {
-                  navigate(`/attendance/detail/${record.id}`);
-                }
-              },
-              style: { cursor: record?.id ? "pointer" : "default" },
-            })}
+            scroll={{ x: "max-content" }}
           />
         </div>
         <Pagination
@@ -303,7 +285,7 @@ function Attendance() {
           pageSize={pagination.pageSize}
           total={pagination.total}
           showSizeChanger
-          pageSizeOptions={['10', '20', '50', '100', '200']}
+          pageSizeOptions={["10", "20", "50", "100", "200"]}
           onChange={handlePaginationChange}
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ ${t("Common").page}` }}
@@ -313,10 +295,6 @@ function Attendance() {
   );
 }
 
-export default Attendance;
-
-
-
-
+export default EventsLogs;
 
 

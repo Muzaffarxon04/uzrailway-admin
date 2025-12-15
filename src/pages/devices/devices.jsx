@@ -54,7 +54,7 @@ function Devices() {
     token: accessToken,
   });
 
-  const allDevices = fetchedDevicesData || [];
+  const allDevices = fetchedDevicesData?.data || [];
 
   const {
     data: deviceDeleteData,

@@ -85,6 +85,13 @@ const LayoutComponent = ({ children }) => {
       label: "Davomat",
       accessRoles:["showroom_admin", "dispatcher"]
     },
+    
+    {
+      key: "/events-logs",
+      icon: <Icon icon="ic_order_list" />,
+      label: "Tadbir loglari",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
     {
       key: "/assignments",
       icon: <Icon icon="ic_order_list" />,

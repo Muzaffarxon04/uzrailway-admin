@@ -54,7 +54,7 @@ function Regions() {
     token: accessToken,
   });
 
-  const allRegions = fetchedRegionsData || [];
+  const allRegions = fetchedRegionsData?.data || [];
 
   const {
     data: regionDeleteData,

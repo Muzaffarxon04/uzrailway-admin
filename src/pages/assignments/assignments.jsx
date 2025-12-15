@@ -162,31 +162,40 @@ function Assignments() {
     },
     {
       title: "Reys",
-      dataIndex: "trip",
+      dataIndex: "trip_number",
       minWidth: 200,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.trip?.trip_number || record?.trip_number || "-"}</p>
-        </span>
-      ),
+      render: (_, record) => {
+        const tripNumber = record?.trip?.trip_number ?? record?.trip_number;
+        const displayValue = (typeof tripNumber === 'string' || typeof tripNumber === 'number') 
+          ? tripNumber 
+          : "-";
+        return (
+          <span className="table_name">
+            <p>{displayValue}</p>
+          </span>
+        );
+      },
     },
     {
       title: "Xodim",
-      dataIndex: "employee",
       minWidth: 150,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>
-            {record?.employee?.full_name ||
-              record?.employee?.fullname ||
-              `${record?.employee?.first_name || ""} ${
-                record?.employee?.last_name || ""
-              }`.trim() ||
-              record?.employee_name ||
-              "-"}
-          </p>
-        </span>
-      ),
+      render: (_, record) => {
+        const employeeName = 
+          record?.employee?.full_name ||
+          record?.employee?.fullname ||
+          (record?.employee?.first_name || record?.employee?.last_name
+            ? `${record?.employee?.first_name || ""} ${record?.employee?.last_name || ""}`.trim()
+            : null) ||
+          record?.employee_name;
+        const displayValue = (typeof employeeName === 'string' || typeof employeeName === 'number') 
+          ? employeeName 
+          : "-";
+        return (
+          <span className="table_name">
+            <p>{displayValue}</p>
+          </span>
+        );
+      },
     },
     {
       title: "Rol",
@@ -202,9 +211,11 @@ function Assignments() {
           attendant: "Kuzatuvchi",
           security: "Xavfsizlik",
         };
+        const roleValue = record?.role;
+        const roleLabel = typeof roleValue === 'string' ? roleLabels[roleValue] : null;
         return (
           <span className="table_name">
-            <p>{roleLabels[record?.role] || record?.role || "-"}</p>
+            <p>{roleLabel || (typeof roleValue === 'string' ? roleValue : "-")}</p>
           </span>
         );
       },
@@ -213,11 +224,17 @@ function Assignments() {
       title: "Vagon",
       dataIndex: "wagon_number",
       width: 90,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.wagon_number || "-"}</p>
-        </span>
-      ),
+      render: (_, record) => {
+        const wagonNumber = record?.wagon_number;
+        const displayValue = (typeof wagonNumber === 'string' || typeof wagonNumber === 'number') 
+          ? wagonNumber 
+          : "-";
+        return (
+          <span className="table_name">
+            <p>{displayValue}</p>
+          </span>
+        );
+      },
     },
     {
       title: "Sana",
@@ -254,13 +271,15 @@ function Assignments() {
           cancelled: "red",
           completed: "default",
         };
+        const statusValue = record?.status;
+        const statusLabel = typeof statusValue === 'string' ? statusLabels[statusValue] : null;
         return (
           <span className="table_name">
             <p style={{ 
-              color: statusColors[record?.status] || "default",
+              color: (typeof statusValue === 'string' ? statusColors[statusValue] : null) || "default",
               fontWeight: 500 
             }}>
-              {statusLabels[record?.status] || record?.status || "-"}
+              {statusLabel || (typeof statusValue === 'string' ? statusValue : "-")}
             </p>
           </span>
         );

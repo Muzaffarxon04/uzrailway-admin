@@ -198,10 +198,10 @@ function FlightDetail() {
           </Descriptions.Item>
 
           <Descriptions.Item label="Jo'nash stanstiyasi">
-            {trip?.departure_station || "-"}
+            {trip?.departure_station?.name || "-"}
           </Descriptions.Item>
           <Descriptions.Item label="Etib borish stanstiyasi">
-            {trip?.arrival_station || "-"}
+            {trip?.arrival_station?.name || "-"}
           </Descriptions.Item>
 
           <Descriptions.Item label="Rejalashtirilgan jo'nash vaqti">
@@ -314,7 +314,7 @@ function FlightDetail() {
           </div>
         )}
 
-        {Array.isArray(trip?.intermediate_stations) && trip.intermediate_stations.length > 0 && (
+        {Array.isArray(trip?.intermediate_stations) && trip.intermediate_stations.length > 0 ? (
           <div style={{ marginTop: 24 }}>
             <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
               O'rta stanstiyalar ({trip.intermediate_stations.length})
@@ -333,7 +333,7 @@ function FlightDetail() {
               }}
             />
           </div>
-        )}
+        ) : null}
       </Card>
     </section>
   );

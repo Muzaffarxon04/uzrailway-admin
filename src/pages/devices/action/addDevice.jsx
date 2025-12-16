@@ -4,7 +4,7 @@ import CustomSelect from "../../../components/inputs/customSelect";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
 import useUniversalFetch from "../../../Hooks/useApi";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../components/notification";
 import { useLocalization } from "../../../LocalizationContext";
@@ -33,7 +33,7 @@ function AddDevice() {
     token: accessToken,
   });
 
-  const stations = stationsData || [];
+  const stations = stationsData?.data || [];
 
   const {
     data: deviceData,
@@ -52,7 +52,7 @@ function AddDevice() {
     token: accessToken,
   });
 
-  const device = deviceData?.data || deviceData || {};
+  const device = useMemo(() => deviceData?.data || deviceData || {}, [deviceData]);
 
   const {
     mutate: CreateDevice,
@@ -72,10 +72,18 @@ function AddDevice() {
     if (is_edit && device && Object.keys(device).length > 0) {
       form.setFieldsValue({
         deviceName: device.deviceName || device.name,
+        name: device.name,
+        deviceCategory: device.deviceCategory,
         macAddress: device.macAddress,
         type: device.type,
         ipAddress: device.ipAddress || device.ip,
         station: device.station || device.stationId || device.station?.id,
+        ezvizVerifyCode: device.ezvizVerifyCode,
+        userName: device.userName,
+        password: device.password,
+        ezvizSerialNo: device.ezvizSerialNo,
+        timezone_id: device.timezone_id,
+        applyToDevice: device.applyToDevice,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -83,11 +91,19 @@ function AddDevice() {
 
   const onFinish = (values) => {
     const body = {
-      deviceName: values.deviceName,
-      macAddress: values.macAddress,
+      deviceCategory: values.deviceCategory || null,
+      name: values.name || values.deviceName || null,
+      deviceName: values.deviceName || values.name || null,
+      ezvizVerifyCode: values.ezvizVerifyCode || null,
+      userName: values.userName || null,
+      password: values.password || null,
+      macAddress: values.macAddress || null,
+      ipAddress: values.ipAddress || null,
+      ezvizSerialNo: values.ezvizSerialNo || null,
       type: values.type,
-      ipAddress: values.ipAddress,
-      station: parseInt(values.station),
+      timezone_id: values.timezone_id || null,
+      applyToDevice: values.applyToDevice || null,
+      station: values.station ? parseInt(values.station) : null,
     };
     CreateDevice(body);
   };
@@ -209,6 +225,24 @@ function AddDevice() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
+                          label="Name"
+                          name="name"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Qurilma kategoriyasi"
+                          name="deviceCategory"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
                           label="MAC manzil"
                           name="macAddress"
                           rules={[
@@ -250,6 +284,61 @@ function AddDevice() {
                               message: "IP manzil kiritilishi shart",
                             },
                           ]}
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Ezviz Serial No"
+                          name="ezvizSerialNo"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Ezviz Verify Code"
+                          name="ezvizVerifyCode"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Username"
+                          name="userName"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Password"
+                          name="password"
+                          type="password"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Timezone ID"
+                          name="timezone_id"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomInput
+                          isEdit={is_edit}
+                          form={form}
+                          label="Apply To Device"
+                          name="applyToDevice"
                         />
                       </div>
 

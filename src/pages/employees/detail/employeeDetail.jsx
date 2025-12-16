@@ -93,7 +93,7 @@ function EmployeeDetail() {
                     href: "/employees",
                   },
                   {
-                    title: `${employee?.first_name || ""} ${employee?.last_name || ""}`.trim() || "Xodim ma'lumotlari",
+                    title: `${employee?.firstName || employee?.first_name || ""} ${employee?.lastName || employee?.last_name || ""}`.trim() || "Xodim ma'lumotlari",
                     href: "",
                   },
                 ]}
@@ -128,19 +128,28 @@ function EmployeeDetail() {
               {employee?.username || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Ism">
-              {employee?.first_name || "-"}
+              {employee?.firstName || employee?.first_name || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Familiya">
-              {employee?.last_name || "-"}
+              {employee?.lastName || employee?.last_name || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Email">
               {employee?.email || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Telefon raqami">
-              {employee?.phone_number || "-"}
+              {employee?.phone || employee?.phone_number || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Jins">
+              {employee?.gender === 1 ? "Erkak" : employee?.gender === 2 ? "Ayol" : employee?.gender || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Tug'ilgan sana">
               {employee?.date_of_birth ? dayjs(employee.date_of_birth).format("DD.MM.YYYY") : "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Boshlanish sanasi">
+              {employee?.startDate ? dayjs(employee.startDate).format("DD.MM.YYYY") : "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="Tugash sanasi">
+              {employee?.endDate ? dayjs(employee.endDate).format("DD.MM.YYYY") : "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Rol">
               <Tag color="blue">{getRoleLabel(employee?.role)}</Tag>

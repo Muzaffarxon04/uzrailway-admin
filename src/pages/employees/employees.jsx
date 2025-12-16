@@ -5,7 +5,11 @@ import {
   Table,
   Pagination,
   Breadcrumb,
+  Modal,
+  Upload,
+  message,
 } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
 import useUniversalFetch from "../../Hooks/useApi";
@@ -30,6 +34,9 @@ function Employees() {
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState(null);
+  const [faceIdModalVisible, setFaceIdModalVisible] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [fileList, setFileList] = useState([]);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -71,11 +78,73 @@ function Employees() {
     invalidateKey: "employees",
   });
 
+  const { useFetchMutation } = useUniversalFetch();
+
+  const {
+    mutate: uploadFaceIdPicture,
+    isPending: isFaceIdUploadLoading,
+    isSuccess: isFaceIdUploadSuccess,
+    isError: isFaceIdUploadError,
+    error: faceIdUploadError,
+  } = useFetchMutation({
+    url: `auth/employee/picture/create/`,
+    invalidateKey: ["employees"],
+    method: "POST",
+    token: accessToken,
+  });
+
   const handleDelete = () => {
     employeeDelete({
       id: currentEmployee,
     });
   };
+
+  const handleFaceIdClick = (record) => {
+    setSelectedEmployee(record);
+    setFaceIdModalVisible(true);
+    setFileList([]);
+  };
+
+  const handleFaceIdUpload = async () => {
+    if (!fileList.length) {
+      message.error("Iltimos, rasm tanlang");
+      return;
+    }
+
+    if (!selectedEmployee?.personId) {
+      message.error("Xodimning personId mavjud emas");
+      return;
+    }
+
+    const file = fileList[0].originFileObj || fileList[0];
+    if (!file) {
+      message.error("Rasm fayli topilmadi");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("picture", file);
+    formData.append("personId", selectedEmployee.personId);
+
+    try {
+      uploadFaceIdPicture(formData);
+    } catch (error) {
+      message.error("Rasm yuklashda xatolik yuz berdi");
+    }
+  };
+
+  useEffect(() => {
+    if (isFaceIdUploadSuccess) {
+      message.success("Rasm muvaffaqiyatli yuklandi");
+      setFaceIdModalVisible(false);
+      setFileList([]);
+      setSelectedEmployee(null);
+      refetchData();
+    } else if (isFaceIdUploadError) {
+      message.error(faceIdUploadError?.message || "Rasm yuklashda xatolik yuz berdi");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFaceIdUploadSuccess, isFaceIdUploadError]);
 
   useEffect(() => {
     if (location.pathname) {
@@ -150,33 +219,36 @@ function Employees() {
     },
     {
       title: "Ism",
-      dataIndex: "first_name",
+      dataIndex: "firstName",
       minWidth: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.first_name || "-"}</p>
+          <p>{record?.firstName || record?.first_name || "-"}</p>
         </span>
       ),
     },
     {
       title: "Familiya",
-      dataIndex: "last_name",
+      dataIndex: "lastName",
       minWidth: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.last_name || "-"}</p>
+          <p>{record?.lastName || record?.last_name || "-"}</p>
         </span>
       ),
     },
     {
       title: "Telefon raqami",
-      dataIndex: "phone_number",
+      dataIndex: "phone",
       width: 150,
-      render: (_, record) => (
-        <span className="table_phone_number">
-          <a href={`tel:${record?.phone_number}`}>{record?.phone_number || "-"}</a>
-        </span>
-      ),
+      render: (_, record) => {
+        const phone = record?.phone || record?.phone_number;
+        return (
+          <span className="table_phone_number">
+            <a href={`tel:${phone}`}>{phone || "-"}</a>
+          </span>
+        );
+      },
     },
     {
       title: "Email",
@@ -211,10 +283,21 @@ function Employees() {
     {
       title: "",
       dataIndex: "action",
-      width: 120,
+      width: 180,
       align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
+                 <Button
+            type="link"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleFaceIdClick(record);
+            }}
+            style={{ padding: 0, height: "auto", marginRight: 8 }}
+          >
+            FaceID
+          </Button>
           <Icon
             icon="ic_info"
             className="icon edit"
@@ -231,6 +314,7 @@ function Employees() {
               navigate(`/employees/${record.id}`);
             }}
           />
+   
           <Icon
             icon="ic_trash"
             className="icon trash"
@@ -331,6 +415,67 @@ function Employees() {
           message="Bu xodimni o'chirmoqchimisiz?"
           dangerMessage="Barcha xodim ma'lumotlari qayta tiklanmaydi."
         />
+
+        <Modal
+          title="FaceID rasm qo'shish"
+          open={faceIdModalVisible}
+          onCancel={() => {
+            setFaceIdModalVisible(false);
+            setFileList([]);
+            setSelectedEmployee(null);
+          }}
+          onOk={handleFaceIdUpload}
+          confirmLoading={isFaceIdUploadLoading}
+          okText="Yuklash"
+          cancelText="Bekor qilish"
+        >
+          <div style={{ marginBottom: 16 }}>
+            <p>
+              <strong>Xodim:</strong> {selectedEmployee?.firstName || selectedEmployee?.first_name || ""}{" "}
+              {selectedEmployee?.lastName || selectedEmployee?.last_name || ""}
+            </p>
+            {selectedEmployee?.personId && (
+              <p>
+                <strong>Person ID:</strong> {selectedEmployee.personId}
+              </p>
+            )}
+          </div>
+          <Upload
+            fileList={fileList}
+            beforeUpload={(file) => {
+              const isImage = file.type.startsWith("image/");
+              if (!isImage) {
+                message.error("Faqat rasm fayllari yuklash mumkin!");
+                return false;
+              }
+              const isLt10M = file.size / 1024 / 1024 < 10;
+              if (!isLt10M) {
+                message.error("Rasm hajmi 10MB dan kichik bo'lishi kerak!");
+                return false;
+              }
+              // Save file with originFileObj property for proper file access
+              setFileList([{
+                uid: file.uid || `-${Date.now()}`,
+                name: file.name,
+                status: 'done',
+                originFileObj: file,
+              }]);
+              return false;
+            }}
+            onRemove={() => {
+              setFileList([]);
+            }}
+            maxCount={1}
+            accept="image/*"
+          >
+            <Button icon={<UploadOutlined />}>Rasm tanlash</Button>
+          </Upload>
+          {!selectedEmployee?.personId && (
+            <p style={{ color: "red", marginTop: 8 }}>
+              Ushbu xodimning personId mavjud emas. Iltimos, avval personId ni qo'shing.
+            </p>
+          )}
+        </Modal>
       </div>
     </section>
   );

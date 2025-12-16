@@ -96,14 +96,17 @@ function AddEmployee() {
       form.setFieldsValue({
         employee_id: employee.employee_id,
         username: employee.username,
-        first_name: employee.first_name,
-        last_name: employee.last_name,
-        phone_number: employee.phone_number,
+        firstName: employee.firstName || employee.first_name,
+        lastName: employee.lastName || employee.last_name,
+        phone: employee.phone || employee.phone_number,
         email: employee.email,
         date_of_birth: employee.date_of_birth ? dayjs(employee.date_of_birth) : null,
+        startDate: employee.startDate ? dayjs(employee.startDate) : null,
+        endDate: employee.endDate ? dayjs(employee.endDate) : null,
+        gender: employee.gender === 1 ? "male" : employee.gender === 2 ? "female" : employee.gender,
         role: employee.role,
-        position_id: employee.position.id,
-        department_id: employee.department.id,
+        position_id: employee.position?.id || employee.position_id,
+        department_id: employee.department?.id || employee.department_id,
         can_login: employee.can_login !== undefined ? employee.can_login : true,
         is_active: employee.is_active !== undefined ? employee.is_active : true,
         is_staff: employee.is_staff !== undefined ? employee.is_staff : true,
@@ -113,17 +116,19 @@ function AddEmployee() {
 
   const onFinish = (values) => {
     const body = {
-      employee_id: values.employee_id || "",
       username: values.username || "",
       ...(is_edit ? {} : {
         password: values.password || "",
         password_confirm: values.password_confirm || "",
       }),
-      first_name: values.first_name || "",
-      last_name: values.last_name || "",
+      firstName: values.firstName || "",
+      lastName: values.lastName || "",
       email: values.email || "",
-      phone_number: values.phone_number || "",
+      phone: values.phone || "",
       date_of_birth: values.date_of_birth ? dayjs(values.date_of_birth).format("YYYY-MM-DD") : "",
+      startDate: values.startDate ? dayjs(values.startDate).format("YYYY-MM-DD") : null,
+      endDate: values.endDate ? dayjs(values.endDate).format("YYYY-MM-DD") : null,
+      gender: values.gender === "male" ? 1 : values.gender === "female" ? 2 : null,
       role: values.role || "",
       position_id: values.position_id ? parseInt(values.position_id) : null,
       department_id: values.department_id ? parseInt(values.department_id) : null,
@@ -131,6 +136,12 @@ function AddEmployee() {
       is_active: values.is_active !== undefined ? values.is_active : true,
       is_staff: values.is_staff !== undefined ? values.is_staff : true,
     };
+    
+    // Add employee_id only if it has a value
+    if (values.employee_id && values.employee_id.trim() !== "") {
+      body.employee_id = values.employee_id.trim();
+    }
+    
     handleEmployeeMutation(body);
   };
 
@@ -202,7 +213,7 @@ function AddEmployee() {
                     },
                     {
                       title: is_edit
-                        ? `${employee?.first_name || ""} ${employee?.last_name || ""}`.trim() || "Tahrirlash"
+                        ? `${employee?.firstName || employee?.first_name || ""} ${employee?.lastName || employee?.last_name || ""}`.trim() || "Tahrirlash"
                         : "Yangi xodim",
                       href: "",
                     },
@@ -316,7 +327,7 @@ function AddEmployee() {
                           isEdit={is_edit}
                           form={form}
                           label="Ism"
-                          name="first_name"
+                          name="firstName"
                           rules={[
                             {
                               required: true,
@@ -331,7 +342,7 @@ function AddEmployee() {
                           isEdit={is_edit}
                           form={form}
                           label="Familiya"
-                          name="last_name"
+                          name="lastName"
                           rules={[
                             {
                               required: true,
@@ -365,7 +376,7 @@ function AddEmployee() {
                           isEdit={is_edit}
                           form={form}
                           label="Telefon raqami"
-                          name="phone_number"
+                          name="phone"
                           rules={[
                             {
                               required: true,
@@ -388,6 +399,38 @@ function AddEmployee() {
                               message: "Tug'ilgan sana tanlanishi shart",
                             },
                           ]}
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomSelect
+                          label="Jins"
+                          name="gender"
+                          form={form}
+                          options={[
+                            { label: "Erkak", value: "male" },
+                            { label: "Ayol", value: "female" },
+                          ]}
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomDatePicker
+                          isEdit={is_edit}
+                          form={form}
+                          label="Boshlanish sanasi"
+                          name="startDate"
+                          format="YYYY-MM-DD"
+                        />
+                      </div>
+
+                      <div className="input_item">
+                        <CustomDatePicker
+                          isEdit={is_edit}
+                          form={form}
+                          label="Tugash sanasi"
+                          name="endDate"
+                          format="YYYY-MM-DD"
                         />
                       </div>
 

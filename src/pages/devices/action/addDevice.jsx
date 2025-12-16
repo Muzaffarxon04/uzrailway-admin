@@ -72,8 +72,6 @@ function AddDevice() {
     if (is_edit && device && Object.keys(device).length > 0) {
       form.setFieldsValue({
         name: device.name || device.deviceName,
-        deviceCategory: device.deviceCategory,
-        macAddress: device.macAddress,
         type: device.type,
         ipAddress: device.ipAddress || device.ip,
         station: device.station || device.stationId || device.station?.id,
@@ -81,8 +79,6 @@ function AddDevice() {
         userName: device.userName,
         password: device.password,
         ezvizSerialNo: device.ezvizSerialNo,
-        timezone_id: device.timezone_id,
-        applyToDevice: device.applyToDevice,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -90,17 +86,16 @@ function AddDevice() {
 
   const onFinish = (values) => {
     const body = {
-      deviceCategory: values.deviceCategory || null,
       name: values.name || null,
       ezvizVerifyCode: values.ezvizVerifyCode || null,
       userName: values.userName || null,
       password: values.password || null,
-      macAddress: values.macAddress || null,
+      // macAddress: values.macAddress || null,
       ipAddress: values.ipAddress || null,
       ezvizSerialNo: values.ezvizSerialNo || null,
       type: values.type,
-      timezone_id: values.timezone_id || null,
-      applyToDevice: values.applyToDevice || null,
+      timezone_id: '26',
+      applyToDevice: '1',
       station: values.station ? parseInt(values.station) : null,
     };
     CreateDevice(body);
@@ -220,30 +215,6 @@ function AddDevice() {
                       </div>
 
                       <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Qurilma kategoriyasi"
-                          name="deviceCategory"
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="MAC manzil"
-                          name="macAddress"
-                          rules={[
-                            {
-                              required: true,
-                              message: "MAC manzil kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
                         <CustomSelect
                           label="Turi"
                           name="type"
@@ -310,24 +281,6 @@ function AddDevice() {
                           label="Password"
                           name="password"
                           type="password"
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Timezone ID"
-                          name="timezone_id"
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Apply To Device"
-                          name="applyToDevice"
                         />
                       </div>
 

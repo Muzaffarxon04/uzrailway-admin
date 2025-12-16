@@ -347,7 +347,7 @@ function AttendanceDetail() {
                 trip?.status === "arrived" ? "green" :
                 trip?.status === "cancelled" ? "red" : "default"
               }>
-                {trip?.status || "-"}
+              {trip?.status || "-"}
               </Tag>
             </Descriptions.Item>
             <Descriptions.Item label="Reys sanasi">

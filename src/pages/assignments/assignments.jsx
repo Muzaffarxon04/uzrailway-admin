@@ -170,9 +170,9 @@ function Assignments() {
           ? tripNumber 
           : "-";
         return (
-          <span className="table_name">
+        <span className="table_name">
             <p>{displayValue}</p>
-          </span>
+        </span>
         );
       },
     },
@@ -191,9 +191,9 @@ function Assignments() {
           ? employeeName 
           : "-";
         return (
-          <span className="table_name">
+        <span className="table_name">
             <p>{displayValue}</p>
-          </span>
+        </span>
         );
       },
     },
@@ -230,9 +230,9 @@ function Assignments() {
           ? wagonNumber 
           : "-";
         return (
-          <span className="table_name">
+        <span className="table_name">
             <p>{displayValue}</p>
-          </span>
+        </span>
         );
       },
     },

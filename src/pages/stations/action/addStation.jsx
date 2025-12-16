@@ -33,7 +33,7 @@ function AddStation() {
     token: accessToken,
   });
 
-  const regions = regionsData || [];
+  const regions = regionsData?.data || [];
 
   const {
     data: stationData,

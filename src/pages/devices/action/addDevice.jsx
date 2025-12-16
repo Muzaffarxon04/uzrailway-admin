@@ -71,8 +71,7 @@ function AddDevice() {
   useEffect(() => {
     if (is_edit && device && Object.keys(device).length > 0) {
       form.setFieldsValue({
-        deviceName: device.deviceName || device.name,
-        name: device.name,
+        name: device.name || device.deviceName,
         deviceCategory: device.deviceCategory,
         macAddress: device.macAddress,
         type: device.type,
@@ -92,8 +91,7 @@ function AddDevice() {
   const onFinish = (values) => {
     const body = {
       deviceCategory: values.deviceCategory || null,
-      name: values.name || values.deviceName || null,
-      deviceName: values.deviceName || values.name || null,
+      name: values.name || null,
       ezvizVerifyCode: values.ezvizVerifyCode || null,
       userName: values.userName || null,
       password: values.password || null,
@@ -178,7 +176,7 @@ function AddDevice() {
                     },
                     {
                       title: is_edit
-                        ? device?.deviceName || device?.name || "Tahrirlash"
+                        ? device?.name || "Tahrirlash"
                         : "Yangi qurilma",
                       href: "",
                     },
@@ -210,23 +208,14 @@ function AddDevice() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="Qurilma nomi"
-                          name="deviceName"
+                          label="Name"
+                          name="name"
                           rules={[
                             {
                               required: true,
-                              message: "Qurilma nomi kiritilishi shart",
+                              message: "Name kiritilishi shart",
                             },
                           ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Name"
-                          name="name"
                         />
                       </div>
 

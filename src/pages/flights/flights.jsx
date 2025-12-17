@@ -11,7 +11,7 @@ import { useSearchParams, Link, useNavigate, useLocation } from "react-router-do
 import Icon from "../../components/Icon";
 import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
-import { LoadingOutlined } from "@ant-design/icons";
+import { LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
 import dayjs from "dayjs";
@@ -172,82 +172,136 @@ function Flights() {
     return station;
   };
 
+  const getTrainLead = (assignedEmployees) => {
+    if (!Array.isArray(assignedEmployees) || assignedEmployees.length === 0) return "-";
+    const lead = assignedEmployees.find(emp => 
+      emp.role === "driver" || emp.role === "senior_conductor"
+    );
+    if (lead) {
+      const name = `${lead.firstName || ""} ${lead.lastName || ""}`.trim();
+      return name || "-";
+    }
+    return "-";
+  };
+
+  // Transform data - har bir trip uchun, har bir vagon kuzatuvchisi uchun alohida qator
+  const transformedData = allFlights.flatMap((trip, tripIndex) => {
+    const employees = Array.isArray(trip?.assigned_employees) ? trip.assigned_employees : [];
+    const wagonAttendants = employees.filter(emp => 
+      emp.role !== "driver" && emp.role !== "senior_conductor"
+    );
+
+    // Trip asosiy qatori
+    const tripRow = {
+      ...trip,
+      key: `trip-${trip.id}`,
+      tripIndex: tripIndex + 1,
+      isTripRow: true,
+      wagonAttendants,
+      wagonAttendantsCount: wagonAttendants.length,
+    };
+
+    // Agar vagon kuzatuvchilari bo'lsa, har biri uchun alohida qator
+    if (wagonAttendants.length > 0) {
+      const employeeRows = wagonAttendants.map((emp, empIndex) => ({
+        ...trip,
+        ...emp,
+        key: `trip-${trip.id}-emp-${emp.id || empIndex}`,
+        isTripRow: false,
+        tripIndex: null,
+        employeeName: `${emp?.firstName || ""} ${emp?.lastName || ""}`.trim(),
+        parentTripId: trip.id,
+      }));
+      return [tripRow, ...employeeRows];
+    }
+
+    return [tripRow];
+  });
+
   const columns = [
     {
       title: "№",
-      dataIndex: "index",
+      dataIndex: "tripIndex",
       width: 60,
-      render: (_, record, index) => {
-        const pageIndex = (pagination.current - 1) * pagination.pageSize + index + 1;
+      render: (tripIndex, record) => {
+        if (record.isTripRow && tripIndex) {
+          const pageIndex = (pagination.current - 1) * pagination.pageSize + tripIndex;
+          return (
+            <span className="table_number">
+              {pageIndex}
+            </span>
+          );
+        }
+        return null;
+      },
+    },
+    {
+      title: "Кетиш вақти",
+      dataIndex: "scheduled_departure",
+      width: 160,
+      render: (_, record) => {
+        if (record.isTripRow) {
+          return (
+            <span className="table_departure">
+              {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
+            </span>
+          );
+        }
+        return null;
+      },
+    },
+    {
+      title: "Поезд рақами",
+      dataIndex: "train",
+      width: 130,
+      render: (_, record) => {
+        if (record.isTripRow) {
+          return (
+            <span className="table_flight_number">
+              {record?.train?.train_number || "-"}
+            </span>
+          );
+        }
+        return null;
+      },
+    },
+    {
+      title: "Жўнаш станцияси",
+      dataIndex: "departure_station",
+      width: 180,
+      render: (_, record) => {
+        if (record.isTripRow) {
+          return (
+            <span className="table_route">
+              {getStationLabel(record?.departure_station)}
+            </span>
+          );
+        }
+        return null;
+      },
+    },
+    {
+      title: "Вагон кузатувчиси",
+      dataIndex: "employeeName",
+      minWidth: 200,
+      render: (_, record) => {
+        if (record.isTripRow) {
+          return (
+            <span className="table_name">
+              {record.wagonAttendantsCount > 0 ? `${record.wagonAttendantsCount} ta` : "-"}
+            </span>
+          );
+        }
+        // Employee qatori uchun
         return (
-          <span className="table_number">
-            {pageIndex}
+          <span className="table_name">
+            {record.employeeName || "-"}
           </span>
         );
       },
     },
     {
-      title: "Reys raqami",
-      dataIndex: "trip_number",
-      width: 180,
-      render: (_, record) => (
-        <span className="table_flight_number">
-          {record?.trip_number || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Poyezd raqami",
-      dataIndex: "train",
-      width: 130,
-      render: (_, record) => (
-        <span className="table_flight_number">
-          {record?.train?.train_number || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Poyezd nomi",
-      dataIndex: "train",
-      minWidth: 150,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.train?.train_name || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Poyezd turi",
-      dataIndex: "train",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.train?.train_type || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Jo'nash stanstiyasi",
-      dataIndex: "departure_station",
-      width: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          {getStationLabel(record?.departure_station)}
-        </span>
-      ),
-    },
-    {
-      title: "Jo'nash vaqti",
-      dataIndex: "scheduled_departure",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_departure">
-          {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Etib borish stanstiyasi",
+      title: "Етиб бориш станцияси",
       dataIndex: "arrival_station",
       width: 180,
       render: (_, record) => (
@@ -257,72 +311,44 @@ function Flights() {
       ),
     },
     {
-      title: "Etib borish vaqti",
+      title: "Етиб бориш вақти.",
       dataIndex: "scheduled_arrival",
-      width: 150,
+      width: 160,
       render: (_, record) => (
         <span className="table_arrival">
-          {record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-"}
+          {record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY") : "-"}
         </span>
       ),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      width: 150,
+      title: "Тасдиқлаш.",
+      dataIndex: "attendance",
+      width: 100,
       render: (_, record) => {
-        const statusLabels = {
-          scheduled: "Rejalashtirilgan",
-          boarding: "O'tirish",
-          departed: "Jo'nab ketgan",
-          in_transit: "Yo'lda",
-          arrived: "Yetib kelgan",
-          delayed: "Kechikkan",
-          cancelled: "Bekor qilingan",
-          completed: "Yakunlangan",
-        };
-        const statusColors = {
-          scheduled: "blue",
-          boarding: "orange",
-          departed: "cyan",
-          in_transit: "purple",
-          arrived: "green",
-          delayed: "gold",
-          cancelled: "red",
-          completed: "green",
-        };
-        const status = record?.status;
-        return (
-          <Tag color={statusColors[status] || "default"}>
-            {statusLabels[status] || status || "-"}
-          </Tag>
-        );
-      },
-    },
-    {
-      title: "Tayinlangan xodimlar",
-      dataIndex: "assigned_employees",
-      width: 150,
-      render: (_, record) => {
-        const count = Array.isArray(record?.assigned_employees) ? record.assigned_employees.length : 0;
-        const checkedInCount = Array.isArray(record?.assigned_employees)
-          ? record.assigned_employees.filter(emp => emp?.attendance_status?.checked_in).length
-          : 0;
-        return (
-          <span className="table_name">
-            {count > 0 ? (
-              <div>
-                <div>{count} ta</div>
-                {checkedInCount > 0 && (
-                  <div style={{ fontSize: 12, color: "#52c41a" }}>
-                    {checkedInCount} keldi
-                  </div>
-                )}
-              </div>
-            ) : (
-              "-"
-            )}
-          </span>
+        if (record.isTripRow) {
+          const attendants = record?.wagonAttendants || [];
+          const confirmedCount = attendants.filter(emp => {
+            const attendance = emp?.attendance;
+            return attendance && attendance.status === "present";
+          }).length;
+          const totalCount = attendants.length;
+          if (totalCount === 0) return "-";
+          return (
+            <span>
+              {confirmedCount}/{totalCount}
+            </span>
+          );
+        }
+        // Employee qatori uchun
+        const attendance = record?.attendance;
+        if (!attendance) {
+          return <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />;
+        }
+        const isConfirmed = attendance.status === "present";
+        return isConfirmed ? (
+          <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
+        ) : (
+          <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
         );
       },
     },
@@ -350,15 +376,6 @@ function Flights() {
               navigate(`/flights/${record.id}`);
             }}
           />
-          {/* <Icon
-            icon="ic_trash"
-            className="icon trash"
-            onClick={(e) => {
-              e.stopPropagation();
-              setModalVisible(true);
-              setCurrentFlight(record.id);
-            }}
-          /> */}
         </span>
       ),
     },
@@ -422,8 +439,7 @@ function Flights() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-          
-            dataSource={allFlights}
+            dataSource={transformedData}
             loading={isFlightsLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}

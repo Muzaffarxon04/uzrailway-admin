@@ -5,7 +5,7 @@ import {
   Table,
   Pagination,
   Breadcrumb,
-  // Tag,
+  Tag,
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -198,11 +198,10 @@ function Flights() {
       width: 60,
       render: (tripIndex, record) => {
         const pageIndex = (pagination.current - 1) * pagination.pageSize + tripIndex;
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+    
+   
         return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
           <span className="table_number">
             {pageIndex}
           </span>
@@ -215,11 +214,9 @@ function Flights() {
       dataIndex: "scheduled_departure",
       width: 160,
       render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+ 
         return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
             <span className="table_departure">
               {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
         </span>
@@ -232,11 +229,9 @@ function Flights() {
       dataIndex: "train",
       width: 130,
       render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+    
         return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
         <span className="table_flight_number">
           {record?.train?.train_number || "-"}
         </span>
@@ -249,11 +244,10 @@ function Flights() {
       dataIndex: "departure_station",
       width: 180,
       render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+
+  
         return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
         <span className="table_route">
           {getStationLabel(record?.departure_station)}
         </span>
@@ -266,22 +260,20 @@ function Flights() {
       dataIndex: "train_driver",
       width: 180,
       render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+
         const isExpanded = expandedRows.includes(record.key);
         return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 8 }}>
             <span className="table_route">
               {record?.train_driver || "-"}
             </span>
             <span
               onClick={(e) => {
                 e.stopPropagation();
-                setExpandedRows(prev => 
+                setExpandedRows(
                   isExpanded 
-                    ? prev.filter(key => key !== record.key)
-                    : [...prev, record.key]
+                    ? []
+                    : [record.key]
                 );
               }}
               style={{ 
@@ -304,45 +296,7 @@ function Flights() {
               ) : (
                 <CaretRightOutlined style={{ fontSize: 36, color: '#1890ff' }} />
               )}
-            </span>
-          </div>
-        );
-      },
-    },
-    {
-      title: "Вагон кузатувчиси",
-      dataIndex: "wagonAttendants",
-      minWidth: 200,
-      render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
-        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
-        
-        return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
-            {attendants.length > 0 ? (
-              attendants.map((emp, idx) => {
-                const name = `${emp?.firstName || ""} ${emp?.lastName || ""}`.trim();
-                return (
-                  <div 
-                    key={emp?.id || idx}
-                    style={{ 
-                      minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
-                      display: 'flex',
-                      alignItems: 'center',
-                      borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
-                    }}
-                  >
-                    <span className="table_name">{name || "-"}</span>
-                  </div>
-                );
-              })
-            ) : (
-              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
-                <span className="table_name">-</span>
-              </div>
-            )}
+        </span>
           </div>
         );
       },
@@ -352,38 +306,7 @@ function Flights() {
       dataIndex: "arrival_station",
       width: 180,
       render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
-        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
-        
-        return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
-            {attendants.length > 0 ? (
-              attendants.map((emp, idx) => (
-                <div 
-                  key={emp?.id || idx}
-                  style={{ 
-                    minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
-                    display: 'flex',
-                    alignItems: 'center',
-                    borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
-                  }}
-                >
-                  <span className="table_route">
-                    {getStationLabel(record?.arrival_station)}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
-        <span className="table_route">
-          {getStationLabel(record?.arrival_station)}
-        </span>
-              </div>
-            )}
-          </div>
-        );
+        return <span className="table_route">{getStationLabel(record?.arrival_station)}</span>;
       },
     },
     {
@@ -391,35 +314,8 @@ function Flights() {
       dataIndex: "scheduled_arrival",
       width: 160,
       render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
-        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
         const arrivalTime = record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-";
-        
-        return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
-            {attendants.length > 0 ? (
-              attendants.map((emp, idx) => (
-                <div 
-                  key={emp?.id || idx}
-                  style={{ 
-                    minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
-                    display: 'flex',
-                    alignItems: 'center',
-                    borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
-                  }}
-                >
-                  <span className="table_arrival">{arrivalTime}</span>
-                </div>
-              ))
-            ) : (
-              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
-                <span className="table_arrival">{arrivalTime}</span>
-              </div>
-            )}
-          </div>
-        );
+        return <span className="table_arrival">{arrivalTime}</span>;
       },
     },
     {
@@ -428,49 +324,18 @@ function Flights() {
       width: 100,
       render: (_, record) => {
         const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
-        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
-        
-        return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
-            {attendants.length > 0 ? (
-              attendants.map((emp, idx) => {
-                const attendance = emp?.attendance_status;
-                
-            
-                const isConfirmed = attendance && attendance.status === "present";
-                return (
-                  <div 
-                    key={emp?.id || idx}
-                    style={{ 
-                      minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
-                    }}
-                  >
-                    {attendance ? (
-                      isConfirmed ? (
-                        <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
-                      ) : (
-                        <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
-                      )
-                    ) : (
-                      <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
+        const allPresent =
+          attendants.length > 0 &&
+          attendants.every((emp) => emp?.attendance_status?.status === "present");
 
-              </div>
-            )}
-          </div>
-        );
+        const icon =
+          attendants.length > 0 && allPresent ? (
+            <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
+          ) : (
+            <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
+          );
+
+        return <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>;
       },
     },
     {
@@ -479,11 +344,9 @@ function Flights() {
       width: 120,
       align: "right",
       render: (_, record) => {
-        const attendants = record?.wagonAttendants || [];
-        const minItemHeight = 50;
-        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+     
         return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <div style={{  display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
         <span className="action_wrapper">
           <Icon
             icon="ic_statistics"
@@ -510,52 +373,136 @@ function Flights() {
   ];
 
   const expandedRowRender = (record) => {
+    const assignedEmployees = record?.assigned_employees || [];
+
     return (
       <div style={{ padding: '16px', backgroundColor: '#fafafa' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '16px' }}>
+        {Array.isArray(assignedEmployees) && assignedEmployees.length > 0 ? (
           <div>
-            <strong>Reys raqami:</strong> {record?.trip_number || "-"}
+            <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>
+              Tayinlangan xodimlar ({assignedEmployees.length})
+            </h4>
+            <Table
+              dataSource={assignedEmployees.map((item, index) => ({
+                ...item,
+                key: item?.id || index,
+              }))}
+              columns={[
+                {
+                  title: "№",
+                  dataIndex: "index",
+                  width: 60,
+                  render: (_, record, index) => <span>{index + 1}</span>,
+                },
+                {
+                  title: "Ism",
+                  dataIndex: "name",
+                  minWidth: 200,
+                  render: (_, record) => {
+                    const name = `${record?.firstName || ""} ${record?.lastName || ""}`.trim();
+                    return <span>{name || "-"}</span>;
+                  },
+                },
+                {
+                  title: "Lavozim ID",
+                  dataIndex: "position",
+                  width: 100,
+                  render: (_, record) => <span>{record?.position || "-"}</span>,
+                },
+                {
+                  title: "Kelish vaqti",
+                  dataIndex: "attendance",
+                  width: 170,
+                  render: (_, record) => {
+                    const checkInTime = record?.attendance?.check_in_time;
+                    return checkInTime 
+                      ? dayjs(checkInTime).format("DD.MM.YYYY HH:mm")
+                      : "-";
+                  },
+                },
+                {
+                  title: "Ketish vaqti",
+                  dataIndex: "attendance",
+                  width: 170,
+                  render: (_, record) => {
+                    const checkOutTime = record?.attendance?.check_out_time;
+                    return checkOutTime 
+                      ? dayjs(checkOutTime).format("DD.MM.YYYY HH:mm")
+                      : "-";
+                  },
+                },
+                {
+                  title: "Kelish joyi",
+                  dataIndex: "attendance",
+                  minWidth: 150,
+                  render: (_, record) => {
+                    return record?.attendance?.check_in_location || "-";
+                  },
+                },
+                {
+                  title: "Davomat statusi",
+                  dataIndex: "attendance",
+                  width: 150,
+                  render: (_, record) => {
+                    const attendance = record?.attendance;
+                    if (!attendance) {
+                      return <Tag color="default">Kelmadi</Tag>;
+                    }
+                    const statusColors = {
+                      present: "green",
+                      absent: "red",
+                      late: "orange",
+                      on_time: "blue",
+                    };
+                    const statusLabels = {
+                      present: "Hozir",
+                      absent: "Yo'q",
+                      late: "Kechikkan",
+                      on_time: "Vaqtida",
+                    };
+                    return (
+                      <Tag color={statusColors[attendance.status] || "default"}>
+                        {statusLabels[attendance.status] || attendance.status}
+                      </Tag>
+                    );
+                  },
+                },
+                {
+                  title: "Kechikish",
+                  dataIndex: "attendance",
+                  width: 120,
+                  render: (_, record) => {
+                    const attendance = record?.attendance;
+                    if (!attendance) return "-";
+                    return attendance.is_late ? (
+                      <div>
+                        <Tag color="orange">Ha</Tag>
+                        {attendance.late_duration_minutes && (
+                          <div style={{ fontSize: 12, marginTop: 4 }}>
+                            {attendance.late_duration_minutes} daq
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Tag color="green">Yo'q</Tag>
+                    );
+                  },
+                },
+              ]}
+              rowKey="key"
+              pagination={false}
+              bordered
+              scroll={{ x: "max-content" }}
+              locale={{
+                emptyText: "Tayinlangan xodimlar mavjud emas",
+              }}
+            />
           </div>
-          <div>
-            <strong>Reys sanasi:</strong> {record?.trip_date ? dayjs(record.trip_date).format("DD.MM.YYYY") : "-"}
+        ) : (
+          <div style={{ padding: '12px', textAlign: 'center', color: '#999' }}>
+            Xodim mavjud emas
           </div>
-          <div>
-            <strong>Poyezd nomi:</strong> {record?.train?.train_name || "-"}
-          </div>
-          <div>
-            <strong>Poyezd turi:</strong> {record?.train?.train_type || "-"}
-          </div>
-          <div>
-            <strong>Status:</strong> {record?.status || "-"}
-          </div>
-          <div>
-            <strong>Faol:</strong> {record?.is_active !== undefined ? (record.is_active ? "Ha" : "Yo'q") : "-"}
-          </div>
-          {record?.intermediate_stations && Array.isArray(record.intermediate_stations) && record.intermediate_stations.length > 0 && (
-            <div style={{ gridColumn: '1 / -1' }}>
-              <strong>O'rta stansiyalar:</strong>
-              <ul style={{ marginTop: 8, paddingLeft: 20 }}>
-                {record.intermediate_stations.map((station, idx) => (
-                  <li key={idx}>
-                    {station?.name || "-"}
-                    {station?.arrival && ` (Kelish: ${station.arrival})`}
-                    {station?.departure && ` (Jo'nash: ${station.departure})`}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {record?.created_at && (
-            <div>
-              <strong>Yaratilgan vaqti:</strong> {dayjs(record.created_at).format("DD.MM.YYYY HH:mm")}
-            </div>
-          )}
-          {record?.updated_at && (
-            <div>
-              <strong>Yangilangan vaqti:</strong> {dayjs(record.updated_at).format("DD.MM.YYYY HH:mm")}
-            </div>
-          )}
-        </div>
+        )}
       </div>
     );
   };
@@ -628,7 +575,8 @@ function Flights() {
               expandRowByClick: false,
               expandedRowKeys: expandedRows,
               onExpandedRowsChange: (expandedKeys) => {
-                setExpandedRows(expandedKeys);
+                // Faqat bitta qator ochilishi uchun, oxirgi ochilgan qatorni saqlash
+                setExpandedRows(expandedKeys.length > 1 ? [expandedKeys[expandedKeys.length - 1]] : expandedKeys);
               },
               expandIcon: () => null,
               indentSize: 0,

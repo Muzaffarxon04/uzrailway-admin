@@ -240,12 +240,12 @@ function FlightDetail() {
                 //   width: 80,
                 //   render: (_, record) => <span>#{record?.id || "-"}</span>,
                 // },
-                {
-                  title: "Xodim ID",
-                  dataIndex: "employee_id",
-                  width: 100,
-                  render: (_, record) => <span>{record?.employee_id || "-"}</span>,
-                },
+                // {
+                //   title: "Xodim ID",
+                //   dataIndex: "employee_id",
+                //   width: 100,
+                //   render: (_, record) => <span>{record?.employee_id || "-"}</span>,
+                // },
                 {
                   title: "Ism",
                   dataIndex: "name",
@@ -261,34 +261,7 @@ function FlightDetail() {
                   width: 100,
                   render: (_, record) => <span>{record?.position || "-"}</span>,
                 },
-                {
-                  title: "Davomat statusi",
-                  dataIndex: "attendance",
-                  width: 150,
-                  render: (_, record) => {
-                    const attendance = record?.attendance;
-                    if (!attendance) {
-                      return <Tag color="default">Kelmadi</Tag>;
-                    }
-                    const statusColors = {
-                      present: "green",
-                      absent: "red",
-                      late: "orange",
-                      on_time: "blue",
-                    };
-                    const statusLabels = {
-                      present: "Hozir",
-                      absent: "Yo'q",
-                      late: "Kechikkan",
-                      on_time: "Vaqtida",
-                    };
-                    return (
-                      <Tag color={statusColors[attendance.status] || "default"}>
-                        {statusLabels[attendance.status] || attendance.status}
-                      </Tag>
-                    );
-                  },
-                },
+             
                 {
                   title: "Kelish vaqti",
                   dataIndex: "attendance",
@@ -331,6 +304,34 @@ function FlightDetail() {
                   minWidth: 150,
                   render: (_, record) => {
                     return record?.attendance?.check_in_location || "-";
+                  },
+                },
+                {
+                  title: "Davomat statusi",
+                  dataIndex: "attendance",
+                  width: 150,
+                  render: (_, record) => {
+                    const attendance = record?.attendance;
+                    if (!attendance) {
+                      return <Tag color="default">Kelmadi</Tag>;
+                    }
+                    const statusColors = {
+                      present: "green",
+                      absent: "red",
+                      late: "orange",
+                      on_time: "blue",
+                    };
+                    const statusLabels = {
+                      present: "Hozir",
+                      absent: "Yo'q",
+                      late: "Kechikkan",
+                      on_time: "Vaqtida",
+                    };
+                    return (
+                      <Tag color={statusColors[attendance.status] || "default"}>
+                        {statusLabels[attendance.status] || attendance.status}
+                      </Tag>
+                    );
                   },
                 },
                 {

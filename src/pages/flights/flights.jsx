@@ -30,6 +30,7 @@ function Flights() {
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentFlight, setCurrentFlight] = useState(null);
+  const [expandedRows, setExpandedRows] = useState([]);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -268,11 +269,42 @@ function Flights() {
         const attendants = record?.wagonAttendants || [];
         const minItemHeight = 50;
         const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        const isExpanded = expandedRows.includes(record.key);
         return (
-          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center', gap: 8 }}>
             <span className="table_route">
               {record?.train_driver || "-"}
-        </span>
+            </span>
+            <span
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpandedRows(prev => 
+                  isExpanded 
+                    ? prev.filter(key => key !== record.key)
+                    : [...prev, record.key]
+                );
+              }}
+              style={{ 
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                position: 'absolute',
+                right: 0,
+                top: 0,
+                width: '25px',
+                height: '45px',
+                padding: '12px',
+                transition: 'transform 0.3s',
+                flexShrink: 0,
+              }}
+            >
+              {isExpanded ? (
+                <CaretDownOutlined style={{ fontSize: 36, color: '#1890ff' }} />
+              ) : (
+                <CaretRightOutlined style={{ fontSize: 36, color: '#1890ff' }} />
+              )}
+            </span>
           </div>
         );
       },
@@ -594,30 +626,12 @@ function Flights() {
             expandable={{
               expandedRowRender,
               expandRowByClick: false,
-              expandIcon: ({ expanded, onExpand, record }) => (
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onExpand(record, e);
-                  }}
-                  style={{ 
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '48px',
-                    height: '48px',
-                    padding: '12px',
-                    transition: 'transform 0.3s',
-                  }}
-                >
-                  {expanded ? (
-                    <CaretDownOutlined style={{ fontSize: 16, color: '#1890ff' }} />
-                  ) : (
-                    <CaretRightOutlined style={{ fontSize: 16, color: '#1890ff' }} />
-                  )}
-                </span>
-              ),
+              expandedRowKeys: expandedRows,
+              onExpandedRowsChange: (expandedKeys) => {
+                setExpandedRows(expandedKeys);
+              },
+              expandIcon: () => null,
+              indentSize: 0,
             }}
             onRow={(record) => {
               const attendants = record?.wagonAttendants || [];

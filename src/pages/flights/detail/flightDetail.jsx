@@ -156,22 +156,10 @@ function FlightDetail() {
           style={{ marginBottom: 24 }}
           labelStyle={{ fontWeight: 600, width: "200px" }}
         >
-          <Descriptions.Item label="ID">
-            {trip?.id || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Reys raqami">
-            {trip?.trip_number || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Poyezd raqami">
-            {trip?.train?.train_number || "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Poyezd nomi">
-            {trip?.train?.train_name || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Poyezd turi">
-            {trip?.train?.train_type || "-"}
-          </Descriptions.Item>
+        
+      
+    
+        
 
           <Descriptions.Item label="Jo'nash stanstiyasi">
             {trip?.departure_station?.name || "-"}
@@ -191,23 +179,8 @@ function FlightDetail() {
               : "-"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Reys sanasi">
-            {trip?.trip_date 
-              ? dayjs(trip.trip_date).format("DD.MM.YYYY") 
-              : "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Status">
-            {trip?.status ? (
-              <Tag color={
-                trip.status === "scheduled" ? "blue" :
-                trip.status === "completed" ? "green" :
-                trip.status === "cancelled" ? "red" : "default"
-              }>
-                {trip.status === "scheduled" ? "Rejalashtirilgan" :
-                 trip.status === "completed" ? "Yakunlangan" :
-                 trip.status === "cancelled" ? "Bekor qilingan" : trip.status}
-              </Tag>
-            ) : "-"}
+          <Descriptions.Item label="Poyezd raqami">
+            {trip?.train?.train_number || "-"}
           </Descriptions.Item>
 
           <Descriptions.Item label="Faol">
@@ -218,28 +191,9 @@ function FlightDetail() {
             ) : "-"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Yaratuvchi">
-            {trip?.created_by?.full_name || 
-             trip?.created_by?.fullname ||
-             (trip?.created_by?.firstName || trip?.created_by?.lastName
-               ? `${trip.created_by.firstName || ""} ${trip.created_by.lastName || ""}`.trim()
-               : null) ||
-             trip?.created_by?.username || 
-             trip?.created_by?.email || 
-             "-"}
-          </Descriptions.Item>
+        
 
-          <Descriptions.Item label="Yaratilgan vaqti" span={2}>
-            {trip?.created_at 
-              ? dayjs(trip.created_at).format("DD.MM.YYYY HH:mm") 
-              : "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Yangilangan vaqti" span={2}>
-            {trip?.updated_at 
-              ? dayjs(trip.updated_at).format("DD.MM.YYYY HH:mm") 
-              : "-"}
-          </Descriptions.Item>
+      
         </Descriptions>
 
         {Array.isArray(trip?.intermediate_stations) && trip.intermediate_stations.length > 0 ? (

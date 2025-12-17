@@ -387,7 +387,9 @@ function Flights() {
           <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
             {attendants.length > 0 ? (
               attendants.map((emp, idx) => {
-                const attendance = emp?.attendance;
+                const attendance = emp?.attendance_status;
+                
+            
                 const isConfirmed = attendance && attendance.status === "present";
                 return (
                   <div 

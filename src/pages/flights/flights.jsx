@@ -210,21 +210,6 @@ function Flights() {
       },
     },
     {
-      title: "Кетиш вақти",
-      dataIndex: "scheduled_departure",
-      width: 160,
-      render: (_, record) => {
- 
-        return (
-          <div style={{ display: 'flex', alignItems: 'center' }}>
-            <span className="table_departure">
-              {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
-        </span>
-          </div>
-        );
-      },
-    },
-    {
       title: "Поезд рақами",
       dataIndex: "train",
       width: 130,
@@ -239,6 +224,22 @@ function Flights() {
         );
       },
     },
+    {
+      title: "Кетиш вақти",
+      dataIndex: "scheduled_departure",
+      width: 160,
+      render: (_, record) => {
+ 
+        return (
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <span className="table_departure">
+              {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
+        </span>
+          </div>
+        );
+      },
+    },
+ 
     {
       title: "Жўнаш станцияси",
       dataIndex: "departure_station",

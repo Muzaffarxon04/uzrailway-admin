@@ -222,7 +222,7 @@ function EventsLogs() {
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Tadbir loglari</h2>
+            <h2>Keldi-kettilar</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}

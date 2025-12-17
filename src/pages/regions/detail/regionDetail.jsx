@@ -55,7 +55,7 @@ function RegionDetail() {
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Viloyatlar ro'yxati",
+                    title: "Xududlar ro'yxati",
                     href: "/regions",
                   },
                   {

@@ -199,13 +199,13 @@ function Regions() {
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Viloyatlar</h2>
+            <h2>Xududlar</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Viloyatlar ro'yxati",
+                    title: "Xududlar ro'yxati",
                     href: "",
                   },
                 ]}

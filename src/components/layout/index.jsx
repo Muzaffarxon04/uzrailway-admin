@@ -95,7 +95,7 @@ const LayoutComponent = ({ children }) => {
     {
       key: "/events-logs",
       icon: <Icon icon="ic_order_list" />,
-      label: "Tadbir loglari",
+      label: "Keldi-kettilar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
@@ -113,7 +113,7 @@ const LayoutComponent = ({ children }) => {
     {
       key: "/regions",
       icon: <EnvironmentOutlined />,
-      label: "Viloyatlar",
+      label: "Xududlar",
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {

@@ -139,20 +139,6 @@ function TrainDetail() {
             {getTrainTypeLabel(train?.train_type) || "-"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Vagonlar soni">
-            {train?.wagon_count || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Jami sig'im">
-            {train?.total_capacity || "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Ishlab chiqaruvchi">
-            {train?.manufacturer || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Ishlab chiqarilgan yil">
-            {train?.manufacture_year || "-"}
-          </Descriptions.Item>
-
           <Descriptions.Item label="Status">
             {train?.status ? (
               <Tag color={getStatusColor(train.status)}>
@@ -168,36 +154,6 @@ function TrainDetail() {
             ) : "-"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="WiFi mavjud">
-            {train?.has_wifi !== undefined ? (
-              <Tag color={train.has_wifi ? "green" : "default"}>
-                {train.has_wifi ? "Ha" : "Yo'q"}
-              </Tag>
-            ) : "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Konditsioner mavjud">
-            {train?.has_ac !== undefined ? (
-              <Tag color={train.has_ac ? "green" : "default"}>
-                {train.has_ac ? "Ha" : "Yo'q"}
-              </Tag>
-            ) : "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Restoran mavjud">
-            {train?.has_restaurant !== undefined ? (
-              <Tag color={train.has_restaurant ? "green" : "default"}>
-                {train.has_restaurant ? "Ha" : "Yo'q"}
-              </Tag>
-            ) : "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Zaryadlash mavjud">
-            {train?.has_charging !== undefined ? (
-              <Tag color={train.has_charging ? "green" : "default"}>
-                {train.has_charging ? "Ha" : "Yo'q"}
-              </Tag>
-            ) : "-"}
-          </Descriptions.Item>
-
           <Descriptions.Item label="Yaratilgan vaqti" span={2}>
             {train?.created_at 
               ? dayjs(train.created_at).format("DD.MM.YYYY HH:mm") 
@@ -209,12 +165,6 @@ function TrainDetail() {
               ? dayjs(train.updated_at).format("DD.MM.YYYY HH:mm") 
               : "-"}
           </Descriptions.Item>
-
-          {train?.description && (
-            <Descriptions.Item label="Tavsif" span={2}>
-              {train.description}
-            </Descriptions.Item>
-          )}
         </Descriptions>
       </Card>
     </section>
@@ -222,6 +172,8 @@ function TrainDetail() {
 }
 
 export default TrainDetail;
+
+
 
 
 

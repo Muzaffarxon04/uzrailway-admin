@@ -8,6 +8,8 @@ import {
   Modal,
   Upload,
   message,
+  Select,
+  Spin,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
@@ -17,7 +19,6 @@ import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
-import { Tag } from "antd";
 import dayjs from "dayjs";
 
 function Employees() {
@@ -37,6 +38,9 @@ function Employees() {
   const [faceIdModalVisible, setFaceIdModalVisible] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [fileList, setFileList] = useState([]);
+  const [accessModalVisible, setAccessModalVisible] = useState(false);
+  const [selectedAccessEmployee, setSelectedAccessEmployee] = useState(null);
+  const [selectedAccessLevel, setSelectedAccessLevel] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -88,6 +92,37 @@ function Employees() {
     error: faceIdUploadError,
   } = useFetchMutation({
     url: `auth/employee/picture/create/`,
+    invalidateKey: ["employees"],
+    method: "POST",
+    token: accessToken,
+  });
+
+  // Fetch access levels
+  const {
+    data: accessLevelsData,
+    isPending: isAccessLevelsLoading,
+  } = useFetchQuery({
+    queryKey: ["access-levels"],
+    url: `auth/employee/access/level/list/`,
+    token: accessToken,
+    config: {
+      queryOptions: {
+        enabled: accessModalVisible, // Only fetch when modal is open
+      },
+    },
+  });
+
+  const accessLevels = accessLevelsData?.data || (Array.isArray(accessLevelsData) ? accessLevelsData : []);
+console.log(accessLevelsData);
+
+  const {
+    mutate: createEmployeeAccess,
+    isPending: isCreateAccessLoading,
+    isSuccess: isCreateAccessSuccess,
+    isError: isCreateAccessError,
+    error: createAccessError,
+  } = useFetchMutation({
+    url: `auth/employee/access-level/person/create/`,
     invalidateKey: ["employees"],
     method: "POST",
     token: accessToken,
@@ -145,6 +180,44 @@ function Employees() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isFaceIdUploadSuccess, isFaceIdUploadError]);
+
+  const handleAccessClick = (record) => {
+    setSelectedAccessEmployee(record);
+    setAccessModalVisible(true);
+    setSelectedAccessLevel(null);
+  };
+
+  const handleAccessSubmit = () => {
+    if (!selectedAccessLevel) {
+      message.error("Iltimos, access level tanlang");
+      return;
+    }
+
+    if (!selectedAccessEmployee?.personId) {
+      message.error("Xodimning personId mavjud emas");
+      return;
+    }
+
+    const body = {
+      personId: selectedAccessEmployee.personId,
+      accessLevelIdList: selectedAccessLevel,
+    };
+
+    createEmployeeAccess(body);
+  };
+
+  useEffect(() => {
+    if (isCreateAccessSuccess) {
+      message.success("Access muvaffaqiyatli berildi");
+      setAccessModalVisible(false);
+      setSelectedAccessLevel(null);
+      setSelectedAccessEmployee(null);
+      refetchData();
+    } else if (isCreateAccessError) {
+      message.error(createAccessError?.message || "Access berishda xatolik yuz berdi");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCreateAccessSuccess, isCreateAccessError]);
 
   useEffect(() => {
     if (location.pathname) {
@@ -261,16 +334,6 @@ function Employees() {
       ),
     },
     {
-      title: "Status",
-      dataIndex: "is_active",
-      width: 100,
-      render: (_, record) => (
-        <Tag color={record?.is_active ? "green" : "red"}>
-          {record?.is_active ? "Faol" : "Nofaol"}
-        </Tag>
-      ),
-    },
-    {
       title: "Yaratilgan vaqti",
       dataIndex: "created_at",
       width: 150,
@@ -287,7 +350,7 @@ function Employees() {
       align: "right",
       render: (_, record) => (
         <span className="action_wrapper">
-                 <Button
+          <Button
             type="link"
             size="small"
             onClick={(e) => {
@@ -297,6 +360,17 @@ function Employees() {
             style={{ padding: 0, height: "auto", marginRight: 8 }}
           >
             FaceID
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAccessClick(record);
+            }}
+            style={{ padding: 0, height: "auto", marginRight: 8 }}
+          >
+            Access
           </Button>
           <Icon
             icon="ic_info"
@@ -314,7 +388,6 @@ function Employees() {
               navigate(`/employees/${record.id}`);
             }}
           />
-   
           <Icon
             icon="ic_trash"
             className="icon trash"
@@ -394,6 +467,7 @@ function Employees() {
             loading={isEmployeesLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
+            scroll={{ x: 'max-content' }}
           />
         </div>
         <Pagination
@@ -471,6 +545,57 @@ function Employees() {
             <Button icon={<UploadOutlined />}>Rasm tanlash</Button>
           </Upload>
           {!selectedEmployee?.personId && (
+            <p style={{ color: "red", marginTop: 8 }}>
+              Ushbu xodimning personId mavjud emas. Iltimos, avval personId ni qo'shing.
+            </p>
+          )}
+        </Modal>
+
+        <Modal
+          title="Access berish"
+          open={accessModalVisible}
+          onCancel={() => {
+            setAccessModalVisible(false);
+            setSelectedAccessLevel(null);
+            setSelectedAccessEmployee(null);
+          }}
+          onOk={handleAccessSubmit}
+          confirmLoading={isCreateAccessLoading}
+          okText="Saqlash"
+          cancelText="Bekor qilish"
+        >
+          <div style={{ marginBottom: 16 }}>
+            <p>
+              <strong>Xodim:</strong> {selectedAccessEmployee?.firstName || selectedAccessEmployee?.first_name || ""}{" "}
+              {selectedAccessEmployee?.lastName || selectedAccessEmployee?.last_name || ""}
+            </p>
+            {selectedAccessEmployee?.personId && (
+              <p>
+                <strong>Person ID:</strong> {selectedAccessEmployee.personId}
+              </p>
+            )}
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", marginBottom: 8, fontWeight: 500 }}>
+              Access Level tanlang:
+            </label>
+            {isAccessLevelsLoading ? (
+              <Spin />
+            ) : (
+              <Select
+                style={{ width: "100%" }}
+                placeholder="Access level tanlang"
+                value={selectedAccessLevel}
+                onChange={setSelectedAccessLevel}
+                options={Array.isArray(accessLevels) ? accessLevels.map((level) => ({
+                  label: level.name || level.level_name || `Access Level ${level.id}`,
+                  value: level.id,
+                })) : []}
+                loading={isAccessLevelsLoading}
+              />
+            )}
+          </div>
+          {!selectedAccessEmployee?.personId && (
             <p style={{ color: "red", marginTop: 8 }}>
               Ushbu xodimning personId mavjud emas. Iltimos, avval personId ni qo'shing.
             </p>

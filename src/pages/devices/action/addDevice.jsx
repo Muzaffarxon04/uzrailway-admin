@@ -251,7 +251,7 @@ function AddDevice() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="Ezviz Serial No"
+                          label="Qurilma Seriya Raqami"
                           name="ezvizSerialNo"
                         />
                       </div>
@@ -260,7 +260,7 @@ function AddDevice() {
                         <CustomInput
                           isEdit={is_edit}
                           form={form}
-                          label="Ezviz Verify Code"
+                          label="Qurilma Tasdiqlash Kodi"
                           name="ezvizVerifyCode"
                         />
                       </div>

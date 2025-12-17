@@ -1,4 +1,4 @@
-import { Form, Button, Spin, Breadcrumb, Switch, Input } from "antd";
+import { Form, Button, Spin, Breadcrumb } from "antd";
 import CustomInput from "../../../components/inputs/customInput";
 import CustomSelect from "../../../components/inputs/customSelect";
 import CustomDatePicker from "../../../components/inputs/customDatePicker";
@@ -6,7 +6,6 @@ import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
 import useUniversalFetch from "../../../Hooks/useApi";
 import { useEffect, useState, useMemo } from "react";
-import { useWatch } from "antd/es/form/Form";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../components/notification";
 import { useLocalization } from "../../../LocalizationContext";
@@ -24,14 +23,6 @@ function AddEmployee() {
   const [opacity, setOpacity] = useState("0");
   const [loader, setLoader] = useState("1");
   const navigate = useNavigate();
-  
-  // Watch password_confirm for label animation
-  const passwordConfirmValue = useWatch('password_confirm', form);
-  const [isPasswordConfirmFilled, setIsPasswordConfirmFilled] = useState(false);
-  
-  useEffect(() => {
-    setIsPasswordConfirmFilled(!!passwordConfirmValue);
-  }, [passwordConfirmValue]);
 
   // Fetch positions for select
   const {
@@ -95,46 +86,30 @@ function AddEmployee() {
     if (is_edit && employee && Object.keys(employee).length > 0) {
       form.setFieldsValue({
         employee_id: employee.employee_id,
-        username: employee.username,
         firstName: employee.firstName || employee.first_name,
         lastName: employee.lastName || employee.last_name,
         phone: employee.phone || employee.phone_number,
         email: employee.email,
-        date_of_birth: employee.date_of_birth ? dayjs(employee.date_of_birth) : null,
         startDate: employee.startDate ? dayjs(employee.startDate) : null,
         endDate: employee.endDate ? dayjs(employee.endDate) : null,
         gender: employee.gender === 1 ? "male" : employee.gender === 2 ? "female" : employee.gender,
-        role: employee.role,
         position_id: employee.position?.id || employee.position_id,
         department_id: employee.department?.id || employee.department_id,
-        can_login: employee.can_login !== undefined ? employee.can_login : true,
-        is_active: employee.is_active !== undefined ? employee.is_active : true,
-        is_staff: employee.is_staff !== undefined ? employee.is_staff : true,
       });
     }
   }, [employee, is_edit, form]);
 
   const onFinish = (values) => {
     const body = {
-      username: values.username || "",
-      ...(is_edit ? {} : {
-        password: values.password || "",
-        password_confirm: values.password_confirm || "",
-      }),
       firstName: values.firstName || "",
       lastName: values.lastName || "",
       email: values.email || "",
       phone: values.phone || "",
-      date_of_birth: values.date_of_birth ? dayjs(values.date_of_birth).format("YYYY-MM-DD") : "",
       startDate: values.startDate ? dayjs(values.startDate).format("YYYY-MM-DD") : null,
       endDate: values.endDate ? dayjs(values.endDate).format("YYYY-MM-DD") : null,
       gender: values.gender === "male" ? 1 : values.gender === "female" ? 2 : null,
-      role: values.role || "",
       position_id: values.position_id ? parseInt(values.position_id) : null,
       department_id: values.department_id ? parseInt(values.department_id) : null,
-      can_login: values.can_login !== undefined ? values.can_login : true,
-      is_active: values.is_active !== undefined ? values.is_active : true,
-      is_staff: values.is_staff !== undefined ? values.is_staff : true,
     };
     
     // Add employee_id only if it has a value
@@ -230,11 +205,7 @@ function AddEmployee() {
             className="action_form"
             form={form}
             onFinish={onFinish}
-            initialValues={{
-              is_active: true,
-              can_login: true,
-              is_staff: true,
-            }}
+            initialValues={{}}
           >
             <div className="action_wrapper">
               <div className="action_item company_info">
@@ -253,74 +224,6 @@ function AddEmployee() {
                           name="employee_id"
                         />
                       </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Username"
-                          name="username"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Username kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      {!is_edit && (
-                        <>
-                          <div className="input_item">
-                            <CustomInput
-                              isEdit={is_edit}
-                              form={form}
-                              label="Parol"
-                              name="password"
-                              type="password"
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Parol kiritilishi shart",
-                                },
-                              ]}
-                            />
-                          </div>
-
-                          <div className="input_item">
-                            <div className="single_input_item">
-                              <p className={`label ${isPasswordConfirmFilled ? "label_active" : ""}`}>
-                                Parolni tasdiqlash
-                              </p>
-                              <Form.Item
-                                name="password_confirm"
-                                dependencies={['password']}
-                                rules={[
-                                  {
-                                    required: true,
-                                    message: "Parolni tasdiqlash kiritilishi shart",
-                                  },
-                                  ({ getFieldValue }) => ({
-                                    validator(_, value) {
-                                      if (!value || getFieldValue('password') === value) {
-                                        return Promise.resolve();
-                                      }
-                                      return Promise.reject(new Error('Parollar mos kelmaydi'));
-                                    },
-                                  }),
-                                ]}
-                              >
-                                <Input
-                                  type="password"
-                                  onFocus={() => setIsPasswordConfirmFilled(true)}
-                                  onBlur={(e) => setIsPasswordConfirmFilled(!!e.target.value)}
-                                  autoComplete="off"
-                                />
-                              </Form.Item>
-                            </div>
-                          </div>
-                        </>
-                      )}
 
                       <div className="input_item">
                         <CustomInput
@@ -387,22 +290,6 @@ function AddEmployee() {
                       </div>
 
                       <div className="input_item">
-                        <CustomDatePicker
-                          isEdit={is_edit}
-                          form={form}
-                          label="Tug'ilgan sana"
-                          name="date_of_birth"
-                          format="YYYY-MM-DD"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Tug'ilgan sana tanlanishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
                         <CustomSelect
                           label="Jins"
                           name="gender"
@@ -431,25 +318,6 @@ function AddEmployee() {
                           label="Tugash sanasi"
                           name="endDate"
                           format="YYYY-MM-DD"
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomSelect
-                          label="Rol"
-                          name="role"
-                          form={form}
-                          rules={[
-                            {
-                              required: true,
-                              message: "Rol tanlanishi shart",
-                            },
-                          ]}
-                          options={[
-                            { label: "Superadmin", value: "superadmin" },
-                            { label: "Inspector", value: "inspector" },
-                            { label: "Technician", value: "technician" },
-                          ]}
                         />
                       </div>
 
@@ -489,33 +357,6 @@ function AddEmployee() {
                           })) : []}
                           loading={isDepartmentsLoading}
                         />
-                      </div>
-
-                      <div className="input_item">
-                        <div className="switch_input_item">
-                          <p className="switch_label">Kirish huquqi</p>
-                          <Form.Item name="can_login" valuePropName="checked">
-                            <Switch />
-                          </Form.Item>
-                        </div>
-                      </div>
-
-                      <div className="input_item">
-                        <div className="switch_input_item">
-                          <p className="switch_label">Faol</p>
-                          <Form.Item name="is_active" valuePropName="checked">
-                            <Switch />
-                          </Form.Item>
-                        </div>
-                      </div>
-
-                      <div className="input_item">
-                        <div className="switch_input_item">
-                          <p className="switch_label">Xodim</p>
-                          <Form.Item name="is_staff" valuePropName="checked">
-                            <Switch />
-                          </Form.Item>
-                        </div>
                       </div>
                     </div>
                   </div>

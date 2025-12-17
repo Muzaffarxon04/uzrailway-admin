@@ -177,26 +177,6 @@ function Trains() {
       ),
     },
     {
-      title: "Vagonlar soni",
-      dataIndex: "wagon_count",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.wagon_count || "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Jami sig'im",
-      dataIndex: "total_capacity",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.total_capacity || "-"}</p>
-        </span>
-      ),
-    },
-    {
       title: "Status",
       dataIndex: "status",
       width: 120,

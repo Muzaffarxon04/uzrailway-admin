@@ -162,39 +162,15 @@ function FlightDetail() {
           <Descriptions.Item label="Reys raqami">
             {trip?.trip_number || "-"}
           </Descriptions.Item>
-          
-          <Descriptions.Item label="Reys sanasi">
-            {trip?.trip_date 
-              ? dayjs(trip.trip_date).format("DD.MM.YYYY") 
-              : "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Status">
-            {trip?.status ? (
-              <Tag color={getStatusColor(trip.status)}>
-                {getStatusLabel(trip.status)}
-              </Tag>
-            ) : "-"}
-          </Descriptions.Item>
-
           <Descriptions.Item label="Poyezd raqami">
             {trip?.train?.train_number || "-"}
           </Descriptions.Item>
+
           <Descriptions.Item label="Poyezd nomi">
             {trip?.train?.train_name || "-"}
           </Descriptions.Item>
-
           <Descriptions.Item label="Poyezd turi">
             {trip?.train?.train_type || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Vagonlar soni">
-            {trip?.train?.wagon_count || "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Jami sig'im">
-            {trip?.train?.total_capacity || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Marshrut nomi">
-            {trip?.route_name || "-"}
           </Descriptions.Item>
 
           <Descriptions.Item label="Jo'nash stanstiyasi">
@@ -229,17 +205,6 @@ function FlightDetail() {
           <Descriptions.Item label="Davomiyligi">
             {trip?.duration_hours ? `${trip.duration_hours} soat` : "-"}
           </Descriptions.Item>
-          <Descriptions.Item label="Asosiy narx">
-            {trip?.base_price ? `${parseFloat(trip.base_price).toLocaleString()} so'm` : "-"}
-          </Descriptions.Item>
-
-          <Descriptions.Item label="Bo'sh o'rindiqlar">
-            {trip?.available_seats ?? "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Band qilingan o'rindiqlar">
-            {trip?.booked_seats ?? "-"}
-          </Descriptions.Item>
-
           <Descriptions.Item label="Bandlik foizi">
             {trip?.occupancy_percentage ? `${trip.occupancy_percentage}%` : "-"}
           </Descriptions.Item>
@@ -269,12 +234,6 @@ function FlightDetail() {
               ? dayjs(trip.updated_at).format("DD.MM.YYYY HH:mm") 
               : "-"}
           </Descriptions.Item>
-
-          {trip?.notes && (
-            <Descriptions.Item label="Qo'shimcha ma'lumotlar" span={2}>
-              {trip.notes}
-            </Descriptions.Item>
-          )}
 
           {trip?.cancellation_reason && (
             <Descriptions.Item label="Bekor qilish sababi" span={2}>

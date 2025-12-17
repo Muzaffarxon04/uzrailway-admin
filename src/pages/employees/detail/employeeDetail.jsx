@@ -160,21 +160,6 @@ function EmployeeDetail() {
             <Descriptions.Item label="Bo'lim">
               {employee?.department?.name ||  "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="Kirish huquqi">
-              <Tag color={employee?.can_login ? "green" : "red"}>
-                {employee?.can_login ? "Ha" : "Yo'q"}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Status">
-              <Tag color={employee?.is_active ? "green" : "red"}>
-                {employee?.is_active ? "Faol" : "Nofaol"}
-              </Tag>
-            </Descriptions.Item>
-            <Descriptions.Item label="Xodim">
-              <Tag color={employee?.is_staff ? "green" : "default"}>
-                {employee?.is_staff ? "Ha" : "Yo'q"}
-              </Tag>
-            </Descriptions.Item>
            
           </Descriptions>
         </Card>

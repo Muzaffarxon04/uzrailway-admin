@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useNotification } from "../../../components/notification";
 import { useLocalization } from "../../../LocalizationContext";
-import TextArea from "antd/es/input/TextArea";
 
 function AddTrain() {
   const [form] = Form.useForm();
@@ -62,16 +61,7 @@ function AddTrain() {
         train_number: train.train_number,
         train_name: train.train_name,
         train_type: train.train_type,
-        wagon_count: train.wagon_count,
-        total_capacity: train.total_capacity,
-        manufacturer: train.manufacturer,
-        manufacture_year: train.manufacture_year,
-        has_wifi: train.has_wifi || false,
-        has_ac: train.has_ac || false,
-        has_restaurant: train.has_restaurant || false,
-        has_charging: train.has_charging || false,
         status: train.status,
-        description: train.description || "",
         is_active: train.is_active !== undefined ? train.is_active : true,
       });
       
@@ -88,16 +78,7 @@ function AddTrain() {
       train_number: values.train_number,
       train_name: values.train_name,
       train_type: values.train_type,
-      wagon_count: parseInt(values.wagon_count),
-      total_capacity: parseInt(values.total_capacity),
-      manufacturer: values.manufacturer,
-      manufacture_year: parseInt(values.manufacture_year),
-      has_wifi: values.has_wifi || false,
-      has_ac: values.has_ac || false,
-      has_restaurant: values.has_restaurant || false,
-      has_charging: values.has_charging || false,
       status: values.status,
-      description: values.description || "",
       is_active: values.is_active !== undefined ? values.is_active : true,
     };
     CreateTrain(body);
@@ -192,10 +173,6 @@ function AddTrain() {
             onFinish={onFinish}
             initialValues={{ 
               remember: true,
-              has_wifi: false,
-              has_ac: false,
-              has_restaurant: false,
-              has_charging: false,
               is_active: true,
             }}
           >
@@ -260,69 +237,6 @@ function AddTrain() {
                       </div>
 
                       <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Vagonlar soni"
-                          name="wagon_count"
-                          inputType="number"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Vagonlar soni kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Jami sig'im"
-                          name="total_capacity"
-                          inputType="number"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Jami sig'im kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Ishlab chiqaruvchi"
-                          name="manufacturer"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Ishlab chiqaruvchi kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
-                        <CustomInput
-                          isEdit={is_edit}
-                          form={form}
-                          label="Ishlab chiqarilgan yil"
-                          name="manufacture_year"
-                          inputType="number"
-                          rules={[
-                            {
-                              required: true,
-                              message: "Ishlab chiqarilgan yil kiritilishi shart",
-                            },
-                          ]}
-                        />
-                      </div>
-
-                      <div className="input_item">
                         <CustomSelect
                           label="Status"
                           name="status"
@@ -340,54 +254,6 @@ function AddTrain() {
                             { label: "Retired", value: "retired" },
                           ]}
                         />
-                      </div>
-
-                      <div className="input_item">
-                        <div className="single_input_item">
-                          <p className="label label_active">Tavsif</p>
-                          <Form.Item name="description">
-                            <TextArea
-                              rows={4}
-                              placeholder="Poyezd haqida qo'shimcha ma'lumot"
-                            />
-                          </Form.Item>
-                        </div>
-                      </div>
-
-                      <div className="input_item">
-                        <div className="switch_input_item">
-                          <p className="switch_label">WiFi mavjud</p>
-                          <Form.Item name="has_wifi" valuePropName="checked">
-                            <Switch />
-                          </Form.Item>
-                        </div>
-                      </div>
-
-                      <div className="input_item">
-                        <div className="switch_input_item">
-                          <p className="switch_label">Konditsioner mavjud</p>
-                          <Form.Item name="has_ac" valuePropName="checked">
-                            <Switch />
-                          </Form.Item>
-                        </div>
-                      </div>
-
-                      <div className="input_item">
-                        <div className="switch_input_item">
-                          <p className="switch_label">Restoran mavjud</p>
-                          <Form.Item name="has_restaurant" valuePropName="checked">
-                            <Switch />
-                          </Form.Item>
-                        </div>
-                      </div>
-
-                      <div className="input_item">
-                        <div className="switch_input_item">
-                          <p className="switch_label">Zaryadlash mavjud</p>
-                          <Form.Item name="has_charging" valuePropName="checked">
-                            <Switch />
-                          </Form.Item>
-                        </div>
                       </div>
 
                       <div className="input_item">

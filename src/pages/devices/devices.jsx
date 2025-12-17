@@ -155,16 +155,16 @@ function Devices() {
         </span>
       ),
     },
-    {
-      title: "MAC manzil",
-      dataIndex: "macAddress",
-      minWidth: 200,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.macAddress || "-"}</p>
-        </span>
-      ),
-    },
+    // {
+    //   title: "MAC manzil",
+    //   dataIndex: "macAddress",
+    //   minWidth: 200,
+    //   render: (_, record) => (
+    //     <span className="table_name">
+    //       <p>{record?.macAddress || "-"}</p>
+    //     </span>
+    //   ),
+    // },
     {
       title: "Turi",
       dataIndex: "type",

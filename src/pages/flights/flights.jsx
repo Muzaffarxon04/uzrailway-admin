@@ -196,16 +196,6 @@ function Flights() {
       ),
     },
     {
-      title: "Reys sanasi",
-      dataIndex: "trip_date",
-      width: 130,
-      render: (_, record) => (
-        <span className="table_departure">
-          {record?.trip_date ? dayjs(record.trip_date).format("DD.MM.YYYY") : "-"}
-        </span>
-      ),
-    },
-    {
       title: "Poyezd raqami",
       dataIndex: "train",
       width: 130,
@@ -286,52 +276,12 @@ function Flights() {
       ),
     },
     {
-      title: "Status",
-      dataIndex: "status",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.status || "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Bo'sh o'rindiqlar",
-      dataIndex: "available_seats",
-      width: 140,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.available_seats ?? "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Band qilingan o'rindiqlar",
-      dataIndex: "booked_seats",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.booked_seats ?? "-"}
-        </span>
-      ),
-    },
-    {
       title: "Bandlik foizi",
       dataIndex: "occupancy_percentage",
       width: 120,
       render: (_, record) => (
         <span className="table_name">
           {record?.occupancy_percentage ? `${record.occupancy_percentage}%` : "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Asosiy narx",
-      dataIndex: "base_price",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.base_price ? `${parseFloat(record.base_price).toLocaleString()} so'm` : "-"}
         </span>
       ),
     },

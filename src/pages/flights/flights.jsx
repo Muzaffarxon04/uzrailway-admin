@@ -197,8 +197,11 @@ function Flights() {
       width: 60,
       render: (tripIndex, record) => {
         const pageIndex = (pagination.current - 1) * pagination.pageSize + tripIndex;
+        const attendants = record?.wagonAttendants || [];
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
         return (
-          <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
             <span className="table_number">
               {pageIndex}
             </span>
@@ -210,37 +213,52 @@ function Flights() {
       title: "Кетиш вақти",
       dataIndex: "scheduled_departure",
       width: 160,
-      render: (_, record) => (
-        <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
-          <span className="table_departure">
-            {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
-          </span>
-        </div>
-      ),
+      render: (_, record) => {
+        const attendants = record?.wagonAttendants || [];
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        return (
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+            <span className="table_departure">
+              {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
+            </span>
+          </div>
+        );
+      },
     },
     {
       title: "Поезд рақами",
       dataIndex: "train",
       width: 130,
-      render: (_, record) => (
-        <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
-          <span className="table_flight_number">
-            {record?.train?.train_number || "-"}
-          </span>
-        </div>
-      ),
+      render: (_, record) => {
+        const attendants = record?.wagonAttendants || [];
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        return (
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+            <span className="table_flight_number">
+              {record?.train?.train_number || "-"}
+            </span>
+          </div>
+        );
+      },
     },
     {
       title: "Жўнаш станцияси",
       dataIndex: "departure_station",
       width: 180,
-      render: (_, record) => (
-        <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
-          <span className="table_route">
-            {getStationLabel(record?.departure_station)}
-          </span>
-        </div>
-      ),
+      render: (_, record) => {
+        const attendants = record?.wagonAttendants || [];
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        return (
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
+            <span className="table_route">
+              {getStationLabel(record?.departure_station)}
+            </span>
+          </div>
+        );
+      },
     },
     {
       title: "Вагон кузатувчиси",
@@ -248,11 +266,12 @@ function Flights() {
       minWidth: 200,
       render: (_, record) => {
         const attendants = record?.wagonAttendants || [];
-        const rowHeight = 100;
-        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
         
         return (
-          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
             {attendants.length > 0 ? (
               attendants.map((emp, idx) => {
                 const name = `${emp?.firstName || ""} ${emp?.lastName || ""}`.trim();
@@ -260,7 +279,7 @@ function Flights() {
                   <div 
                     key={emp?.id || idx}
                     style={{ 
-                      height: `${itemHeight}px`,
+                      minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
                       display: 'flex',
                       alignItems: 'center',
                       borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
@@ -271,7 +290,7 @@ function Flights() {
                 );
               })
             ) : (
-              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center' }}>
+              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
                 <span className="table_name">-</span>
               </div>
             )}
@@ -285,17 +304,18 @@ function Flights() {
       width: 180,
       render: (_, record) => {
         const attendants = record?.wagonAttendants || [];
-        const rowHeight = 100;
-        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
         
         return (
-          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
             {attendants.length > 0 ? (
               attendants.map((emp, idx) => (
                 <div 
                   key={emp?.id || idx}
                   style={{ 
-                    height: `${itemHeight}px`,
+                    minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
                     display: 'flex',
                     alignItems: 'center',
                     borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
@@ -307,7 +327,7 @@ function Flights() {
                 </div>
               ))
             ) : (
-              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center' }}>
+              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
                 <span className="table_route">
                   {getStationLabel(record?.arrival_station)}
                 </span>
@@ -323,18 +343,19 @@ function Flights() {
       width: 160,
       render: (_, record) => {
         const attendants = record?.wagonAttendants || [];
-        const rowHeight = 100;
-        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
         const arrivalTime = record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-";
         
         return (
-          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
             {attendants.length > 0 ? (
               attendants.map((emp, idx) => (
                 <div 
                   key={emp?.id || idx}
                   style={{ 
-                    height: `${itemHeight}px`,
+                    minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
                     display: 'flex',
                     alignItems: 'center',
                     borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
@@ -344,7 +365,7 @@ function Flights() {
                 </div>
               ))
             ) : (
-              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center' }}>
+              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center' }}>
                 <span className="table_arrival">{arrivalTime}</span>
               </div>
             )}
@@ -358,46 +379,41 @@ function Flights() {
       width: 100,
       render: (_, record) => {
         const attendants = record?.wagonAttendants || [];
-        const rowHeight = 100;
-        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
-     
-
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        const itemHeight = attendants.length > 0 ? minItemHeight : 'auto';
         
         return (
-          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', flexDirection: 'column' }}>
             {attendants.length > 0 ? (
-              <>
-            
-                {attendants.map((emp, idx) => {
-                  const attendance = emp?.attendance;
-                  const isConfirmed = attendance && attendance.status === "present";
-                  return (
-                    <div 
-                      key={emp?.id || idx}
-                      style={{ 
-                        height: `${itemHeight}px`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        borderTop: idx === 0 ? '1px solid #f0f0f0' : 'none',
-                        borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
-                      }}
-                    >
-                      {attendance ? (
-                        isConfirmed ? (
-                          <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
-                        ) : (
-                          <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
-                        )
+              attendants.map((emp, idx) => {
+                const attendance = emp?.attendance;
+                const isConfirmed = attendance && attendance.status === "present";
+                return (
+                  <div 
+                    key={emp?.id || idx}
+                    style={{ 
+                      minHeight: typeof itemHeight === 'number' ? `${itemHeight}px` : itemHeight,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
+                    }}
+                  >
+                    {attendance ? (
+                      isConfirmed ? (
+                        <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
                       ) : (
                         <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
-                      )}
-                    </div>
-                  );
-                })}
-              </>
+                      )
+                    ) : (
+                      <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
+                    )}
+                  </div>
+                );
+              })
             ) : (
-              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <span>-</span>
               </div>
             )}
@@ -410,29 +426,34 @@ function Flights() {
       dataIndex: "action",
       width: 120,
       align: "right",
-      render: (_, record) => (
-        <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-          <span className="action_wrapper">
-            <Icon
-              icon="ic_statistics"
-              className="icon info"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/flights/statistics/${record.id}`);
-              }}
-              title="Statistika"
-            />
-            <Icon
-              icon="ic_edit"
-              className="icon edit"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/flights/${record.id}`);
-              }}
-            />
-          </span>
-        </div>
-      ),
+      render: (_, record) => {
+        const attendants = record?.wagonAttendants || [];
+        const minItemHeight = 50;
+        const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+        return (
+          <div style={{ minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <span className="action_wrapper">
+              <Icon
+                icon="ic_statistics"
+                className="icon info"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/flights/statistics/${record.id}`);
+                }}
+                title="Statistika"
+              />
+              <Icon
+                icon="ic_edit"
+                className="icon edit"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/flights/${record.id}`);
+                }}
+              />
+            </span>
+          </div>
+        );
+      },
     },
   ];
 
@@ -500,15 +521,20 @@ function Flights() {
             pagination={false}
             onChange={handleTableChange}
             scroll={{ y: 'calc(100vh - 300px)', x: 'max-content' }}
-            onRow={(record) => ({
-              onClick: () => {
-                navigate(`/flights/detail/${record.id}`);
-              },
-              style: { 
-                cursor: "pointer",
-                height: "100px",
-              },
-            })}
+            onRow={(record) => {
+              const attendants = record?.wagonAttendants || [];
+              const minItemHeight = 50;
+              const rowHeight = attendants.length > 0 ? Math.max(minItemHeight * attendants.length, minItemHeight) : 'auto';
+              return {
+                onClick: () => {
+                  navigate(`/flights/detail/${record.id}`);
+                },
+                style: { 
+                  cursor: "pointer",
+                  minHeight: typeof rowHeight === 'number' ? `${rowHeight}px` : rowHeight,
+                },
+              };
+            }}
           />
         </div>
         <Pagination

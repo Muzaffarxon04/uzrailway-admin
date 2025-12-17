@@ -183,6 +183,9 @@ function Assignments() {
         const employeeName = 
           record?.employee?.full_name ||
           record?.employee?.fullname ||
+          (record?.employee?.firstName || record?.employee?.lastName
+            ? `${record?.employee?.firstName || ""} ${record?.employee?.lastName || ""}`.trim()
+            : null) ||
           (record?.employee?.first_name || record?.employee?.last_name
             ? `${record?.employee?.first_name || ""} ${record?.employee?.last_name || ""}`.trim()
             : null) ||

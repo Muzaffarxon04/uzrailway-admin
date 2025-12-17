@@ -70,6 +70,9 @@ function AssignmentDetail() {
   const employeeFullName =
     assignment?.employee?.full_name ||
     assignment?.employee?.fullname ||
+    `${assignment?.employee?.firstName || ""} ${
+      assignment?.employee?.lastName || ""
+    }`.trim() ||
     `${assignment?.employee?.first_name || ""} ${
       assignment?.employee?.last_name || ""
     }`.trim() ||
@@ -79,6 +82,9 @@ function AssignmentDetail() {
   const assignedByFullName =
     assignment?.assigned_by?.full_name ||
     assignment?.assigned_by?.fullname ||
+    `${assignment?.assigned_by?.firstName || ""} ${
+      assignment?.assigned_by?.lastName || ""
+    }`.trim() ||
     `${assignment?.assigned_by?.first_name || ""} ${
       assignment?.assigned_by?.last_name || ""
     }`.trim() ||
@@ -156,15 +162,12 @@ function AssignmentDetail() {
               ? `${assignment.trip.train.train_number} - ${assignment.trip.train.train_name}`
               : "-"}
           </Descriptions.Item>
-          <Descriptions.Item label="Marshrut">
-            {assignment?.trip?.route_name || "-"}
-          </Descriptions.Item>
 
           <Descriptions.Item label="Jo'nash stansiyasi">
-            {assignment?.trip?.departure_station || "-"}
+            {assignment?.trip?.departure_station?.name || "-"}
           </Descriptions.Item>
           <Descriptions.Item label="Etib borish stansiyasi">
-            {assignment?.trip?.arrival_station || "-"}
+            {assignment?.trip?.arrival_station?.name || "-"}
           </Descriptions.Item>
 
           <Descriptions.Item label="Jo'nash vaqti">
@@ -178,28 +181,9 @@ function AssignmentDetail() {
               : "-"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Davomiyligi (soat)">
-            {assignment?.trip?.duration_hours ?? "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Bandlik (%)">
-            {assignment?.trip?.occupancy_percentage ?? "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Topshiriqlar soni">
-            {assignment?.trip?.assignments_count ?? "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Asosiy narx">
-            {assignment?.trip?.base_price || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Bo'sh o'rindiqlar">
-            {assignment?.trip?.available_seats ?? "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Band qilingan o'rindiqlar">
-            {assignment?.trip?.booked_seats ?? "-"}
-          </Descriptions.Item>
-
           <Descriptions.Item label="Xodim">{employeeFullName}</Descriptions.Item>
           <Descriptions.Item label="Telefon">
-            {assignment?.employee?.phone_number || "-"}
+            {assignment?.employee?.phone || assignment?.employee?.phone_number || "-"}
           </Descriptions.Item>
           <Descriptions.Item label="Email">
             {assignment?.employee?.email || "-"}
@@ -219,8 +203,24 @@ function AssignmentDetail() {
           <Descriptions.Item label="Tayinlagan">
             {assignedByFullName}
           </Descriptions.Item>
-          <Descriptions.Item label="Tayinlagan (username)">
-            {assignment?.assigned_by?.username || "-"}
+          <Descriptions.Item label="Tayinlagan (email)">
+            {assignment?.assigned_by?.email || "-"}
+          </Descriptions.Item>
+
+          <Descriptions.Item label="Davomat">
+            {assignment?.attendance ? (
+              <Tag color={assignment.attendance.status === "present" ? "green" : "red"}>
+                {assignment.attendance.status === "present" ? "Keldi" : "Kelmadi"}
+              </Tag>
+            ) : (
+              "-"
+            )}
+          </Descriptions.Item>
+          <Descriptions.Item label="Xodim lavozimi">
+            {assignment?.employee?.position?.name || "-"}
+          </Descriptions.Item>
+          <Descriptions.Item label="Xodim bo'limi">
+            {assignment?.employee?.department?.name || "-"}
           </Descriptions.Item>
 
           {assignment?.notes ? (

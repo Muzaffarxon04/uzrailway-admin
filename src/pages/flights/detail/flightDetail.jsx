@@ -1,7 +1,7 @@
 // import { useState, useEffect } from "react";
 import { Card, Table, Descriptions, Breadcrumb, Button, Spin, Tag } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
-import { BASE_URL } from "../../../consts/variables";
+// import { BASE_URL } from "../../../consts/variables";
 import useUniversalFetch from "../../../Hooks/useApi";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
@@ -24,33 +24,33 @@ function FlightDetail() {
 
   const trip = tripData?.data || tripData || {};
 
-  const getStatusLabel = (status) => {
-    const statusLabels = {
-      scheduled: "Rejalashtirilgan",
-      boarding: "O'tirish",
-      departed: "Jo'nab ketgan",
-      in_transit: "Yo'lda",
-      arrived: "Yetib kelgan",
-      delayed: "Kechikkan",
-      cancelled: "Bekor qilingan",
-      completed: "Yakunlangan",
-    };
-    return statusLabels[status] || status;
-  };
+  // const getStatusLabel = (status) => {
+  //   const statusLabels = {
+  //     scheduled: "Rejalashtirilgan",
+  //     boarding: "O'tirish",
+  //     departed: "Jo'nab ketgan",
+  //     in_transit: "Yo'lda",
+  //     arrived: "Yetib kelgan",
+  //     delayed: "Kechikkan",
+  //     cancelled: "Bekor qilingan",
+  //     completed: "Yakunlangan",
+  //   };
+  //   return statusLabels[status] || status;
+  // };
 
-  const getStatusColor = (status) => {
-    const statusColors = {
-      scheduled: "blue",
-      boarding: "orange",
-      departed: "cyan",
-      in_transit: "purple",
-      arrived: "green",
-      delayed: "gold",
-      cancelled: "red",
-      completed: "green",
-    };
-    return statusColors[status] || "default";
-  };
+  // const getStatusColor = (status) => {
+  //   const statusColors = {
+  //     scheduled: "blue",
+  //     boarding: "orange",
+  //     departed: "cyan",
+  //     in_transit: "purple",
+  //     arrived: "green",
+  //     delayed: "gold",
+  //     cancelled: "red",
+  //     completed: "green",
+  //   };
+  //   return statusColors[status] || "default";
+  // };
 
   const intermediateStationsColumns = [
     {
@@ -191,23 +191,25 @@ function FlightDetail() {
               : "-"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Haqiqiy jo'nash vaqti">
-            {trip?.actual_departure 
-              ? dayjs(trip.actual_departure).format("DD.MM.YYYY HH:mm") 
+          <Descriptions.Item label="Reys sanasi">
+            {trip?.trip_date 
+              ? dayjs(trip.trip_date).format("DD.MM.YYYY") 
               : "-"}
           </Descriptions.Item>
-          <Descriptions.Item label="Haqiqiy etib borish vaqti">
-            {trip?.actual_arrival 
-              ? dayjs(trip.actual_arrival).format("DD.MM.YYYY HH:mm") 
-              : "-"}
+          <Descriptions.Item label="Status">
+            {trip?.status ? (
+              <Tag color={
+                trip.status === "scheduled" ? "blue" :
+                trip.status === "completed" ? "green" :
+                trip.status === "cancelled" ? "red" : "default"
+              }>
+                {trip.status === "scheduled" ? "Rejalashtirilgan" :
+                 trip.status === "completed" ? "Yakunlangan" :
+                 trip.status === "cancelled" ? "Bekor qilingan" : trip.status}
+              </Tag>
+            ) : "-"}
           </Descriptions.Item>
 
-          <Descriptions.Item label="Davomiyligi">
-            {trip?.duration_hours ? `${trip.duration_hours} soat` : "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Bandlik foizi">
-            {trip?.occupancy_percentage ? `${trip.occupancy_percentage}%` : "-"}
-          </Descriptions.Item>
           <Descriptions.Item label="Faol">
             {trip?.is_active !== undefined ? (
               <Tag color={trip.is_active ? "green" : "red"}>
@@ -217,10 +219,14 @@ function FlightDetail() {
           </Descriptions.Item>
 
           <Descriptions.Item label="Yaratuvchi">
-            {trip?.created_by?.full_name || trip?.created_by?.username || "-"}
-          </Descriptions.Item>
-          <Descriptions.Item label="Topshiriqlar soni">
-            {trip?.assignments_count ?? "-"}
+            {trip?.created_by?.full_name || 
+             trip?.created_by?.fullname ||
+             (trip?.created_by?.firstName || trip?.created_by?.lastName
+               ? `${trip.created_by.firstName || ""} ${trip.created_by.lastName || ""}`.trim()
+               : null) ||
+             trip?.created_by?.username || 
+             trip?.created_by?.email || 
+             "-"}
           </Descriptions.Item>
 
           <Descriptions.Item label="Yaratilgan vaqti" span={2}>
@@ -234,44 +240,7 @@ function FlightDetail() {
               ? dayjs(trip.updated_at).format("DD.MM.YYYY HH:mm") 
               : "-"}
           </Descriptions.Item>
-
-          {trip?.cancellation_reason && (
-            <Descriptions.Item label="Bekor qilish sababi" span={2}>
-              {trip.cancellation_reason}
-            </Descriptions.Item>
-          )}
         </Descriptions>
-
-        {trip?.attendance_stats && (
-          <div style={{ marginTop: 24, marginBottom: 24 }}>
-            <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
-              Davomat statistikasi
-            </h3>
-            <Descriptions 
-              bordered 
-              column={2}
-              labelStyle={{ fontWeight: 600, width: "200px" }}
-            >
-              <Descriptions.Item label="Jami">
-                {trip.attendance_stats?.total || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Hozir">
-                {trip.attendance_stats?.present || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Yo'q">
-                {trip.attendance_stats?.absent || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Kechikkan">
-                {trip.attendance_stats?.late || 0}
-              </Descriptions.Item>
-              <Descriptions.Item label="Davomat foizi" span={2}>
-                {trip.attendance_stats?.attendance_rate 
-                  ? `${trip.attendance_stats.attendance_rate}%` 
-                  : "0%"}
-              </Descriptions.Item>
-            </Descriptions>
-          </div>
-        )}
 
         {Array.isArray(trip?.intermediate_stations) && trip.intermediate_stations.length > 0 ? (
           <div style={{ marginTop: 24 }}>
@@ -289,6 +258,57 @@ function FlightDetail() {
               bordered
               locale={{
                 emptyText: "O'rta stanstiyalar mavjud emas",
+              }}
+            />
+          </div>
+        ) : null}
+
+        {Array.isArray(trip?.assigned_employee) && trip.assigned_employee.length > 0 && trip.assigned_employee.some(emp => emp.firstName || emp.lastName || emp.email || emp.phone) ? (
+          <div style={{ marginTop: 24 }}>
+            <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
+              Tayinlangan xodimlar ({trip.assigned_employee.filter(emp => emp.firstName || emp.lastName || emp.email || emp.phone).length})
+            </h3>
+            <Table
+              dataSource={trip.assigned_employee
+                .filter(emp => emp.firstName || emp.lastName || emp.email || emp.phone)
+                .map((item, index) => ({
+                  ...item,
+                  key: index,
+                }))}
+              columns={[
+                {
+                  title: "№",
+                  dataIndex: "index",
+                  width: 60,
+                  render: (_, record, index) => <span>{index + 1}</span>,
+                },
+                {
+                  title: "Ism",
+                  dataIndex: "name",
+                  minWidth: 200,
+                  render: (_, record) => {
+                    const name = `${record?.firstName || ""} ${record?.lastName || ""}`.trim();
+                    return <span>{name || "-"}</span>;
+                  },
+                },
+                {
+                  title: "Email",
+                  dataIndex: "email",
+                  minWidth: 200,
+                  render: (_, record) => <span>{record?.email || "-"}</span>,
+                },
+                {
+                  title: "Telefon",
+                  dataIndex: "phone",
+                  minWidth: 150,
+                  render: (_, record) => <span>{record?.phone || "-"}</span>,
+                },
+              ]}
+              rowKey="key"
+              pagination={false}
+              bordered
+              locale={{
+                emptyText: "Tayinlangan xodimlar mavjud emas",
               }}
             />
           </div>

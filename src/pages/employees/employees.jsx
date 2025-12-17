@@ -200,7 +200,7 @@ console.log(accessLevelsData);
 
     const body = {
       personId: selectedAccessEmployee.personId,
-      accessLevelIdList: selectedAccessLevel,
+      accessLevelIdList: [selectedAccessLevel],
     };
 
     createEmployeeAccess(body);

@@ -19,7 +19,7 @@ function AddAssignment() {
   const accessToken = localStorage.getItem("access_token");
   const showNotification = useNotification();
   const [loading, setLoading] = useState(false);
-  const is_edit = id !== "add";
+  const is_edit = id && id !== "add" && id !== undefined;
 
   // Fetch trips for select
   const {
@@ -75,8 +75,8 @@ function AddAssignment() {
     error: saveError,
     data: saveData,
   } = useFetchMutation({
-    url: is_edit ? `assignments/update/${id}/` : `assignments/create/`,
-    method: is_edit ? "PATCH" : "POST",
+    url: id && id !== "add" && id !== undefined ? `assignments/update/${id}/` : `assignments/create/`,
+    method: id && id !== "add" && id !== undefined ? "PATCH" : "POST",
     token: accessToken,
     invalidateKey: ["assignments"],
   });

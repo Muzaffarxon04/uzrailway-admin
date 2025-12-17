@@ -96,8 +96,8 @@ function AddStation() {
       refetchData();
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        stationMutationData?.message || t("messages").create_success
+        is_edit ? "Stansiya yangilandi" : "Stansiya qo'shildi",
+        stationMutationData?.message || (is_edit ? "Stansiya muvaffaqiyatli yangilandi" : "Stansiya muvaffaqiyatli qo'shildi")
       );
       navigate("/stations");
     } else if (isStationMutationError) {

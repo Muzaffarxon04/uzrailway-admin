@@ -74,8 +74,8 @@ function AddRegion() {
       refetchData();
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        regionMutationData?.message || t("messages").create_success
+        is_edit ? "Viloyat yangilandi" : "Viloyat qo'shildi",
+        regionMutationData?.message || (is_edit ? "Viloyat muvaffaqiyatli yangilandi" : "Viloyat muvaffaqiyatli qo'shildi")
       );
       navigate("/regions");
     } else if (isRegionMutationError) {

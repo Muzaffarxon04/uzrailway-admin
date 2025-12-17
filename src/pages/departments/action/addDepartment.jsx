@@ -74,8 +74,8 @@ function AddDepartment() {
       refetchData();
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        departmentMutationData?.message || t("messages").create_success
+        is_edit ? "Bo'lim yangilandi" : "Bo'lim qo'shildi",
+        departmentMutationData?.message || (is_edit ? "Bo'lim muvaffaqiyatli yangilandi" : "Bo'lim muvaffaqiyatli qo'shildi")
       );
       navigate("/departments");
     } else if (isDepartmentMutationError) {

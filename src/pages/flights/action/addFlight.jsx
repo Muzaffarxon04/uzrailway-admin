@@ -127,8 +127,8 @@ function AddFlight() {
       refetchData();
       showNotification(
         "success",
-        t("messages").partner_created,
-        tripCreateData?.message || t("messages").create_success
+        is_edit ? "Reys yangilandi" : "Reys qo'shildi",
+        tripCreateData?.message || (is_edit ? "Reys muvaffaqiyatli yangilandi" : "Reys muvaffaqiyatli qo'shildi")
       );
       navigate("/flights");
     } else if (isTripCreateError) {

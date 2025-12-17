@@ -125,8 +125,8 @@ function AddEmployee() {
       refetchData();
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        employeeMutationData?.message || t("messages").create_success
+        is_edit ? "Xodim yangilandi" : "Xodim qo'shildi",
+        employeeMutationData?.message || (is_edit ? "Xodim muvaffaqiyatli yangilandi" : "Xodim muvaffaqiyatli qo'shildi")
       );
       navigate("/employees");
     } else if (isEmployeeMutationError) {

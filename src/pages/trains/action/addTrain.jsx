@@ -89,8 +89,8 @@ function AddTrain() {
       refetchData();
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        trainCreateData?.message || t("messages").create_success
+        is_edit ? "Poyezd yangilandi" : "Poyezd qo'shildi",
+        trainCreateData?.message || (is_edit ? "Poyezd muvaffaqiyatli yangilandi" : "Poyezd muvaffaqiyatli qo'shildi")
       );
       navigate("/trains");
     } else if (isTrainCreateError) {

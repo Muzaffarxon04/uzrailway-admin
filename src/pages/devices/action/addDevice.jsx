@@ -106,8 +106,8 @@ function AddDevice() {
       refetchData();
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        deviceCreateData?.message || t("messages").create_success
+        is_edit ? "Qurilma yangilandi" : "Qurilma qo'shildi",
+        deviceCreateData?.message || (is_edit ? "Qurilma muvaffaqiyatli yangilandi" : "Qurilma muvaffaqiyatli qo'shildi")
       );
       navigate("/devices");
     } else if (isDeviceCreateError) {

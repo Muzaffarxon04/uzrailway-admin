@@ -74,8 +74,8 @@ function AddPosition() {
       refetchData();
       showNotification(
         "success",
-        is_edit ? t("messages").partner_updated : t("messages").partner_created,
-        positionMutationData?.message || t("messages").create_success
+        is_edit ? "Lavozim yangilandi" : "Lavozim qo'shildi",
+        positionMutationData?.message || (is_edit ? "Lavozim muvaffaqiyatli yangilandi" : "Lavozim muvaffaqiyatli qo'shildi")
       );
       navigate("/positions");
     } else if (isPositionMutationError) {

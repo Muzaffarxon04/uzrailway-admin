@@ -266,22 +266,12 @@ function Flights() {
       ),
     },
     {
-      title: "Davomiyligi",
-      dataIndex: "duration_hours",
+      title: "Status",
+      dataIndex: "status",
       width: 120,
       render: (_, record) => (
         <span className="table_name">
-          {record?.duration_hours ? `${record.duration_hours} soat` : "-"}
-        </span>
-      ),
-    },
-    {
-      title: "Bandlik foizi",
-      dataIndex: "occupancy_percentage",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.occupancy_percentage ? `${record.occupancy_percentage}%` : "-"}
+          {record?.status || "-"}
         </span>
       ),
     },

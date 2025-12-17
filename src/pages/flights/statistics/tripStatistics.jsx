@@ -34,7 +34,6 @@ function TripStatistics() {
 
   const statistics = statisticsData?.data || statisticsData || {};
   const tripInfo = statistics?.trip_info || {};
-  const capacity = statistics?.capacity || {};
   const assignments = statistics?.assignments || {};
   const attendance = statistics?.attendance || {};
 
@@ -75,7 +74,7 @@ function TripStatistics() {
                     href: "/flights",
                   },
                   {
-                    title: statistics?.trip_number || "Statistika",
+                    title: tripInfo?.trip_number || "Statistika",
                     href: "",
                   },
                 ]}
@@ -102,9 +101,6 @@ function TripStatistics() {
               <Descriptions.Item label="Reys raqami">
                 <strong>{tripInfo?.trip_number || "-"}</strong>
               </Descriptions.Item>
-              <Descriptions.Item label="Marshrut nomi">
-                {tripInfo?.route_name || "-"}
-              </Descriptions.Item>
               <Descriptions.Item label="Status">
                 <Tag color={
                   tripInfo?.status === "scheduled" ? "blue" :
@@ -118,57 +114,7 @@ function TripStatistics() {
               <Descriptions.Item label="Rejalashtirilgan jo'nash">
                 {tripInfo?.scheduled_departure ? dayjs(tripInfo.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
               </Descriptions.Item>
-              <Descriptions.Item label="Haqiqiy jo'nash">
-                {tripInfo?.actual_departure ? dayjs(tripInfo.actual_departure).format("DD.MM.YYYY HH:mm") : "-"}
-              </Descriptions.Item>
             </Descriptions>
-          </Card>
-        </Col>
-
-        {/* Capacity Card */}
-        <Col xs={24} lg={12}>
-          <Card title="O'rindiqlar statistikasi" style={{ borderRadius: 8, height: "100%" }}>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Statistic
-                  title="Jami o'rindiqlar"
-                  value={capacity?.total || 0}
-                  valueStyle={{ color: "#1890ff" }}
-                />
-              </Col>
-              <Col span={12}>
-                <Statistic
-                  title="Bo'sh o'rindiqlar"
-                  value={capacity?.available || 0}
-                  valueStyle={{ color: "#52c41a" }}
-                />
-              </Col>
-              <Col span={12} style={{ marginTop: 16 }}>
-                <Statistic
-                  title="Band o'rindiqlar"
-                  value={capacity?.booked || 0}
-                  valueStyle={{ color: "#faad14" }}
-                />
-              </Col>
-              <Col span={12} style={{ marginTop: 16 }}>
-                <Statistic
-                  title="Bandlik foizi"
-                  value={capacity?.occupancy_percentage || 0}
-                  suffix="%"
-                  valueStyle={{ color: "#722ed1" }}
-                />
-              </Col>
-            </Row>
-            <div style={{ marginTop: 24 }}>
-              <Progress
-                percent={capacity?.occupancy_percentage || 0}
-                strokeColor={{
-                  '0%': '#108ee9',
-                  '100%': '#87d068',
-                }}
-                format={(percent) => `${percent}%`}
-              />
-            </div>
           </Card>
         </Col>
 

@@ -280,12 +280,12 @@ function FlightDetail() {
                   width: 60,
                   render: (_, record, index) => <span>{index + 1}</span>,
                 },
-                {
-                  title: "ID",
-                  dataIndex: "id",
-                  width: 80,
-                  render: (_, record) => <span>#{record?.id || "-"}</span>,
-                },
+                // {
+                //   title: "ID",
+                //   dataIndex: "id",
+                //   width: 80,
+                //   render: (_, record) => <span>#{record?.id || "-"}</span>,
+                // },
                 {
                   title: "Xodim ID",
                   dataIndex: "employee_id",
@@ -357,20 +357,20 @@ function FlightDetail() {
                       : "-";
                   },
                 },
-                {
-                  title: "Tekshirish usuli",
-                  dataIndex: "attendance",
-                  width: 130,
-                  render: (_, record) => {
-                    const method = record?.attendance?.check_method;
-                    const methodLabels = {
-                      faceid: "Face ID",
-                      manual: "Qo'lda",
-                      qrcode: "QR kod",
-                    };
-                    return method ? (methodLabels[method] || method) : "-";
-                  },
-                },
+                // {
+                //   title: "Tekshirish usuli",
+                //   dataIndex: "attendance",
+                //   width: 130,
+                //   render: (_, record) => {
+                //     const method = record?.attendance?.check_method;
+                //     const methodLabels = {
+                //       faceid: "Face ID",
+                //       manual: "Qo'lda",
+                //       qrcode: "QR kod",
+                //     };
+                //     return method ? (methodLabels[method] || method) : "-";
+                //   },
+                // },
                 {
                   title: "Kelish joyi",
                   dataIndex: "attendance",
@@ -400,14 +400,7 @@ function FlightDetail() {
                     );
                   },
                 },
-                {
-                  title: "FaceID ishonchliligi",
-                  dataIndex: "attendance",
-                  width: 130,
-                  render: (_, record) => {
-                    return record?.attendance?.faceid_confidence || "-";
-                  },
-                },
+               
               ]}
               rowKey="key"
               pagination={false}

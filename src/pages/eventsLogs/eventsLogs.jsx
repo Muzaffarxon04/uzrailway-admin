@@ -99,16 +99,12 @@ function EventsLogs() {
     if (!employee) return "-";
     if (employee.full_name) return employee.full_name;
     if (employee.fullname) return employee.fullname;
-    const full = [employee.firstName, employee.lastName].filter(Boolean).join(" ").trim();
+    const full = [
+      employee.firstName || employee.first_name,
+      employee.lastName || employee.last_name
+    ].filter(Boolean).join(" ").trim();
     return full || employee.username || "-";
   };
-
-  const getEventTitle = (record) =>
-    record?.event?.name ||
-    record?.event?.title ||
-    record?.event_name ||
-    record?.assignment?.event?.name ||
-    "-";
 
   const formatDate = (value, withTime = false) =>
     value ? dayjs(value).format(withTime ? "DD.MM.YYYY HH:mm" : "DD.MM.YYYY") : "-";
@@ -166,12 +162,22 @@ function EventsLogs() {
       ),
     },
     {
+      title: "User Type",
+      dataIndex: "userType",
+      width: 120,
+      render: (_, record) => (
+        <Tag color={record?.userType === "normal" ? "blue" : "default"}>
+          {record?.userType || "-"}
+        </Tag>
+      ),
+    },
+    {
       title: "Chiqish stansiya",
       dataIndex: "leaved_station",
       minWidth: 160,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.leaved_station || "-"}</p>
+          <p>{record?.leaved_station && record.leaved_station.trim() ? record.leaved_station : "-"}</p>
         </span>
       ),
     },
@@ -202,16 +208,6 @@ function EventsLogs() {
       width: 140,
       render: (_, record) => (
         <Tag color="blue">{record?.subEventType ?? "-"}</Tag>
-      ),
-    },
-    {
-      title: "Tadbir",
-      dataIndex: "event",
-      minWidth: 160,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{getEventTitle(record)}</p>
-        </span>
       ),
     },
   ];

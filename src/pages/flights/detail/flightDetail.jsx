@@ -263,24 +263,28 @@ function FlightDetail() {
           </div>
         ) : null}
 
-        {Array.isArray(trip?.assigned_employee) && trip.assigned_employee.length > 0 && trip.assigned_employee.some(emp => emp.firstName || emp.lastName || emp.email || emp.phone) ? (
+        {Array.isArray(trip?.assigned_employees) && trip.assigned_employees.length > 0 ? (
           <div style={{ marginTop: 24 }}>
             <h3 style={{ marginBottom: 16, fontSize: 18, fontWeight: 600 }}>
-              Tayinlangan xodimlar ({trip.assigned_employee.filter(emp => emp.firstName || emp.lastName || emp.email || emp.phone).length})
+              Tayinlangan xodimlar ({trip.assigned_employees.length})
             </h3>
             <Table
-              dataSource={trip.assigned_employee
-                .filter(emp => emp.firstName || emp.lastName || emp.email || emp.phone)
-                .map((item, index) => ({
-                  ...item,
-                  key: index,
-                }))}
+              dataSource={trip.assigned_employees.map((item, index) => ({
+                ...item,
+                key: item?.id || index,
+              }))}
               columns={[
                 {
                   title: "№",
                   dataIndex: "index",
                   width: 60,
                   render: (_, record, index) => <span>{index + 1}</span>,
+                },
+                {
+                  title: "ID",
+                  dataIndex: "id",
+                  width: 80,
+                  render: (_, record) => <span>#{record?.id || "-"}</span>,
                 },
                 {
                   title: "Ism",
@@ -303,10 +307,23 @@ function FlightDetail() {
                   minWidth: 150,
                   render: (_, record) => <span>{record?.phone || "-"}</span>,
                 },
+                {
+                  title: "Lavozim",
+                  dataIndex: "position",
+                  minWidth: 150,
+                  render: (_, record) => <span>{record?.position?.name || "-"}</span>,
+                },
+                {
+                  title: "Bo'lim",
+                  dataIndex: "department",
+                  minWidth: 150,
+                  render: (_, record) => <span>{record?.department?.name || "-"}</span>,
+                },
               ]}
               rowKey="key"
               pagination={false}
               bordered
+              scroll={{ x: "max-content" }}
               locale={{
                 emptyText: "Tayinlangan xodimlar mavjud emas",
               }}

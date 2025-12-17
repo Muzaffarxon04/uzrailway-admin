@@ -64,8 +64,11 @@ function AttendanceDetail() {
     if (!emp) return "-";
     if (emp.full_name) return emp.full_name;
     if (emp.fullname) return emp.fullname;
-    const full = [emp.firstName, emp.lastName].filter(Boolean).join(" ").trim();
-    return full || emp.username || "-";
+    const full = [
+      emp.firstName || emp.first_name,
+      emp.lastName || emp.last_name
+    ].filter(Boolean).join(" ").trim();
+    return full || emp.username || emp.email || "-";
   };
 
   const formatStation = (station) => {
@@ -226,19 +229,16 @@ function AttendanceDetail() {
               {getEmployeeName(employee)}
             </Descriptions.Item>
             <Descriptions.Item label="Telefon">
-              {employee?.phone_number || "-"}
+              {employee?.phone || employee?.phone_number || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Email">
               {employee?.email || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Lavozim">
-              {employee?.position_name || employee?.position || "-"}
+              {employee?.position?.name || employee?.position_name || employee?.position || "-"}
             </Descriptions.Item>
             <Descriptions.Item label="Bo'lim">
               {employee?.department?.name || employee?.department_name || (typeof employee?.department === 'string' ? employee.department : "-")}
-            </Descriptions.Item>
-            <Descriptions.Item label="Username">
-              {employee?.username || "-"}
             </Descriptions.Item>
           </Descriptions>
         </Card>
@@ -283,6 +283,9 @@ function AttendanceDetail() {
             <Descriptions.Item label="Tayinlagan">
               {getEmployeeName(assignment?.assigned_by)}
             </Descriptions.Item>
+            <Descriptions.Item label="Tayinlagan (email)">
+              {assignment?.assigned_by?.email || "-"}
+            </Descriptions.Item>
             <Descriptions.Item label="Davomat ma'lumotlari">
               {assignment?.attendance ? (
                 <div>
@@ -292,6 +295,14 @@ function AttendanceDetail() {
                   {assignment.attendance.check_in_time && (
                     <div style={{ marginTop: 4, fontSize: 12 }}>
                       Kelish: {formatDate(assignment.attendance.check_in_time, true)}
+                    </div>
+                  )}
+                  {assignment.attendance.is_late !== undefined && (
+                    <div style={{ marginTop: 4, fontSize: 12 }}>
+                      Kechikish: {assignment.attendance.is_late ? "Ha" : "Yo'q"}
+                      {assignment.attendance.late_duration_minutes && (
+                        <span> ({assignment.attendance.late_duration_minutes} daq)</span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -310,8 +321,8 @@ function AttendanceDetail() {
             <Descriptions.Item label="Reys raqami">
               {trip?.trip_number || "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="Marshrut">
-              {trip?.route_name || "-"}
+            <Descriptions.Item label="Reys sanasi">
+              {formatDate(trip?.trip_date)}
             </Descriptions.Item>
             <Descriptions.Item label="Jo'nash stansiyasi">
               {trip?.departure_station?.name || formatStation(trip?.departure_station)}
@@ -334,12 +345,6 @@ function AttendanceDetail() {
             <Descriptions.Item label="Poyezd turi">
               {trip?.train?.train_type || "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="Vagonlar soni">
-              {trip?.train?.wagon_count || "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Jami sig'im">
-              {trip?.train?.total_capacity || "-"}
-            </Descriptions.Item>
             <Descriptions.Item label="Holat">
               <Tag color={
                 trip?.status === "scheduled" ? "blue" :
@@ -347,40 +352,27 @@ function AttendanceDetail() {
                 trip?.status === "arrived" ? "green" :
                 trip?.status === "cancelled" ? "red" : "default"
               }>
-              {trip?.status || "-"}
+              {trip?.status === "scheduled" ? "Rejalashtirilgan" :
+               trip?.status === "departed" ? "Jo'nab ketgan" :
+               trip?.status === "arrived" ? "Yetib kelgan" :
+               trip?.status === "cancelled" ? "Bekor qilingan" : trip?.status || "-"}
               </Tag>
             </Descriptions.Item>
-            <Descriptions.Item label="Reys sanasi">
-              {formatDate(trip?.trip_date)}
+            <Descriptions.Item label="Faol">
+              {trip?.is_active !== undefined ? (
+                <Tag color={trip.is_active ? "green" : "red"}>
+                  {trip.is_active ? "Ha" : "Yo'q"}
+                </Tag>
+              ) : "-"}
             </Descriptions.Item>
-            <Descriptions.Item label="Davomiyligi">
-              {trip?.duration_hours ? `${trip.duration_hours} soat` : "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Asosiy narx">
-              {trip?.base_price ? `${parseFloat(trip.base_price).toLocaleString()} so'm` : "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Bandlik foizi">
-              {trip?.occupancy_percentage ? `${trip.occupancy_percentage}%` : "-"}
-            </Descriptions.Item>
-            <Descriptions.Item label="Haqiqiy jo'nash vaqti">
-              {formatDate(trip?.actual_departure, true)}
-            </Descriptions.Item>
-            <Descriptions.Item label="Haqiqiy etib borish vaqti">
-              {formatDate(trip?.actual_arrival, true)}
-            </Descriptions.Item>
-            {trip?.notes && (
-              <Descriptions.Item label="Izoh" span={2}>
-                {trip.notes}
-              </Descriptions.Item>
-            )}
-            {trip?.cancellation_reason && (
-              <Descriptions.Item label="Bekor qilish sababi" span={2}>
-                {trip.cancellation_reason}
-              </Descriptions.Item>
-            )}
             {trip?.created_by && (
-              <Descriptions.Item label="Yaratuvchi" span={2}>
+              <Descriptions.Item label="Yaratuvchi">
                 {getEmployeeName(trip.created_by)}
+              </Descriptions.Item>
+            )}
+            {trip?.created_by?.email && (
+              <Descriptions.Item label="Yaratuvchi (email)">
+                {trip.created_by.email}
               </Descriptions.Item>
             )}
           </Descriptions>

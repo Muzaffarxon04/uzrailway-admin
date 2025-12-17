@@ -38,6 +38,14 @@ const CustomSelect = ({
     if (props.onChange) props.onChange(val);
   };
 
+  const handleBlur = () => {
+    // Check if field has value after blur
+    const currentValue = form?.getFieldValue(name);
+    const hasValue = currentValue !== undefined && currentValue !== null && currentValue !== "";
+    setIsFilled(hasValue || !!value || !!defaultValue);
+    if (props.onBlur) props.onBlur();
+  };
+
   return (
     <div className="single_input_item">
       <p className={`label ${isFilled ? "label_active" : ""}`}>
@@ -47,6 +55,7 @@ const CustomSelect = ({
         <Select
         className="single_select"
           onFocus={() => setIsFilled(true)}
+          onBlur={handleBlur}
           onChange={handleChange}
           value={value}
           {...props}

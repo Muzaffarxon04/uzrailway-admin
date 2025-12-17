@@ -261,13 +261,25 @@ function Flights() {
       dataIndex: "train_driver",
       width: 180,
       render: (_, record) => {
-
+        const seniorConductors = record?.senior_conductors || [];
+        
         const isExpanded = expandedRows.includes(record.key);
         return (
-          <div style={{display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span className="table_route">
-              {record?.train_driver || "-"}
-            </span>
+          <div style={{display: 'flex', alignItems: 'center', gap: 8, position: 'relative' }}>
+            <div style={{ flex: 1 }}>
+              {seniorConductors.length > 0 ? (
+                seniorConductors.map((emp, idx) => {
+                  const name = `${emp?.firstName || ""} ${emp?.lastName || ""}`.trim();
+                  return (
+                    <div key={emp?.id || idx} style={{ marginBottom: idx < seniorConductors.length - 1 ? 4 : 0 }}>
+                      <span className="table_route">{name || "-"}</span>
+                    </div>
+                  );
+                })
+              ) : (
+                <span className="table_route">-</span>
+              )}
+            </div>
             <span
               onClick={(e) => {
                 e.stopPropagation();
@@ -297,7 +309,7 @@ function Flights() {
               ) : (
                 <CaretRightOutlined style={{ fontSize: 36, color: '#1890ff' }} />
               )}
-        </span>
+            </span>
           </div>
         );
       },
@@ -327,7 +339,7 @@ function Flights() {
         const attendants = record?.wagonAttendants || [];
         const allPresent =
           attendants.length > 0 &&
-          attendants.every((emp) => emp?.attendance_status?.status === "check_in");
+          attendants.every((emp) => emp?.attendance_status?.status === "check_out");
 
         const icon =
           attendants.length > 0 && allPresent ? (

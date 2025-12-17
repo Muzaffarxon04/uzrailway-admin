@@ -184,38 +184,20 @@ function Flights() {
     return "-";
   };
 
-  // Transform data - har bir trip uchun, har bir vagon kuzatuvchisi uchun alohida qator
-  const transformedData = allFlights.flatMap((trip, tripIndex) => {
+  // Transform data - har bir trip uchun bitta qator, employee'lar qator ichida
+  const transformedData = allFlights.map((trip, tripIndex) => {
     const employees = Array.isArray(trip?.assigned_employees) ? trip.assigned_employees : [];
     const wagonAttendants = employees.filter(emp => 
       emp.role !== "driver" && emp.role !== "senior_conductor"
     );
 
-    // Trip asosiy qatori
-    const tripRow = {
+    return {
       ...trip,
       key: `trip-${trip.id}`,
       tripIndex: tripIndex + 1,
-      isTripRow: true,
       wagonAttendants,
       wagonAttendantsCount: wagonAttendants.length,
     };
-
-    // Agar vagon kuzatuvchilari bo'lsa, har biri uchun alohida qator
-    if (wagonAttendants.length > 0) {
-      const employeeRows = wagonAttendants.map((emp, empIndex) => ({
-        ...trip,
-        ...emp,
-        key: `trip-${trip.id}-emp-${emp.id || empIndex}`,
-        isTripRow: false,
-        tripIndex: null,
-        employeeName: `${emp?.firstName || ""} ${emp?.lastName || ""}`.trim(),
-        parentTripId: trip.id,
-      }));
-      return [tripRow, ...employeeRows];
-    }
-
-    return [tripRow];
   });
 
   const columns = [
@@ -224,79 +206,86 @@ function Flights() {
       dataIndex: "tripIndex",
       width: 60,
       render: (tripIndex, record) => {
-        if (record.isTripRow && tripIndex) {
-          const pageIndex = (pagination.current - 1) * pagination.pageSize + tripIndex;
-          return (
+        const pageIndex = (pagination.current - 1) * pagination.pageSize + tripIndex;
+        return (
+          <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
             <span className="table_number">
               {pageIndex}
             </span>
-          );
-        }
-        return null;
+          </div>
+        );
       },
     },
     {
       title: "Кетиш вақти",
       dataIndex: "scheduled_departure",
       width: 160,
-      render: (_, record) => {
-        if (record.isTripRow) {
-          return (
-            <span className="table_departure">
-              {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
-            </span>
-          );
-        }
-        return null;
-      },
+      render: (_, record) => (
+        <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
+          <span className="table_departure">
+            {record?.scheduled_departure ? dayjs(record.scheduled_departure).format("DD.MM.YYYY HH:mm") : "-"}
+          </span>
+        </div>
+      ),
     },
     {
       title: "Поезд рақами",
       dataIndex: "train",
       width: 130,
-      render: (_, record) => {
-        if (record.isTripRow) {
-          return (
-            <span className="table_flight_number">
-              {record?.train?.train_number || "-"}
-            </span>
-          );
-        }
-        return null;
-      },
+      render: (_, record) => (
+        <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
+          <span className="table_flight_number">
+            {record?.train?.train_number || "-"}
+          </span>
+        </div>
+      ),
     },
     {
       title: "Жўнаш станцияси",
       dataIndex: "departure_station",
       width: 180,
-      render: (_, record) => {
-        if (record.isTripRow) {
-          return (
-            <span className="table_route">
-              {getStationLabel(record?.departure_station)}
-            </span>
-          );
-        }
-        return null;
-      },
+      render: (_, record) => (
+        <div style={{ height: '100px', display: 'flex', alignItems: 'center' }}>
+          <span className="table_route">
+            {getStationLabel(record?.departure_station)}
+          </span>
+        </div>
+      ),
     },
     {
       title: "Вагон кузатувчиси",
-      dataIndex: "employeeName",
+      dataIndex: "wagonAttendants",
       minWidth: 200,
       render: (_, record) => {
-        if (record.isTripRow) {
-          return (
-            <span className="table_name">
-              {record.wagonAttendantsCount > 0 ? `${record.wagonAttendantsCount} ta` : "-"}
-            </span>
-          );
-        }
-        // Employee qatori uchun
+        const attendants = record?.wagonAttendants || [];
+        const rowHeight = 100;
+        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
+        
         return (
-          <span className="table_name">
-            {record.employeeName || "-"}
-          </span>
+          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+            {attendants.length > 0 ? (
+              attendants.map((emp, idx) => {
+                const name = `${emp?.firstName || ""} ${emp?.lastName || ""}`.trim();
+                return (
+                  <div 
+                    key={emp?.id || idx}
+                    style={{ 
+                      height: `${itemHeight}px`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
+                    }}
+                  >
+                    <span className="table_name">{name || "-"}</span>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center' }}>
+                <span className="table_name">-</span>
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -304,51 +293,128 @@ function Flights() {
       title: "Етиб бориш станцияси",
       dataIndex: "arrival_station",
       width: 180,
-      render: (_, record) => (
-        <span className="table_route">
-          {getStationLabel(record?.arrival_station)}
-        </span>
-      ),
+      render: (_, record) => {
+        const attendants = record?.wagonAttendants || [];
+        const rowHeight = 100;
+        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
+        
+        return (
+          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+            {attendants.length > 0 ? (
+              attendants.map((emp, idx) => (
+                <div 
+                  key={emp?.id || idx}
+                  style={{ 
+                    height: `${itemHeight}px`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
+                  }}
+                >
+                  <span className="table_route">
+                    {getStationLabel(record?.arrival_station)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center' }}>
+                <span className="table_route">
+                  {getStationLabel(record?.arrival_station)}
+                </span>
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Етиб бориш вақти.",
       dataIndex: "scheduled_arrival",
       width: 160,
-      render: (_, record) => (
-        <span className="table_arrival">
-          {record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-"}
-        </span>
-      ),
+      render: (_, record) => {
+        const attendants = record?.wagonAttendants || [];
+        const rowHeight = 100;
+        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
+        const arrivalTime = record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-";
+        
+        return (
+          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+            {attendants.length > 0 ? (
+              attendants.map((emp, idx) => (
+                <div 
+                  key={emp?.id || idx}
+                  style={{ 
+                    height: `${itemHeight}px`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
+                  }}
+                >
+                  <span className="table_arrival">{arrivalTime}</span>
+                </div>
+              ))
+            ) : (
+              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center' }}>
+                <span className="table_arrival">{arrivalTime}</span>
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Тасдиқлаш.",
-      dataIndex: "attendance",
+      dataIndex: "wagonAttendants",
       width: 100,
       render: (_, record) => {
-        if (record.isTripRow) {
-          const attendants = record?.wagonAttendants || [];
-          const confirmedCount = attendants.filter(emp => {
-            const attendance = emp?.attendance;
-            return attendance && attendance.status === "present";
-          }).length;
-          const totalCount = attendants.length;
-          if (totalCount === 0) return "-";
-          return (
-            <span>
-              {confirmedCount}/{totalCount}
-            </span>
-          );
-        }
-        // Employee qatori uchun
-        const attendance = record?.attendance;
-        if (!attendance) {
-          return <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />;
-        }
-        const isConfirmed = attendance.status === "present";
-        return isConfirmed ? (
-          <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
-        ) : (
-          <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
+        const attendants = record?.wagonAttendants || [];
+        const rowHeight = 100;
+        const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
+        const confirmedCount = attendants.filter(emp => {
+          const attendance = emp?.attendance;
+          return attendance && attendance.status === "present";
+        }).length;
+        const totalCount = attendants.length;
+        
+        return (
+          <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>
+            {attendants.length > 0 ? (
+              <>
+            
+                {attendants.map((emp, idx) => {
+                  const attendance = emp?.attendance;
+                  const isConfirmed = attendance && attendance.status === "present";
+                  return (
+                    <div 
+                      key={emp?.id || idx}
+                      style={{ 
+                        height: `${itemHeight}px`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderTop: idx === 0 ? '1px solid #f0f0f0' : 'none',
+                        borderBottom: idx < attendants.length - 1 ? '1px solid #f0f0f0' : 'none'
+                      }}
+                    >
+                      {attendance ? (
+                        isConfirmed ? (
+                          <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
+                        ) : (
+                          <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
+                        )
+                      ) : (
+                        <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </>
+            ) : (
+              <div style={{ height: `${rowHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span>-</span>
+              </div>
+            )}
+          </div>
         );
       },
     },
@@ -358,28 +424,31 @@ function Flights() {
       width: 120,
       align: "right",
       render: (_, record) => (
-        <span className="action_wrapper">
-          <Icon
-            icon="ic_statistics"
-            className="icon info"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/flights/statistics/${record.id}`);
-            }}
-            title="Statistika"
-          />
-          <Icon
-            icon="ic_edit"
-            className="icon edit"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/flights/${record.id}`);
-            }}
-          />
-        </span>
+        <div style={{ height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <span className="action_wrapper">
+            <Icon
+              icon="ic_statistics"
+              className="icon info"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/flights/statistics/${record.id}`);
+              }}
+              title="Statistika"
+            />
+            <Icon
+              icon="ic_edit"
+              className="icon edit"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/flights/${record.id}`);
+              }}
+            />
+          </span>
+        </div>
       ),
     },
   ];
+
 
   const customLoader = {
     spinning: true,
@@ -450,6 +519,7 @@ function Flights() {
               },
               style: { 
                 cursor: "pointer",
+                height: "100px",
               },
             })}
           />

@@ -186,8 +186,8 @@ function Assignments() {
           (record?.employee?.firstName || record?.employee?.lastName
             ? `${record?.employee?.firstName || ""} ${record?.employee?.lastName || ""}`.trim()
             : null) ||
-          (record?.employee?.first_name || record?.employee?.last_name
-            ? `${record?.employee?.first_name || ""} ${record?.employee?.last_name || ""}`.trim()
+          (record?.employee?.firstName || record?.employee?.lastName
+            ? `${record?.employee?.firstName || ""} ${record?.employee?.last_Name || ""}`.trim()
             : null) ||
           record?.employee_name;
         const displayValue = (typeof employeeName === 'string' || typeof employeeName === 'number') 

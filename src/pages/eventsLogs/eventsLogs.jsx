@@ -99,7 +99,7 @@ function EventsLogs() {
     if (!employee) return "-";
     if (employee.full_name) return employee.full_name;
     if (employee.fullname) return employee.fullname;
-    const full = [employee.first_name, employee.last_name].filter(Boolean).join(" ").trim();
+    const full = [employee.firstName, employee.lastName].filter(Boolean).join(" ").trim();
     return full || employee.username || "-";
   };
 

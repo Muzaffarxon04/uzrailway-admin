@@ -64,7 +64,7 @@ function AttendanceDetail() {
     if (!emp) return "-";
     if (emp.full_name) return emp.full_name;
     if (emp.fullname) return emp.fullname;
-    const full = [emp.first_name, emp.last_name].filter(Boolean).join(" ").trim();
+    const full = [emp.firstName, emp.lastName].filter(Boolean).join(" ").trim();
     return full || emp.username || "-";
   };
 

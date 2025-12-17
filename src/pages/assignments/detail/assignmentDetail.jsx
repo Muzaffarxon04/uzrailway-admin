@@ -73,8 +73,8 @@ function AssignmentDetail() {
     `${assignment?.employee?.firstName || ""} ${
       assignment?.employee?.lastName || ""
     }`.trim() ||
-    `${assignment?.employee?.first_name || ""} ${
-      assignment?.employee?.last_name || ""
+    `${assignment?.employee?.firstName || ""} ${
+      assignment?.employee?.lastName || ""
     }`.trim() ||
     assignment?.employee_name ||
     "-";
@@ -85,8 +85,8 @@ function AssignmentDetail() {
     `${assignment?.assigned_by?.firstName || ""} ${
       assignment?.assigned_by?.lastName || ""
     }`.trim() ||
-    `${assignment?.assigned_by?.first_name || ""} ${
-      assignment?.assigned_by?.last_name || ""
+    `${assignment?.assigned_by?.firstName || ""} ${
+      assignment?.assigned_by?.lastName || ""
     }`.trim() ||
     assignment?.assigned_by?.username ||
     "-";

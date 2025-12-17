@@ -96,7 +96,7 @@ function Attendance() {
     if (employee.full_name) return employee.full_name;
     if (employee.fullname) return employee.fullname;
     const full =
-      [employee.first_name, employee.last_name]
+      [employee.firstName, employee.lastName]
         .filter(Boolean)
         .join(" ")
         .trim();

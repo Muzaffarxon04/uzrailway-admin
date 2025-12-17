@@ -150,27 +150,27 @@ function EventsLogs() {
         </span>
       ),
     },
-    {
-      title: "Kirish IP / MAC",
-      dataIndex: "entered_ipAddress",
-      width: 200,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.entered_ipAddress || "-"}</p>
-          <p style={{ marginBottom: 0 }}>{record?.enterd_macAddress || record?.entered_macAddress || "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "User Type",
-      dataIndex: "userType",
-      width: 120,
-      render: (_, record) => (
-        <Tag color={record?.userType === "normal" ? "blue" : "default"}>
-          {record?.userType || "-"}
-        </Tag>
-      ),
-    },
+    // {
+    //   title: "Kirish IP / MAC",
+    //   dataIndex: "entered_ipAddress",
+    //   width: 200,
+    //   render: (_, record) => (
+    //     <span className="table_name">
+    //       <p>{record?.entered_ipAddress || "-"}</p>
+    //       <p style={{ marginBottom: 0 }}>{record?.enterd_macAddress || record?.entered_macAddress || "-"}</p>
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   title: "User Type",
+    //   dataIndex: "userType",
+    //   width: 120,
+    //   render: (_, record) => (
+    //     <Tag color={record?.userType === "normal" ? "blue" : "default"}>
+    //       {record?.userType || "-"}
+    //     </Tag>
+    //   ),
+    // },
     {
       title: "Chiqish stansiya",
       dataIndex: "leaved_station",
@@ -191,25 +191,25 @@ function EventsLogs() {
         </span>
       ),
     },
-    {
-      title: "Chiqish IP / MAC",
-      dataIndex: "leaved_ipAddress",
-      width: 200,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.leaved_ipAddress || "-"}</p>
-          <p style={{ marginBottom: 0 }}>{record?.leaved_macAddress || record?.leave_macAddress || "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Sub event type",
-      dataIndex: "subEventType",
-      width: 140,
-      render: (_, record) => (
-        <Tag color="blue">{record?.subEventType ?? "-"}</Tag>
-      ),
-    },
+    // {
+    //   title: "Chiqish IP / MAC",
+    //   dataIndex: "leaved_ipAddress",
+    //   width: 200,
+    //   render: (_, record) => (
+    //     <span className="table_name">
+    //       <p>{record?.leaved_ipAddress || "-"}</p>
+    //       <p style={{ marginBottom: 0 }}>{record?.leaved_macAddress || record?.leave_macAddress || "-"}</p>
+    //     </span>
+    //   ),
+    // },
+    // {
+    //   title: "Sub event type",
+    //   dataIndex: "subEventType",
+    //   width: 140,
+    //   render: (_, record) => (
+    //     <Tag color="blue">{record?.subEventType ?? "-"}</Tag>
+    //   ),
+    // },
   ];
 
   const customLoader = {

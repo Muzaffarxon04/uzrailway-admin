@@ -52,6 +52,24 @@ function AddFlight() {
     stationsData?.data ||
     (Array.isArray(stationsData) ? stationsData : []);
 
+  // Fetch employees for select
+  const {
+    data: employeesData,
+    isPending: isEmployeesLoading,
+  } = useFetchQuery({
+    queryKey: ["employees-select"],
+    url: `auth/employee/list/`,
+    params: { page: 1, page_size: 1000 },
+    token: accessToken,
+  });
+
+  const employees = employeesData?.data || (Array.isArray(employeesData) ? employeesData : []);
+
+  const roleOptions = [
+    { label: "Poyezd boshlig'i", value: "senior_conductor" },
+    { label: "Vogon kuzatuvchisi", value: "conductor" },
+  ];
+
   const {
     data: tripData,
     isPending: isTripLoading,
@@ -87,6 +105,7 @@ function AddFlight() {
 
   useEffect(() => {
     if (is_edit && trip && Object.keys(trip).length > 0) {
+      const assignedEmployees = trip.assigned_employees || [];
       form.setFieldsValue({
         train: trip.train?.id || trip.train,
         departure_station:
@@ -96,6 +115,10 @@ function AddFlight() {
         scheduled_departure: trip.scheduled_departure ? dayjs(trip.scheduled_departure) : null,
         scheduled_arrival: trip.scheduled_arrival ? dayjs(trip.scheduled_arrival) : null,
         intermediate_stations: trip.intermediate_stations || [],
+        employee: assignedEmployees.map((emp) => ({
+          employee_id: emp?.id || emp?.employee_id,
+          role: emp?.role || "",
+        })),
       });
       
       // Force form to update all fields
@@ -117,6 +140,10 @@ function AddFlight() {
         name: station.name,
         arrival: station.arrival,
         departure: station.departure,
+      })),
+      employee: (values.employee || []).map((emp) => ({
+        employee_id: parseInt(emp.employee_id),
+        role: emp.role,
       })),
     };
     CreateTrip(body);
@@ -212,6 +239,7 @@ function AddFlight() {
             initialValues={{ 
               remember: true,
               intermediate_stations: [],
+              employee: [],
             }}
           >
             <div className="action_wrapper">
@@ -401,6 +429,79 @@ function AddFlight() {
                             style={{ marginTop: 8 }}
                           >
                             O'rta stanstiya qo'shish
+                          </Button>
+                        </>
+                      )}
+                    </Form.List>
+                  </div>
+
+                  <div className="employee_section" style={{ width: "100%", marginTop: 24 }}>
+                    <h4 style={{ marginBottom: 16, fontSize: 16, fontWeight: 600 }}>Tayinlangan xodimlar</h4>
+                    <Form.List name="employee">
+                      {(fields, { add, remove }) => (
+                        <>
+                          {fields.map(({ key, name, ...restField }) => (
+                            <div key={key} style={{ 
+                              display: "flex", 
+                              gap: 16, 
+                              marginBottom: 16,
+                              alignItems: "flex-start",
+                              padding: 16,
+                              border: "1px solid #e0e0e4",
+                              borderRadius: 8,
+                              backgroundColor: "#f8f8f8"
+                            }}>
+                              <div style={{ flex: 1 }}>
+                                <CustomSelect
+                                  label="Xodim"
+                                  name={[name, "employee_id"]}
+                                  form={form}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Xodim tanlanishi shart",
+                                    },
+                                  ]}
+                                  options={Array.isArray(employees) ? employees.map((emp) => ({
+                                    label: `${emp?.firstName || ""} ${emp?.lastName || ""}`.trim() || `ID: ${emp?.id}`,
+                                    value: emp.id,
+                                  })) : []}
+                                  loading={isEmployeesLoading}
+                                />
+                              </div>
+                              <div style={{ flex: 1 }}>
+                                <CustomSelect
+                                  label="Rol"
+                                  name={[name, "role"]}
+                                  form={form}
+                                  rules={[
+                                    {
+                                      required: true,
+                                      message: "Rol tanlanishi shart",
+                                    },
+                                  ]}
+                                  options={roleOptions}
+                                />
+                              </div>
+                              <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => remove(name)}
+                                style={{ marginTop: 32 }}
+                              >
+                                O'chirish
+                              </Button>
+                            </div>
+                          ))}
+                          <Button
+                            type="dashed"
+                            onClick={() => add()}
+                            block
+                            icon={<PlusOutlined />}
+                            style={{ marginTop: 8 }}
+                          >
+                            Xodim qo'shish
                           </Button>
                         </>
                       )}

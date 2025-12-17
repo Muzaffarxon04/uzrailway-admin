@@ -99,12 +99,6 @@ const LayoutComponent = ({ children }) => {
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
-      key: "/assignments",
-      icon: <Icon icon="ic_order_list" />,
-      label: "Topshiriqlar",
-      accessRoles:["showroom_admin", "dispatcher"]
-    },
-    {
       key: "/stations",
       icon: <BankOutlined />,
       label: "Stansiyalar",
@@ -312,5 +306,6 @@ const LayoutComponent = ({ children }) => {
 };
 
 export default LayoutComponent;
+
 
 

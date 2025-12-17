@@ -28,17 +28,19 @@ function AttendanceDetail() {
   const verifiedBy = attendance?.verified_by || {};
 
   const statusLabels = {
-    present: "Hozir",
-    absent: "Yo'q",
-    late: "Kechikkan",
-    on_time: "Vaqtida",
+    check_in: "Keldi",
+    absent: "Kelmadi",
+    late: "Kechikdi",
+    pending: "Kutilmoqda",
+    check_out: "Ketdi",
   };
 
   const statusColors = {
-    present: "green",
+    check_in: "green",
     absent: "red",
     late: "orange",
-    on_time: "blue",
+    pending: "blue",
+    check_out: "cyan",
   };
 
   const assignmentStatusLabels = {

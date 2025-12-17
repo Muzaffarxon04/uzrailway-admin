@@ -209,9 +209,27 @@ function AssignmentDetail() {
 
           <Descriptions.Item label="Davomat">
             {assignment?.attendance ? (
-              <Tag color={assignment.attendance.status === "present" ? "green" : "red"}>
-                {assignment.attendance.status === "present" ? "Keldi" : "Kelmadi"}
-              </Tag>
+              (() => {
+                const statusColors = {
+                  check_in: "green",
+                  absent: "red",
+                  late: "orange",
+                  pending: "blue",
+                  check_out: "cyan",
+                };
+                const statusLabels = {
+                  check_in: "Keldi",
+                  absent: "Kelmadi",
+                  late: "Kechikdi",
+                  pending: "Kutilmoqda",
+                  check_out: "Ketdi",
+                };
+                return (
+                  <Tag color={statusColors[assignment.attendance.status] || "default"}>
+                    {statusLabels[assignment.attendance.status] || assignment.attendance.status}
+                  </Tag>
+                );
+              })()
             ) : (
               "-"
             )}

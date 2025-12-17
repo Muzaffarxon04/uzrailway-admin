@@ -5,7 +5,7 @@ import {
   Table,
   Pagination,
   Breadcrumb,
-  Tag,
+  // Tag,
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -172,17 +172,7 @@ function Flights() {
     return station;
   };
 
-  const getTrainLead = (assignedEmployees) => {
-    if (!Array.isArray(assignedEmployees) || assignedEmployees.length === 0) return "-";
-    const lead = assignedEmployees.find(emp => 
-      emp.role === "driver" || emp.role === "senior_conductor"
-    );
-    if (lead) {
-      const name = `${lead.firstName || ""} ${lead.lastName || ""}`.trim();
-      return name || "-";
-    }
-    return "-";
-  };
+
 
   // Transform data - har bir trip uchun bitta qator, employee'lar qator ichida
   const transformedData = allFlights.map((trip, tripIndex) => {
@@ -370,11 +360,8 @@ function Flights() {
         const attendants = record?.wagonAttendants || [];
         const rowHeight = 100;
         const itemHeight = attendants.length > 0 ? rowHeight / attendants.length : rowHeight;
-        const confirmedCount = attendants.filter(emp => {
-          const attendance = emp?.attendance;
-          return attendance && attendance.status === "present";
-        }).length;
-        const totalCount = attendants.length;
+     
+
         
         return (
           <div style={{ height: `${rowHeight}px`, display: 'flex', flexDirection: 'column' }}>

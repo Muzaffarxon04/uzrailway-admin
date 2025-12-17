@@ -316,7 +316,7 @@ function Flights() {
       width: 160,
       render: (_, record) => (
         <span className="table_arrival">
-          {record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY") : "-"}
+          {record?.scheduled_arrival ? dayjs(record.scheduled_arrival).format("DD.MM.YYYY HH:mm") : "-"}
         </span>
       ),
     },

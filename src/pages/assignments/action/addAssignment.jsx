@@ -234,7 +234,7 @@ function AddAssignment() {
                         label:
                           emp.full_name ||
                           emp.fullname ||
-                          `${emp.first_name || ""} ${emp.last_name || ""}`.trim() ||
+                          `${emp.firstName || ""} ${emp.lastName || ""}`.trim() ||
                           `Xodim #${emp.id}`,
                         value: emp.id,
                       }))

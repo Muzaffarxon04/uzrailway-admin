@@ -20,32 +20,13 @@ function EmployeeDetail() {
     token: accessToken,
   });
 
-  // Fetch positions for mapping
-  const {
-    data: positionsData,
-  } = useFetchQuery({
-    queryKey: ["positions-select"],
-    url: `settings/position/list/`,
-    params: { page: 1, page_size: 1000 },
-    token: accessToken,
-  });
-
-  // Fetch departments for mapping
-  const {
-    data: departmentsData,
-  } = useFetchQuery({
-    queryKey: ["departments-select"],
-    url: `settings/department/list/`,
-    params: { page: 1, page_size: 1000 },
-    token: accessToken,
-  });
-
+  
   const employee = employeeData?.data || employeeData || {};
-  const positions = positionsData?.data || (Array.isArray(positionsData) ? positionsData : []);
-  const departments = departmentsData?.data || (Array.isArray(departmentsData) ? departmentsData : []);
+  // const positions = positionsData?.data || (Array.isArray(positionsData) ? positionsData : []);
+  // const departments = departmentsData?.data || (Array.isArray(departmentsData) ? departmentsData : []);
 
-  const positionMap = new Map(positions.map(pos => [pos.id, pos.name || pos.position_name]));
-  const departmentMap = new Map(departments.map(dept => [dept.id, dept.name || dept.department_name]));
+  // const positionMap = new Map(positions.map(pos => [pos.id, pos.name || pos.position_name]));
+  // const departmentMap = new Map(departments.map(dept => [dept.id, dept.name || dept.department_name]));
 
   if (isEmployeeLoading) {
     return (

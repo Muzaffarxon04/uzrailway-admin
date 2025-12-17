@@ -5,6 +5,7 @@ import {
   Table,
   Pagination,
   Breadcrumb,
+  Tag,
 } from "antd";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -268,12 +269,62 @@ function Flights() {
     {
       title: "Status",
       dataIndex: "status",
-      width: 120,
-      render: (_, record) => (
-        <span className="table_name">
-          {record?.status || "-"}
-        </span>
-      ),
+      width: 150,
+      render: (_, record) => {
+        const statusLabels = {
+          scheduled: "Rejalashtirilgan",
+          boarding: "O'tirish",
+          departed: "Jo'nab ketgan",
+          in_transit: "Yo'lda",
+          arrived: "Yetib kelgan",
+          delayed: "Kechikkan",
+          cancelled: "Bekor qilingan",
+          completed: "Yakunlangan",
+        };
+        const statusColors = {
+          scheduled: "blue",
+          boarding: "orange",
+          departed: "cyan",
+          in_transit: "purple",
+          arrived: "green",
+          delayed: "gold",
+          cancelled: "red",
+          completed: "green",
+        };
+        const status = record?.status;
+        return (
+          <Tag color={statusColors[status] || "default"}>
+            {statusLabels[status] || status || "-"}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Tayinlangan xodimlar",
+      dataIndex: "assigned_employees",
+      width: 150,
+      render: (_, record) => {
+        const count = Array.isArray(record?.assigned_employees) ? record.assigned_employees.length : 0;
+        const checkedInCount = Array.isArray(record?.assigned_employees)
+          ? record.assigned_employees.filter(emp => emp?.attendance_status?.checked_in).length
+          : 0;
+        return (
+          <span className="table_name">
+            {count > 0 ? (
+              <div>
+                <div>{count} ta</div>
+                {checkedInCount > 0 && (
+                  <div style={{ fontSize: 12, color: "#52c41a" }}>
+                    {checkedInCount} keldi
+                  </div>
+                )}
+              </div>
+            ) : (
+              "-"
+            )}
+          </span>
+        );
+      },
     },
     {
       title: "",

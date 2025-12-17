@@ -287,6 +287,12 @@ function FlightDetail() {
                   render: (_, record) => <span>#{record?.id || "-"}</span>,
                 },
                 {
+                  title: "Xodim ID",
+                  dataIndex: "employee_id",
+                  width: 100,
+                  render: (_, record) => <span>{record?.employee_id || "-"}</span>,
+                },
+                {
                   title: "Ism",
                   dataIndex: "name",
                   minWidth: 200,
@@ -296,28 +302,111 @@ function FlightDetail() {
                   },
                 },
                 {
-                  title: "Email",
-                  dataIndex: "email",
-                  minWidth: 200,
-                  render: (_, record) => <span>{record?.email || "-"}</span>,
-                },
-                {
-                  title: "Telefon",
-                  dataIndex: "phone",
-                  minWidth: 150,
-                  render: (_, record) => <span>{record?.phone || "-"}</span>,
-                },
-                {
-                  title: "Lavozim",
+                  title: "Lavozim ID",
                   dataIndex: "position",
-                  minWidth: 150,
-                  render: (_, record) => <span>{record?.position?.name || "-"}</span>,
+                  width: 100,
+                  render: (_, record) => <span>{record?.position || "-"}</span>,
                 },
                 {
-                  title: "Bo'lim",
-                  dataIndex: "department",
+                  title: "Davomat statusi",
+                  dataIndex: "attendance",
+                  width: 150,
+                  render: (_, record) => {
+                    const attendance = record?.attendance;
+                    if (!attendance) {
+                      return <Tag color="default">Kelmadi</Tag>;
+                    }
+                    const statusColors = {
+                      present: "green",
+                      absent: "red",
+                      late: "orange",
+                      on_time: "blue",
+                    };
+                    const statusLabels = {
+                      present: "Hozir",
+                      absent: "Yo'q",
+                      late: "Kechikkan",
+                      on_time: "Vaqtida",
+                    };
+                    return (
+                      <Tag color={statusColors[attendance.status] || "default"}>
+                        {statusLabels[attendance.status] || attendance.status}
+                      </Tag>
+                    );
+                  },
+                },
+                {
+                  title: "Kelish vaqti",
+                  dataIndex: "attendance",
+                  width: 170,
+                  render: (_, record) => {
+                    const checkInTime = record?.attendance?.check_in_time;
+                    return checkInTime 
+                      ? dayjs(checkInTime).format("DD.MM.YYYY HH:mm")
+                      : "-";
+                  },
+                },
+                {
+                  title: "Ketish vaqti",
+                  dataIndex: "attendance",
+                  width: 170,
+                  render: (_, record) => {
+                    const checkOutTime = record?.attendance?.check_out_time;
+                    return checkOutTime 
+                      ? dayjs(checkOutTime).format("DD.MM.YYYY HH:mm")
+                      : "-";
+                  },
+                },
+                {
+                  title: "Tekshirish usuli",
+                  dataIndex: "attendance",
+                  width: 130,
+                  render: (_, record) => {
+                    const method = record?.attendance?.check_method;
+                    const methodLabels = {
+                      faceid: "Face ID",
+                      manual: "Qo'lda",
+                      qrcode: "QR kod",
+                    };
+                    return method ? (methodLabels[method] || method) : "-";
+                  },
+                },
+                {
+                  title: "Kelish joyi",
+                  dataIndex: "attendance",
                   minWidth: 150,
-                  render: (_, record) => <span>{record?.department?.name || "-"}</span>,
+                  render: (_, record) => {
+                    return record?.attendance?.check_in_location || "-";
+                  },
+                },
+                {
+                  title: "Kechikish",
+                  dataIndex: "attendance",
+                  width: 120,
+                  render: (_, record) => {
+                    const attendance = record?.attendance;
+                    if (!attendance) return "-";
+                    return attendance.is_late ? (
+                      <div>
+                        <Tag color="orange">Ha</Tag>
+                        {attendance.late_duration_minutes && (
+                          <div style={{ fontSize: 12, marginTop: 4 }}>
+                            {attendance.late_duration_minutes} daq
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Tag color="green">Yo'q</Tag>
+                    );
+                  },
+                },
+                {
+                  title: "FaceID ishonchliligi",
+                  dataIndex: "attendance",
+                  width: 130,
+                  render: (_, record) => {
+                    return record?.attendance?.faceid_confidence || "-";
+                  },
                 },
               ]}
               rowKey="key"

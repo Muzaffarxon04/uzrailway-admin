@@ -427,7 +427,7 @@ function Flights() {
                   dataIndex: "attendance",
                   width: 170,
                   render: (_, record) => {
-                    const checkInTime = record?.attendance?.check_in_time;
+                    const checkInTime = record?.attendance_status?.check_in_time;
                     return checkInTime 
                       ? dayjs(checkInTime).format("DD.MM.YYYY HH:mm")
                       : "-";
@@ -438,7 +438,7 @@ function Flights() {
                   dataIndex: "attendance",
                   width: 170,
                   render: (_, record) => {
-                    const checkOutTime = record?.attendance?.check_out_time;
+                    const checkOutTime = record?.attendance_status?.check_out_time;
                     return checkOutTime 
                       ? dayjs(checkOutTime).format("DD.MM.YYYY HH:mm")
                       : "-";
@@ -449,7 +449,7 @@ function Flights() {
                   dataIndex: "attendance",
                   minWidth: 150,
                   render: (_, record) => {
-                    return record?.attendance?.check_in_location || "-";
+                    return record?.attendance_status?.check_in_location || "-";
                   },
                 },
                 {
@@ -457,20 +457,20 @@ function Flights() {
                   dataIndex: "attendance",
                   width: 150,
                   render: (_, record) => {
-                    const attendance = record?.attendance;
+                    const attendance = record?.attendance_status;
                     if (!attendance) {
                       return <Tag color="default">Kelmadi</Tag>;
                     }
                     const statusColors = {
                       check_in: "green",
-                      absent: "red",
+                      not_checked: "red",
                       late: "orange",
                       pending: "blue",
                       check_out: "cyan",
                     };
                     const statusLabels = {
                       check_in: "Keldi",
-                      absent: "Kelmadi",
+                      not_checked: "Kelmadi",
                       late: "Kechikdi",
                       pending: "Kutilmoqda",
                       check_out: "Ketdi",
@@ -487,7 +487,7 @@ function Flights() {
                   dataIndex: "attendance",
                   width: 120,
                   render: (_, record) => {
-                    const attendance = record?.attendance;
+                    const attendance = record?.attendance_status;
                     if (!attendance) return "-";
                     return attendance.is_late ? (
                       <div>

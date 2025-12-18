@@ -453,6 +453,14 @@ function Flights() {
                   },
                 },
                 {
+                  title: "Ketish joyi",
+                  dataIndex: "attendance",
+                  minWidth: 150,
+                  render: (_, record) => {
+                    return record?.attendance_status?.check_out_location || "-";
+                  },
+                },
+                {
                   title: "Davomat statusi",
                   dataIndex: "attendance",
                   width: 150,

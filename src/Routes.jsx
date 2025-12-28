@@ -7,6 +7,7 @@ import FlightDetail from "./pages/flights/detail/flightDetail";
 import TripStatistics from "./pages/flights/statistics/tripStatistics";
 import Devices from "./pages/devices/devices";
 import AddDevice from "./pages/devices/action/addDevice";
+import HikiList from "./pages/devices/hikiList";
 import Trains from "./pages/trains/trains";
 import AddTrain from "./pages/trains/action/addTrain";
 import TrainDetail from "./pages/trains/detail/trainDetail";
@@ -86,6 +87,14 @@ function RoutesComponent() {
         element={
           <PrivateRoute>
             <AddDevice />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/devices/hiki-list"
+        element={
+          <PrivateRoute>
+            <HikiList />
           </PrivateRoute>
         }
       />

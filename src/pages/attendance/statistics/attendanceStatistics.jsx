@@ -9,6 +9,7 @@ import {
   Col,
   Statistic,
   Progress,
+  Table,
 } from "antd";
 import { useNavigate } from "react-router-dom";
 import useUniversalFetch from "../../../Hooks/useApi";
@@ -31,6 +32,15 @@ function AttendanceStatistics() {
     token: accessToken,
   });
 
+  const {
+    data: lateListData,
+    isPending: isLateListLoading,
+  } = useFetchQuery({
+    queryKey: ["attendance-late-list"],
+    url: `attendance/late-list/`,
+    token: accessToken,
+  });
+
   const statistics = statisticsData?.data || statisticsData || {};
 
   // Response directly contains: total, present, absent, late, attendance_rate, punctuality_rate
@@ -42,6 +52,8 @@ function AttendanceStatistics() {
     attendance_rate = 0,
     punctuality_rate = 0,
   } = statistics;
+
+  const lateList = lateListData?.data || lateListData || [];
 
   if (isStatisticsLoading) {
     return (
@@ -306,6 +318,87 @@ function AttendanceStatistics() {
           </Card>
         </Col>
       </Row>
+
+      {/* Late Arrivals Report */}
+      <Card
+        title="Kechikanlar ro'yxati"
+        style={{ borderRadius: 8, marginTop: 16 }}
+      >
+        <Table
+          dataSource={Array.isArray(lateList) ? lateList.map((item, index) => ({
+            ...item,
+            key: item?.id || index,
+          })) : []}
+          loading={isLateListLoading}
+          pagination={false}
+          scroll={{ x: "max-content" }}
+          locale={{
+            emptyText: "Kechikanlar mavjud emas",
+          }}
+          columns={[
+            {
+              title: "№",
+              dataIndex: "index",
+              width: 60,
+              render: (_, record, index) => <span>{index + 1}</span>,
+            },
+            {
+              title: "Xodim",
+              dataIndex: "employee",
+              minWidth: 200,
+              render: (_, record) => {
+                const employee = record?.employee;
+                if (!employee) return "-";
+                const name = `${employee?.firstName || ""} ${employee?.lastName || ""}`.trim();
+                return <span>{name || "-"}</span>;
+              },
+            },
+            {
+              title: "Lavozimi",
+              dataIndex: "position",
+              width: 150,
+              render: (_, record) => {
+                return record?.employee?.position?.name || "-";
+              },
+            },
+            {
+              title: "Bo'limi",
+              dataIndex: "department",
+              width: 150,
+              render: (_, record) => {
+                return record?.employee?.department?.name || "-";
+              },
+            },
+            {
+              title: "Kelish vaqti",
+              dataIndex: "check_in_time",
+              width: 180,
+              render: (_, record) => {
+                const checkInTime = record?.check_in_time;
+                return checkInTime ? new Date(checkInTime).toLocaleString('uz-UZ') : "-";
+              },
+            },
+            {
+              title: "Kechikish (daqiqa)",
+              dataIndex: "late_duration_minutes",
+              width: 150,
+              render: (_, record) => {
+                const minutes = record?.late_duration_minutes;
+                return minutes ? `${minutes} daq` : "-";
+              },
+            },
+            {
+              title: "Sana",
+              dataIndex: "created_at",
+              width: 150,
+              render: (_, record) => {
+                const createdAt = record?.trip_info?.scheduled_departure;
+                return createdAt ? new Date(createdAt).toLocaleDateString('uz-UZ') : "-";
+              },
+            },
+          ]}
+        />
+      </Card>
     </section>
   );
 }

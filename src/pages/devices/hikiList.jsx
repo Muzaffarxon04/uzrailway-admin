@@ -1,35 +1,25 @@
 import { useState, useEffect } from "react";
 import {
   Input,
-  Button,
   Table,
   Pagination,
   Breadcrumb,
 } from "antd";
-import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
 import useUniversalFetch from "../../Hooks/useApi";
-import DeleteConfirmModal from "../../components/modals/deleteConfirm";
 import { LoadingOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
-import { useNotification } from "../../components/notification";
-import { Tag } from "antd";
-import dayjs from "dayjs";
 
-function Stations() {
+function HikiList() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const { useFetchQuery, useDeleteMutation } = useUniversalFetch();
-  const navigate = useNavigate();
+  const { useFetchQuery } = useUniversalFetch();
   const location = useLocation();
   const accessToken = localStorage.getItem("access_token");
-  
-  const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
   const searchValue = searchParams.get("name") || "";
   const { t } = useLocalization();
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentStation, setCurrentStation] = useState(null);
   const [pagination, setPagination] = useState({
     current: currentPage,
     pageSize: pageSize,
@@ -37,17 +27,17 @@ function Stations() {
   });
 
   const {
-    data: fetchedStationsData,
-    isPending: isStationsLoading,
+    data: fetchedHikiData,
+    isPending: isHikiLoading,
     refetch: refetchData,
   } = useFetchQuery({
     queryKey: [
-      "stations",
+      "hiki-list",
       pagination.current,
       pagination.pageSize,
       searchValue,
     ],
-    url: `stations/list/`,
+    url: `devices/hiki-list/`,
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
@@ -56,25 +46,7 @@ function Stations() {
     token: accessToken,
   });
 
-  const allStations = fetchedStationsData?.data || (Array.isArray(fetchedStationsData) ? fetchedStationsData : []);
-
-  const {
-    data: stationDeleteData,
-    isSuccess: isSuccessDeleted,
-    mutate: stationDelete,
-    isPending: isStationDeleteLoading,
-    error: stationDeleteError,
-    isError: isStationDeleteError,
-  } = useDeleteMutation({
-    url: `stations/delete/`,
-    token: accessToken,
-  });
-
-  const handleDelete = () => {
-    stationDelete({
-      id: currentStation,
-    });
-  };
+  const allHikiData = fetchedHikiData?.devices || (Array.isArray(fetchedHikiData) ? fetchedHikiData : []);
 
   useEffect(() => {
     if (location.pathname) {
@@ -84,46 +56,15 @@ function Stations() {
   }, [location.pathname]);
 
   useEffect(() => {
-    if (isSuccessDeleted) {
-      refetchData();
-      showNotification(
-        "success",
-        t("messages").delete_success,
-        stationDeleteData?.message || t("messages").success
-      );
-      setCurrentStation(null);
-      setModalVisible(false);
-    } else if (isStationDeleteError) {
-      showNotification(
-        "error",
-        t("messages").error_2,
-        stationDeleteError?.message || t("messages").error
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSuccessDeleted, stationDeleteError, isStationDeleteError]);
-
-  useEffect(() => {
-    if (fetchedStationsData) {
+    if (fetchedHikiData) {
       setPagination((prev) => ({
         ...prev,
-        total: fetchedStationsData?.total_elements || fetchedStationsData?.total || (Array.isArray(fetchedStationsData) ? fetchedStationsData.length : 0),
+        total: fetchedHikiData?.totalCount || 0,
+        current: fetchedHikiData?.pageIndex || 1,
+        pageSize: fetchedHikiData?.pageSize || 20,
       }));
     }
-  }, [fetchedStationsData]);
-
-  // Fetch regions for mapping region ID to name
-  const {
-    data: regionsData,
-  } = useFetchQuery({
-    queryKey: ["regions-select"],
-    url: `regions/list/`,
-    params: { page: 1, page_size: 1000 },
-    token: accessToken,
-  });
-
-  const regions = regionsData?.data || (Array.isArray(regionsData) ? regionsData : []);
-  const regionMap = new Map(regions.map(region => [region.id, region.name || region.region_name]));
+  }, [fetchedHikiData]);
 
   const handleTableChange = (pagination) => {
     setPagination((prev) => ({
@@ -153,15 +94,15 @@ function Stations() {
     {
       title: "ID",
       dataIndex: "id",
-      width: 80,
+      width: 200,
       render: (_, record) => (
         <span className="table_id">
-          <p>#{record?.id}</p>
+          <p>{record?.id || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Stansiya nomi",
+      title: "Qurilma nomi",
       dataIndex: "name",
       minWidth: 200,
       render: (_, record) => (
@@ -171,79 +112,65 @@ function Stations() {
       ),
     },
     {
-      title: "Manzil",
-      dataIndex: "address",
-      minWidth: 200,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.address || "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Telefon raqami",
-      dataIndex: "phone_number",
+      title: "Kategoriya",
+      dataIndex: "category",
       width: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.phone_number || "-"}</p>
+          <p>{record?.category || "-"}</p>
         </span>
       ),
     },
     {
-      title: "Viloyat",
-      dataIndex: "region",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{regionMap.get(record?.region) || record?.region || "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "Status",
-      dataIndex: "is_active",
-      width: 100,
-      render: (_, record) => (
-        <Tag color={record?.is_active ? "green" : "red"}>
-          {record?.is_active ? "Faol" : "Nofaol"}
-        </Tag>
-      ),
-    },
-    {
-      title: "Yaratilgan vaqti",
-      dataIndex: "created_at",
-      width: 150,
-      render: (_, record) => (
-        <span className="table_name">
-          <p>{record?.created_at ? dayjs(record.created_at).format("DD.MM.YYYY HH:mm") : "-"}</p>
-        </span>
-      ),
-    },
-    {
-      title: "",
-      dataIndex: "action",
+      title: "Turi",
+      dataIndex: "type",
       width: 120,
-      align: "right",
       render: (_, record) => (
-        <span className="action_wrapper">
-          <Icon
-            icon="ic_edit"
-            className="icon edit"
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/stations/${record.id}`);
-            }}
-          />
-          <Icon
-            icon="ic_trash"
-            className="icon trash"
-            onClick={(e) => {
-              e.stopPropagation();
-              setModalVisible(true);
-              setCurrentStation(record.id);
-            }}
-          />
+        <span className="table_name">
+          <p>{record?.type || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Seriya raqami",
+      dataIndex: "serialNo",
+      minWidth: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.serialNo || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Versiya",
+      dataIndex: "version",
+      minWidth: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.version || "-"}</p>
+        </span>
+      ),
+    },
+    {
+      title: "Onlayn status",
+      dataIndex: "onlineStatus",
+      width: 120,
+      render: (_, record) => {
+        const status = record?.onlineStatus;
+        return (
+          <span className={`status ${status === 1 ? 'active' : 'inactive'}`}>
+            <p>{status === 1 ? "Onlayn" : "Oflayn"}</p>
+          </span>
+        );
+      },
+    },
+    {
+      title: "Qo'shilgan vaqt",
+      dataIndex: "addTime",
+      width: 150,
+      render: (_, record) => (
+        <span className="table_name">
+          <p>{record?.addTime || "-"}</p>
         </span>
       ),
     },
@@ -264,23 +191,18 @@ function Stations() {
       <div className="header">
         <div className="header_wrapper">
           <div className="page_info">
-            <h2>Stansiyalar</h2>
+            <h2>Hiki ro'yxati</h2>
             <span className="breadcrumb">
               <Breadcrumb
                 separator={<Icon icon="chevron" />}
                 items={[
                   {
-                    title: "Stansiyalar ro'yxati",
+                    title: "Hiki ro'yxati",
                     href: "",
                   },
                 ]}
               />
             </span>
-          </div>
-          <div className="filter">
-            <Link to="/stations/add">
-              <Button type="primary">Stansiya qo'shish</Button>
-            </Link>
           </div>
         </div>
       </div>
@@ -288,7 +210,7 @@ function Stations() {
         <div className="filters_area">
           <div className="item">
             <Input
-              placeholder="Stansiya nomi bo'yicha qidirish"
+              placeholder="Qidirish"
               allowClear
               size="large"
               onSearch={onSearch}
@@ -307,11 +229,11 @@ function Stations() {
         <div className="table_wrapper">
           <Table
             columns={columns}
-            dataSource={Array.isArray(allStations) ? allStations.map((item) => ({
+            dataSource={Array.isArray(allHikiData) ? allHikiData.map((item) => ({
               ...item,
               key: item?.id,
             })) : []}
-            loading={isStationsLoading ? customLoader : false}
+            loading={isHikiLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
           />
@@ -326,19 +248,10 @@ function Stations() {
           style={{ marginTop: 20, textAlign: "center" }}
           locale={{ items_per_page: `/ ${t("Common").page}` }}
         />
-        <DeleteConfirmModal
-          visible={modalVisible}
-          onClose={() => setModalVisible(false)}
-          isLoading={isStationDeleteLoading}
-          onConfirm={handleDelete}
-          title="Stansiyani o'chirish?"
-          message="Bu stansiyani o'chirmoqchimisiz?"
-          dangerMessage="Barcha stansiya ma'lumotlari qayta tiklanmaydi."
-        />
       </div>
     </section>
   );
 }
 
-export default Stations;
+export default HikiList;
 

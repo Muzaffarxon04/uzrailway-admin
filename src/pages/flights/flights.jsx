@@ -11,10 +11,11 @@ import { useSearchParams, Link, useNavigate, useLocation } from "react-router-do
 import Icon from "../../components/Icon";
 import useUniversalFetch from "../../Hooks/useApi";
 import DeleteConfirmModal from "../../components/modals/deleteConfirm";
-import { LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined, CaretRightOutlined, CaretDownOutlined } from "@ant-design/icons";
+import { LoadingOutlined, CheckCircleOutlined, CloseCircleOutlined, CaretRightOutlined, CaretDownOutlined, DownloadOutlined } from "@ant-design/icons";
 import { useLocalization } from "../../LocalizationContext";
 import { useNotification } from "../../components/notification";
 import dayjs from "dayjs";
+import { BASE_URL } from "../../consts/variables";
 
 function Flights() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,7 +27,7 @@ function Flights() {
   const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
-  const searchValue = searchParams.get("search") || "";
+  const searchValue = searchParams.get("name") || "";
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentFlight, setCurrentFlight] = useState(null);
@@ -52,7 +53,7 @@ function Flights() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { search: searchValue } : {}),
+      ...(searchValue ? { name: searchValue } : {}),
     },
     token: accessToken,
   });
@@ -71,6 +72,7 @@ function Flights() {
     method: "DELETE",
     token: accessToken,
   });
+
 
   const handleDelete = () => {
     flightDelete({
@@ -125,7 +127,7 @@ function Flights() {
     setSearchParams({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      search: searchValue || "",
+      name: searchValue || "",
     });
   };
 
@@ -135,8 +137,46 @@ function Flights() {
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
-      search: value.trim() || "",
+                  name: value.trim() || "",
     });
+  };
+
+  const handleExcelDownload = async (tripId) => {
+    try {
+      const response = await fetch(`${BASE_URL}/excel/trip/${tripId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Download failed');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `trip_${tripId}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      showNotification(
+        "success",
+        "Muvaffaqiyatli",
+        "Excel fayl yuklandi"
+      );
+    } catch (error) {
+      showNotification(
+        "error",
+        "Xatolik",
+        "Excel faylni yuklashda xatolik yuz berdi"
+      );
+    }
   };
 
   // const getStatusColor = (status) => {
@@ -309,7 +349,7 @@ function Flights() {
               ) : (
                 <CaretRightOutlined style={{ fontSize: 36, color: '#1890ff' }} />
               )}
-            </span>
+        </span>
           </div>
         );
       },
@@ -354,12 +394,22 @@ function Flights() {
     {
       title: "",
       dataIndex: "action",
-      width: 120,
+      width: 150,
       align: "right",
       render: (_, record) => {
-     
+
         return (
-          <div style={{  display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <div style={{  display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 8 }}>
+            <Button
+              type="primary"
+              size="small"
+              icon={<DownloadOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleExcelDownload(record.id);
+              }}
+              style={{ backgroundColor: '#52c41a', borderColor: '#52c41a' }}
+            />
         <span className="action_wrapper">
           <Icon
             icon="ic_statistics"
@@ -579,7 +629,7 @@ function Flights() {
                 setSearchParams({
                   page: 1,
                   pageSize: pagination.pageSize,
-                  search: e.target.value || "",
+                  name: e.target.value || "",
                 });
               }}
             />

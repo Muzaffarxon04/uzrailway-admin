@@ -74,6 +74,12 @@ const LayoutComponent = ({ children }) => {
       accessRoles:["showroom_admin", "dispatcher"]
     },
     {
+      key: "/devices/hiki-list",
+      icon: <LaptopOutlined />,
+      label: "Hiki ro'yxati",
+      accessRoles:["showroom_admin", "dispatcher"]
+    },
+    {
       key: "/trains",
       icon: <CarOutlined />,
       label: "Poyezdlar",
@@ -306,6 +312,7 @@ const LayoutComponent = ({ children }) => {
 };
 
 export default LayoutComponent;
+
 
 
 

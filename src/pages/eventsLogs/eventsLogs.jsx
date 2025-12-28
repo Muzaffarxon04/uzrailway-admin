@@ -16,7 +16,7 @@ function EventsLogs() {
 
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
-  const searchValue = searchParams.get("search") || "";
+  const searchValue = searchParams.get("name") || "";
 
   const [pagination, setPagination] = useState({
     current: currentPage,
@@ -34,7 +34,7 @@ function EventsLogs() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { search: searchValue } : {}),
+      ...(searchValue ? { name: searchValue } : {}),
     },
     token: accessToken,
   });
@@ -77,7 +77,7 @@ function EventsLogs() {
     setSearchParams({
       page: tablePagination.current,
       pageSize: tablePagination.pageSize,
-      search: searchValue || "",
+      name: searchValue || "",
     });
   };
 
@@ -91,7 +91,7 @@ function EventsLogs() {
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
-      search: value.trim() || "",
+                  name: value.trim() || "",
     });
   };
 
@@ -252,7 +252,7 @@ function EventsLogs() {
                 setSearchParams({
                   page: 1,
                   pageSize: pagination.pageSize,
-                  search: e.target.value || "",
+                  name: e.target.value || "",
                 });
               }}
             />

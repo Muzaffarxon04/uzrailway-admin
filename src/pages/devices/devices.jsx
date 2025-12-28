@@ -24,7 +24,7 @@ function Devices() {
   const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
-  const searchValue = searchParams.get("search") || "";
+  const searchValue = searchParams.get("name") || "";
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentDevice, setCurrentDevice] = useState(null);
@@ -49,7 +49,7 @@ function Devices() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { search: searchValue } : {}),
+      ...(searchValue ? { name: searchValue } : {}),
     },
     token: accessToken,
   });
@@ -120,7 +120,7 @@ function Devices() {
     setSearchParams({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      search: searchValue || "",
+      name: searchValue || "",
     });
   };
 
@@ -130,7 +130,7 @@ function Devices() {
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
-      search: value.trim() || "",
+                  name: value.trim() || "",
     });
   };
 
@@ -273,7 +273,7 @@ function Devices() {
                 setSearchParams({
                   page: 1,
                   pageSize: pagination.pageSize,
-                  search: e.target.value || "",
+                  name: e.target.value || "",
                 });
               }}
             />

@@ -1,8 +1,7 @@
 import { Card, Descriptions, Breadcrumb, Button, Spin, Tag } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
-import { BASE_URL } from "../../../consts/variables";
 import useUniversalFetch from "../../../Hooks/useApi";
-import { useLocalization } from "../../../LocalizationContext";
+// import { useLocalization } from "../../../LocalizationContext";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
@@ -11,7 +10,6 @@ function TrainDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("access_token");
-  const { t } = useLocalization();
   const { useFetchQuery } = useUniversalFetch();
 
   const {

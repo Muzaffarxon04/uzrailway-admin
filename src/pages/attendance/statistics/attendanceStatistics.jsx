@@ -15,13 +15,12 @@ import { useNavigate } from "react-router-dom";
 import useUniversalFetch from "../../../Hooks/useApi";
 import Icon from "../../../components/Icon";
 import { LoadingOutlined } from "@ant-design/icons";
-import { useLocalization } from "../../../LocalizationContext";
 
 function AttendanceStatistics() {
   const navigate = useNavigate();
   const accessToken = localStorage.getItem("access_token");
   const { useFetchQuery } = useUniversalFetch();
-  const { t } = useLocalization();
+
 
   const {
     data: statisticsData,

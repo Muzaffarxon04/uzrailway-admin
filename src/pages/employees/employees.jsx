@@ -31,7 +31,7 @@ function Employees() {
   const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
-  const searchValue = searchParams.get("name") || "";
+  const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentEmployee, setCurrentEmployee] = useState(null);
@@ -62,7 +62,7 @@ function Employees() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { name: searchValue } : {}),
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
@@ -265,7 +265,7 @@ console.log(accessLevelsData);
     setSearchParams({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      name: searchValue || "",
+      search: searchValue || "",
     });
   };
 
@@ -275,7 +275,7 @@ console.log(accessLevelsData);
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
-                  name: value.trim() || "",
+                  search: value.trim() || "",
     });
   };
 
@@ -451,7 +451,7 @@ console.log(accessLevelsData);
                 setSearchParams({
                   page: 1,
                   pageSize: pagination.pageSize,
-                  name: e.target.value || "",
+                  search: e.target.value || "",
                 });
               }}
             />

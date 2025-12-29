@@ -53,7 +53,7 @@ function Flights() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { train_number: searchValue } : {}),
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
@@ -127,7 +127,7 @@ function Flights() {
     setSearchParams({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      name: searchValue || "",
+      search: searchValue || "",
     });
   };
 
@@ -137,7 +137,7 @@ function Flights() {
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
-                  name: value.trim() || "",
+                  search: value.trim() || "",
     });
   };
 
@@ -629,7 +629,7 @@ function Flights() {
                 setSearchParams({
                   page: 1,
                   pageSize: pagination.pageSize,
-                  name: e.target.value || "",
+                  search: e.target.value || "",
                 });
               }}
             />

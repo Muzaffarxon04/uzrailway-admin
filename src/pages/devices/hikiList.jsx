@@ -4,6 +4,7 @@ import {
   Table,
   Pagination,
   Breadcrumb,
+  Tag,
 } from "antd";
 import { useSearchParams, useLocation } from "react-router-dom";
 import Icon from "../../components/Icon";
@@ -18,7 +19,7 @@ function HikiList() {
   const accessToken = localStorage.getItem("access_token");
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
-  const searchValue = searchParams.get("name") || "";
+  const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [pagination, setPagination] = useState({
     current: currentPage,
@@ -41,7 +42,7 @@ function HikiList() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { name: searchValue } : {}),
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
@@ -76,7 +77,7 @@ function HikiList() {
     setSearchParams({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      name: searchValue || "",
+      search: searchValue || "",
     });
   };
 
@@ -86,7 +87,7 @@ function HikiList() {
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
-                  name: value.trim() || "",
+                  search: value.trim() || "",
     });
   };
 
@@ -108,7 +109,7 @@ function HikiList() {
       width: 150,
       render: (_, record) => (
         <span className="table_name">
-          <p>{record?.category || "-"}</p>
+          <p>{record?.category === "accessControllerDevice" ? "Face ID Terminal" : (record?.category || "-")}</p>
         </span>
       ),
     },
@@ -149,9 +150,9 @@ function HikiList() {
       render: (_, record) => {
         const status = record?.onlineStatus;
         return (
-          <span className={`status ${status === 1 ? 'active' : 'inactive'}`}>
-            <p>{status === 1 ? "Onlayn" : "Oflayn"}</p>
-          </span>
+          <Tag color={status === 1 ? 'green' : 'red'}>
+            {status === 1 ? "Onlayn" : "Oflayn"}
+          </Tag>
         );
       },
     },
@@ -211,7 +212,7 @@ function HikiList() {
                 setSearchParams({
                   page: 1,
                   pageSize: pagination.pageSize,
-                  name: e.target.value || "",
+                  search: e.target.value || "",
                 });
               }}
             />

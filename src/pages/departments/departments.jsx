@@ -49,7 +49,7 @@ function Departments() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { name: searchValue } : {}),
+      ...(searchValue ? { search: searchValue } : {}),
     },
     token: accessToken,
   });
@@ -121,7 +121,7 @@ function Departments() {
     setSearchParams({
       page: pagination.current,
       pageSize: pagination.pageSize,
-      name: searchValue || "",
+      search: searchValue || "",
     });
   };
 
@@ -131,7 +131,7 @@ function Departments() {
     setSearchParams({
       page: 1,
       pageSize: pagination.pageSize,
-                  name: value.trim() || "",
+                  search: value.trim() || "",
     });
   };
 
@@ -234,7 +234,7 @@ function Departments() {
                 setSearchParams({
                   page: 1,
                   pageSize: pagination.pageSize,
-                  name: e.target.value || "",
+                  search: e.target.value || "",
                 });
               }}
             />

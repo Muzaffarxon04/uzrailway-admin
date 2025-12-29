@@ -1,5 +1,6 @@
 // import { useState, useEffect } from "react";
 import { Card, Table, Descriptions, Breadcrumb, Button, Spin, Tag } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useParams, useNavigate } from "react-router-dom";
 // import { BASE_URL } from "../../../consts/variables";
 import useUniversalFetch from "../../../Hooks/useApi";
@@ -363,6 +364,23 @@ function FlightDetail() {
                     ) : (
                       <Tag color="green">Yo'q</Tag>
                     );
+                  },
+                },
+                {
+                  title: "Тасдиқлаш.",
+                  dataIndex: "attendance",
+                  width: 100,
+                  render: (_, record) => {
+                    const attendance = record?.attendance;
+                    const isConfirmed = attendance?.status === "check_out";
+
+                    const icon = isConfirmed ? (
+                      <CheckCircleOutlined style={{ color: "#52c41a", fontSize: 18 }} />
+                    ) : (
+                      <CloseCircleOutlined style={{ color: "#ff4d4f", fontSize: 18 }} />
+                    );
+
+                    return <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>{icon}</div>;
                   },
                 },
                

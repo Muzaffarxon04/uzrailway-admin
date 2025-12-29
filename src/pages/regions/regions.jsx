@@ -24,7 +24,7 @@ function Regions() {
   const showNotification = useNotification();
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
-  const searchValue = searchParams.get("name") || "";
+  const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [modalVisible, setModalVisible] = useState(false);
   const [currentRegion, setCurrentRegion] = useState(null);

@@ -21,7 +21,7 @@ function Attendance() {
 
   const currentPage = parseInt(searchParams.get("page")) || 1;
   const pageSize = parseInt(searchParams.get("pageSize")) || 50;
-  const searchValue = searchParams.get("name") || "";
+  const searchValue = searchParams.get("search") || "";
   const { t } = useLocalization();
   const [pagination, setPagination] = useState({
     current: currentPage,

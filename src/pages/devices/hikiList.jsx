@@ -91,20 +91,11 @@ function HikiList() {
   };
 
   const columns = [
-    {
-      title: "ID",
-      dataIndex: "id",
-      width: 200,
-      render: (_, record) => (
-        <span className="table_id">
-          <p>{record?.id || "-"}</p>
-        </span>
-      ),
-    },
+
     {
       title: "Qurilma nomi",
       dataIndex: "name",
-      minWidth: 200,
+      minWidth: 150,
       render: (_, record) => (
         <span className="table_name">
           <p>{record?.name || "-"}</p>
@@ -236,6 +227,7 @@ function HikiList() {
             loading={isHikiLoading ? customLoader : false}
             pagination={false}
             onChange={handleTableChange}
+            scroll={{ x: 'max-content' }}
           />
         </div>
         <Pagination

@@ -53,7 +53,7 @@ function Flights() {
     params: {
       page_size: pagination.pageSize,
       page: pagination.current,
-      ...(searchValue ? { name: searchValue } : {}),
+      ...(searchValue ? { train_number: searchValue } : {}),
     },
     token: accessToken,
   });
